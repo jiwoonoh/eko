@@ -3,3 +3,17 @@ __pycache__/
 .venv/
 *.egg-info/
 build/
+dist/
+*.mat
+*.hea
+*.dat
+*.pt
+*.pth
+*.bin
+*.safetensors
+.env
+.env.*
+runs/
+data/
+checkpoints/
+.pytest_cache/
