@@ -89,6 +89,10 @@ model IDs, generation usage, input hash, tool versions, and runtime limits are
 recorded in the local run log. A provider response that requests a tool is not
 considered a final answer.
 
+Tool execution is sequential in the local worker. The client omits the optional
+`parallel_tool_calls` parameter, which otherwise excludes free endpoints under
+strict parameter routing. Restart the CLI after updating client code.
+
 ## Measurements and evidence
 
 `call_measurement_tool` accepts only the selected `record_id`; the model cannot

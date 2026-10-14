@@ -57,7 +57,9 @@ class OpenRouter:
         deadline = self._deadline or (time.monotonic() + self.timeout)
         payload = {
             "model": self.model, "messages": messages, "tools": tools,
-            "tool_choice": "auto", "parallel_tool_calls": False,
+            # Tools execute sequentially in the runner. Free endpoints do not
+            # advertise the optional parallel_tool_calls routing parameter.
+            "tool_choice": "auto",
             "provider": {"require_parameters": True},
             "max_tokens": self.max_tokens, "stream": False,
         }

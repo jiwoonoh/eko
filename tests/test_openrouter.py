@@ -67,16 +67,40 @@ class OpenRouterTests(unittest.TestCase):
         _, _, payload, headers = connection.requests[0]
         self.assertEqual(payload["model"], "requested/model")
         self.assertEqual(payload["provider"], {"require_parameters": True})
-        self.assertFalse(payload["parallel_tool_calls"])
+        self.assertNotIn("parallel_tool_calls", payload)
         self.assertFalse(payload["stream"])
         self.assertEqual(payload["max_tokens"], 4096)
         self.assertEqual(headers["Authorization"], "Bearer test-secret")
         self.assertTrue(connection.closed)
 
-    def test_two_native_tool_calls_are_preserved_even_with_parallel_disabled(self):
+    def test_multiple_native_tool_calls_are_preserved_for_local_dispatch(self):
         connection = FakeConnection(response(content=None, calls=[native_call("a"), native_call("b")]))
         _, decision, _ = self.complete([connection])
         self.assertEqual([call.id for call in decision.tool_calls], ["a", "b"])
+
+    def test_free_router_accepts_only_supported_tool_parameters(self):
+        # The free endpoints advertise tools/tool_choice/max_tokens, but not
+        # parallel_tool_calls. Strict parameter routing rejects that extra hint.
+        class FreeEndpoint(FakeConnection):
+            def request(self, method, path, body, headers):
+                super().request(method, path, body, headers)
+                payload = json.loads(body)
+                tool_parameters = {"tools", "tool_choice", "max_tokens", "parallel_tool_calls"}
+                supported = {"tools", "tool_choice", "max_tokens"}
+                unsupported = (set(payload) & tool_parameters) - supported
+                if payload["provider"]["require_parameters"] and unsupported:
+                    self.response = FakeResponse({"error": {
+                        "code": 404,
+                        "message": "No endpoints found that can handle the requested parameters",
+                        "metadata": {"failed_routing_step": "Filter by Parameters"},
+                    }}, 404)
+
+        connection = FreeEndpoint(response(content=None, calls=[native_call()]))
+        model = OpenRouter("openrouter/free", "test-secret")
+        with mock.patch("providers.openrouter.http.client.HTTPSConnection", return_value=connection):
+            decision = model.complete([{"role": "user", "content": "hi"}], [measurement_schema("ptbxl:1")])
+        self.assertEqual(decision.tool_calls[0].name, "call_measurement_tool")
+        self.assertEqual(connection.requests[0][2]["provider"], {"require_parameters": True})
 
     def test_adapter_does_not_keep_private_history(self):
         first, second = FakeConnection(response()), FakeConnection(response("Again."))
