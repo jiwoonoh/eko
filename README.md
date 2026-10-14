@@ -124,7 +124,25 @@ an active turn; Ctrl+D exits the interactive CLI.
 
 ## Evaluation
 
-Recorded-output adapters and the shared evaluator are the next implementation stage.
+The evaluator separates recorded-output adapter regression, live measurements,
+and agent reporting. Its manifest runner calls the same `run_turn` as the CLI.
+Numeric claim checks operate on explicit structured claims; they do not constitute
+an unrestricted prose or clinical correctness judge.
+
+```bash
+./.venv/bin/python -m evaluation csv /path/to/ecg_analysis_measurements.csv --kind measurement
+./.venv/bin/python -m evaluation transcripts /path/to/results.jsonl
+./.venv/bin/python -m evaluation report /path/to/turn_results.jsonl
+```
+
+CSV blanks mean unavailable, with an unknown source reason. CSV replay is labeled
+as replayed evidence. Both published and newer inference transcript formats have
+explicit adapters. Source-file/line identity preserves repeated generations and
+repeated questions. New results are aligned by user turn and tool step rather
+than assistant-message position. Cases without reference actions have no invented
+next-action prediction labels. Ground-truth-assisted and autonomous histories are
+kept separate. Provider failures count against task completion and are excluded
+from fidelity denominators.
 
 ## Tests
 

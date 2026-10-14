@@ -16,5 +16,5 @@ ecg = ["numpy==1.26.4", "scipy==1.13.1", "neurokit2==0.2.7", "pandas==2.2.3", "r
 eko = "host:main"
 
 [tool.setuptools]
-py-modules = ["contracts", "eko", "host", "records", "measurements", "worker", "traces", "demo"]
+py-modules = ["contracts", "eko", "host", "records", "measurements", "worker", "traces", "evaluation", "demo"]
 packages = ["providers"]
