@@ -1,0 +1,1472 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-15T16:22:27.011981+00:00",
+  "kind": "live_execution_and_released_report_audit",
+  "model": "cohere/north-mini-code:free",
+  "returned_models": {
+    "cohere/north-mini-code:free": 29
+  },
+  "provider_attempts_in_events": 29,
+  "reported_inference_cost_usd": 0.0,
+  "cases": [
+    {
+      "record_id": "ptbxl:8",
+      "checks": {
+        "expected_tool_sequence": true,
+        "all_tools_completed": true,
+        "all_requested_fields_in_accepted_reports": false,
+        "second_turn_accepted_report_reuses_all_requested_references": false,
+        "third_turn_accepted_report_references_all_requested_new_scores": false,
+        "fourth_turn_accepted_report_reuses_all_requested_measurements": true
+      },
+      "turns": [
+        {
+          "user_turn": 1,
+          "executed_tools": [
+            "call_measurement_tool",
+            "call_classification_tool"
+          ],
+          "tool_statuses": [
+            "success",
+            "success"
+          ],
+          "released_references": [
+            {
+              "evidence_id": "7492ad61d2474041be8b181a894bf1d2",
+              "finding": "heart_rate_bpm"
+            },
+            {
+              "evidence_id": "7492ad61d2474041be8b181a894bf1d2",
+              "finding": "rr_interval_ms"
+            },
+            {
+              "evidence_id": "7492ad61d2474041be8b181a894bf1d2",
+              "finding": "pr_interval_ms"
+            },
+            {
+              "evidence_id": "7492ad61d2474041be8b181a894bf1d2",
+              "finding": "q_s_peak_span_ms"
+            },
+            {
+              "evidence_id": "7492ad61d2474041be8b181a894bf1d2",
+              "finding": "qtc_bazett_ms"
+            },
+            {
+              "evidence_id": "1940fbeb5aab45af906fa3822b6edec4",
+              "finding": "ecgfounder_005"
+            },
+            {
+              "evidence_id": "1940fbeb5aab45af906fa3822b6edec4",
+              "finding": "ecgfounder_001"
+            },
+            {
+              "evidence_id": "1940fbeb5aab45af906fa3822b6edec4",
+              "finding": "ecgfounder_002"
+            }
+          ],
+          "replacement": false,
+          "rejection_categories": [],
+          "explanations": [
+            "measurement_limits",
+            "classifier_scores"
+          ],
+          "unavailable": [],
+          "status": "success",
+          "elapsed_seconds": 31.346520624822006,
+          "requested_fields": [
+            "ecgfounder_002",
+            "ecgfounder_003",
+            "ecgfounder_005",
+            "heart_rate_bpm",
+            "pr_interval_ms",
+            "q_s_peak_span_ms",
+            "qtc_bazett_ms",
+            "rr_interval_ms"
+          ],
+          "requested_fields_released": [
+            "ecgfounder_002",
+            "ecgfounder_005",
+            "heart_rate_bpm",
+            "pr_interval_ms",
+            "q_s_peak_span_ms",
+            "qtc_bazett_ms",
+            "rr_interval_ms"
+          ],
+          "all_requested_fields_released": false,
+          "requested_null_fields_released": []
+        },
+        {
+          "user_turn": 2,
+          "executed_tools": [],
+          "tool_statuses": [],
+          "released_references": [
+            {
+              "evidence_id": "7492ad61d2474041be8b181a894bf1d2",
+              "finding": "heart_rate_bpm"
+            },
+            {
+              "evidence_id": "7492ad61d2474041be8b181a894bf1d2",
+              "finding": "rr_interval_ms"
+            },
+            {
+              "evidence_id": "7492ad61d2474041be8b181a894bf1d2",
+              "finding": "pr_interval_ms"
+            },
+            {
+              "evidence_id": "7492ad61d2474041be8b181a894bf1d2",
+              "finding": "q_s_peak_span_ms"
+            },
+            {
+              "evidence_id": "7492ad61d2474041be8b181a894bf1d2",
+              "finding": "qtc_bazett_ms"
+            },
+            {
+              "evidence_id": "1940fbeb5aab45af906fa3822b6edec4",
+              "finding": "ecgfounder_005"
+            },
+            {
+              "evidence_id": "1940fbeb5aab45af906fa3822b6edec4",
+              "finding": "ecgfounder_001"
+            },
+            {
+              "evidence_id": "1940fbeb5aab45af906fa3822b6edec4",
+              "finding": "ecgfounder_002"
+            }
+          ],
+          "replacement": false,
+          "rejection_categories": [],
+          "explanations": [],
+          "unavailable": [],
+          "status": "success",
+          "elapsed_seconds": 6.2773989997804165,
+          "requested_fields": [
+            "ecgfounder_002",
+            "ecgfounder_003",
+            "ecgfounder_005",
+            "heart_rate_bpm",
+            "pr_interval_ms",
+            "q_s_peak_span_ms",
+            "qtc_bazett_ms",
+            "rr_interval_ms"
+          ],
+          "requested_fields_released": [
+            "ecgfounder_002",
+            "ecgfounder_005",
+            "heart_rate_bpm",
+            "pr_interval_ms",
+            "q_s_peak_span_ms",
+            "qtc_bazett_ms",
+            "rr_interval_ms"
+          ],
+          "all_requested_fields_released": false,
+          "requested_null_fields_released": []
+        },
+        {
+          "user_turn": 3,
+          "executed_tools": [
+            "call_classification_tool"
+          ],
+          "tool_statuses": [
+            "success"
+          ],
+          "released_references": [
+            {
+              "evidence_id": "7492ad61d2474041be8b181a894bf1d2",
+              "finding": "heart_rate_bpm"
+            },
+            {
+              "evidence_id": "7492ad61d2474041be8b181a894bf1d2",
+              "finding": "rr_interval_ms"
+            },
+            {
+              "evidence_id": "7492ad61d2474041be8b181a894bf1d2",
+              "finding": "pr_interval_ms"
+            },
+            {
+              "evidence_id": "7492ad61d2474041be8b181a894bf1d2",
+              "finding": "q_s_peak_span_ms"
+            },
+            {
+              "evidence_id": "7492ad61d2474041be8b181a894bf1d2",
+              "finding": "qtc_bazett_ms"
+            },
+            {
+              "evidence_id": "e0ec56590f0542b7a13f101fac42f74d",
+              "finding": "ecgfounder_001"
+            },
+            {
+              "evidence_id": "e0ec56590f0542b7a13f101fac42f74d",
+              "finding": "ecgfounder_003"
+            },
+            {
+              "evidence_id": "e0ec56590f0542b7a13f101fac42f74d",
+              "finding": "ecgfounder_002"
+            },
+            {
+              "evidence_id": "e0ec56590f0542b7a13f101fac42f74d",
+              "finding": "ecgfounder_000"
+            },
+            {
+              "evidence_id": "e0ec56590f0542b7a13f101fac42f74d",
+              "finding": "ecgfounder_013"
+            }
+          ],
+          "replacement": true,
+          "rejection_categories": [
+            "unknown_finding_key"
+          ],
+          "explanations": [],
+          "unavailable": [],
+          "status": "failed",
+          "elapsed_seconds": 40.04514545807615,
+          "requested_fields": [
+            "ecgfounder_002",
+            "ecgfounder_003",
+            "ecgfounder_005"
+          ],
+          "requested_fields_released": [
+            "ecgfounder_002",
+            "ecgfounder_003"
+          ],
+          "all_requested_fields_released": false,
+          "requested_null_fields_released": []
+        },
+        {
+          "user_turn": 4,
+          "executed_tools": [],
+          "tool_statuses": [],
+          "released_references": [
+            {
+              "evidence_id": "7492ad61d2474041be8b181a894bf1d2",
+              "finding": "heart_rate_bpm"
+            },
+            {
+              "evidence_id": "7492ad61d2474041be8b181a894bf1d2",
+              "finding": "pr_interval_ms"
+            },
+            {
+              "evidence_id": "7492ad61d2474041be8b181a894bf1d2",
+              "finding": "q_s_peak_span_ms"
+            },
+            {
+              "evidence_id": "7492ad61d2474041be8b181a894bf1d2",
+              "finding": "qtc_bazett_ms"
+            },
+            {
+              "evidence_id": "7492ad61d2474041be8b181a894bf1d2",
+              "finding": "rr_interval_ms"
+            }
+          ],
+          "replacement": false,
+          "rejection_categories": [],
+          "explanations": [],
+          "unavailable": [],
+          "status": "success",
+          "elapsed_seconds": 9.296961375046521,
+          "requested_fields": [
+            "heart_rate_bpm",
+            "pr_interval_ms",
+            "q_s_peak_span_ms",
+            "qtc_bazett_ms",
+            "rr_interval_ms"
+          ],
+          "requested_fields_released": [
+            "heart_rate_bpm",
+            "pr_interval_ms",
+            "q_s_peak_span_ms",
+            "qtc_bazett_ms",
+            "rr_interval_ms"
+          ],
+          "all_requested_fields_released": true,
+          "requested_null_fields_released": []
+        },
+        {
+          "user_turn": 5,
+          "executed_tools": [],
+          "tool_statuses": [],
+          "released_references": [
+            {
+              "evidence_id": "7492ad61d2474041be8b181a894bf1d2",
+              "finding": "heart_rate_bpm"
+            },
+            {
+              "evidence_id": "7492ad61d2474041be8b181a894bf1d2",
+              "finding": "rr_interval_ms"
+            },
+            {
+              "evidence_id": "7492ad61d2474041be8b181a894bf1d2",
+              "finding": "pr_interval_ms"
+            },
+            {
+              "evidence_id": "7492ad61d2474041be8b181a894bf1d2",
+              "finding": "q_s_peak_span_ms"
+            },
+            {
+              "evidence_id": "7492ad61d2474041be8b181a894bf1d2",
+              "finding": "qtc_bazett_ms"
+            },
+            {
+              "evidence_id": "e0ec56590f0542b7a13f101fac42f74d",
+              "finding": "ecgfounder_001"
+            },
+            {
+              "evidence_id": "e0ec56590f0542b7a13f101fac42f74d",
+              "finding": "ecgfounder_003"
+            },
+            {
+              "evidence_id": "e0ec56590f0542b7a13f101fac42f74d",
+              "finding": "ecgfounder_002"
+            },
+            {
+              "evidence_id": "e0ec56590f0542b7a13f101fac42f74d",
+              "finding": "ecgfounder_000"
+            },
+            {
+              "evidence_id": "e0ec56590f0542b7a13f101fac42f74d",
+              "finding": "ecgfounder_013"
+            }
+          ],
+          "replacement": true,
+          "rejection_categories": [
+            "nonconforming_final_format"
+          ],
+          "explanations": [],
+          "unavailable": [],
+          "status": "failed",
+          "elapsed_seconds": 19.976743459003046,
+          "requested_fields": [],
+          "requested_fields_released": [],
+          "all_requested_fields_released": true,
+          "requested_null_fields_released": []
+        }
+      ]
+    },
+    {
+      "record_id": "ptbxl:10",
+      "checks": {
+        "expected_tool_sequence": true,
+        "all_tools_completed": true,
+        "all_requested_fields_in_accepted_reports": false,
+        "second_turn_accepted_report_reuses_all_requested_references": false,
+        "third_turn_accepted_report_references_all_requested_new_scores": false,
+        "fourth_turn_accepted_report_reuses_all_requested_measurements": false
+      },
+      "turns": [
+        {
+          "user_turn": 1,
+          "executed_tools": [
+            "call_classification_tool",
+            "call_measurement_tool"
+          ],
+          "tool_statuses": [
+            "success",
+            "success"
+          ],
+          "released_references": [
+            {
+              "evidence_id": "1b44d59782594516b25874466dd56b9f",
+              "finding": "ecgfounder_005"
+            },
+            {
+              "evidence_id": "1b44d59782594516b25874466dd56b9f",
+              "finding": "ecgfounder_002"
+            },
+            {
+              "evidence_id": "1b44d59782594516b25874466dd56b9f",
+              "finding": "ecgfounder_001"
+            },
+            {
+              "evidence_id": "c959be74f6984f2d8c3189f95dcb3f4a",
+              "finding": "heart_rate_bpm"
+            },
+            {
+              "evidence_id": "c959be74f6984f2d8c3189f95dcb3f4a",
+              "finding": "pr_interval_ms"
+            },
+            {
+              "evidence_id": "c959be74f6984f2d8c3189f95dcb3f4a",
+              "finding": "q_s_peak_span_ms"
+            },
+            {
+              "evidence_id": "c959be74f6984f2d8c3189f95dcb3f4a",
+              "finding": "qtc_bazett_ms"
+            },
+            {
+              "evidence_id": "c959be74f6984f2d8c3189f95dcb3f4a",
+              "finding": "rr_interval_ms"
+            }
+          ],
+          "replacement": false,
+          "rejection_categories": [],
+          "explanations": [],
+          "unavailable": [],
+          "status": "success",
+          "elapsed_seconds": 13.238136458909139,
+          "requested_fields": [
+            "ecgfounder_002",
+            "ecgfounder_003",
+            "ecgfounder_005",
+            "heart_rate_bpm",
+            "pr_interval_ms",
+            "q_s_peak_span_ms",
+            "qtc_bazett_ms",
+            "rr_interval_ms"
+          ],
+          "requested_fields_released": [
+            "ecgfounder_002",
+            "ecgfounder_005",
+            "heart_rate_bpm",
+            "pr_interval_ms",
+            "q_s_peak_span_ms",
+            "qtc_bazett_ms",
+            "rr_interval_ms"
+          ],
+          "all_requested_fields_released": false,
+          "requested_null_fields_released": []
+        },
+        {
+          "user_turn": 2,
+          "executed_tools": [],
+          "tool_statuses": [],
+          "released_references": [
+            {
+              "evidence_id": "c959be74f6984f2d8c3189f95dcb3f4a",
+              "finding": "heart_rate_bpm"
+            },
+            {
+              "evidence_id": "c959be74f6984f2d8c3189f95dcb3f4a",
+              "finding": "rr_interval_ms"
+            },
+            {
+              "evidence_id": "c959be74f6984f2d8c3189f95dcb3f4a",
+              "finding": "pr_interval_ms"
+            },
+            {
+              "evidence_id": "c959be74f6984f2d8c3189f95dcb3f4a",
+              "finding": "q_s_peak_span_ms"
+            },
+            {
+              "evidence_id": "c959be74f6984f2d8c3189f95dcb3f4a",
+              "finding": "qtc_bazett_ms"
+            },
+            {
+              "evidence_id": "1b44d59782594516b25874466dd56b9f",
+              "finding": "ecgfounder_003"
+            },
+            {
+              "evidence_id": "1b44d59782594516b25874466dd56b9f",
+              "finding": "ecgfounder_001"
+            },
+            {
+              "evidence_id": "1b44d59782594516b25874466dd56b9f",
+              "finding": "ecgfounder_002"
+            },
+            {
+              "evidence_id": "1b44d59782594516b25874466dd56b9f",
+              "finding": "ecgfounder_034"
+            },
+            {
+              "evidence_id": "1b44d59782594516b25874466dd56b9f",
+              "finding": "ecgfounder_007"
+            }
+          ],
+          "replacement": true,
+          "rejection_categories": [
+            "unknown_finding_key"
+          ],
+          "explanations": [],
+          "unavailable": [],
+          "status": "failed",
+          "elapsed_seconds": 5.884520792169496,
+          "requested_fields": [
+            "ecgfounder_002",
+            "ecgfounder_003",
+            "ecgfounder_005",
+            "heart_rate_bpm",
+            "pr_interval_ms",
+            "q_s_peak_span_ms",
+            "qtc_bazett_ms",
+            "rr_interval_ms"
+          ],
+          "requested_fields_released": [
+            "ecgfounder_002",
+            "ecgfounder_003",
+            "heart_rate_bpm",
+            "pr_interval_ms",
+            "q_s_peak_span_ms",
+            "qtc_bazett_ms",
+            "rr_interval_ms"
+          ],
+          "all_requested_fields_released": false,
+          "requested_null_fields_released": []
+        },
+        {
+          "user_turn": 3,
+          "executed_tools": [
+            "call_classification_tool"
+          ],
+          "tool_statuses": [
+            "success"
+          ],
+          "released_references": [
+            {
+              "evidence_id": "c959be74f6984f2d8c3189f95dcb3f4a",
+              "finding": "heart_rate_bpm"
+            },
+            {
+              "evidence_id": "c959be74f6984f2d8c3189f95dcb3f4a",
+              "finding": "rr_interval_ms"
+            },
+            {
+              "evidence_id": "c959be74f6984f2d8c3189f95dcb3f4a",
+              "finding": "pr_interval_ms"
+            },
+            {
+              "evidence_id": "c959be74f6984f2d8c3189f95dcb3f4a",
+              "finding": "q_s_peak_span_ms"
+            },
+            {
+              "evidence_id": "c959be74f6984f2d8c3189f95dcb3f4a",
+              "finding": "qtc_bazett_ms"
+            },
+            {
+              "evidence_id": "2583a1d9c68b45edb6febff49e948da5",
+              "finding": "ecgfounder_003"
+            },
+            {
+              "evidence_id": "2583a1d9c68b45edb6febff49e948da5",
+              "finding": "ecgfounder_001"
+            },
+            {
+              "evidence_id": "2583a1d9c68b45edb6febff49e948da5",
+              "finding": "ecgfounder_002"
+            },
+            {
+              "evidence_id": "2583a1d9c68b45edb6febff49e948da5",
+              "finding": "ecgfounder_034"
+            },
+            {
+              "evidence_id": "2583a1d9c68b45edb6febff49e948da5",
+              "finding": "ecgfounder_007"
+            }
+          ],
+          "replacement": true,
+          "rejection_categories": [
+            "nonconforming_final_format"
+          ],
+          "explanations": [],
+          "unavailable": [],
+          "status": "failed",
+          "elapsed_seconds": 13.394056625198573,
+          "requested_fields": [
+            "ecgfounder_002",
+            "ecgfounder_003",
+            "ecgfounder_005"
+          ],
+          "requested_fields_released": [
+            "ecgfounder_002",
+            "ecgfounder_003"
+          ],
+          "all_requested_fields_released": false,
+          "requested_null_fields_released": []
+        },
+        {
+          "user_turn": 4,
+          "executed_tools": [],
+          "tool_statuses": [],
+          "released_references": [
+            {
+              "evidence_id": "c959be74f6984f2d8c3189f95dcb3f4a",
+              "finding": "heart_rate_bpm"
+            },
+            {
+              "evidence_id": "c959be74f6984f2d8c3189f95dcb3f4a",
+              "finding": "rr_interval_ms"
+            },
+            {
+              "evidence_id": "c959be74f6984f2d8c3189f95dcb3f4a",
+              "finding": "pr_interval_ms"
+            },
+            {
+              "evidence_id": "c959be74f6984f2d8c3189f95dcb3f4a",
+              "finding": "q_s_peak_span_ms"
+            },
+            {
+              "evidence_id": "c959be74f6984f2d8c3189f95dcb3f4a",
+              "finding": "qtc_bazett_ms"
+            },
+            {
+              "evidence_id": "2583a1d9c68b45edb6febff49e948da5",
+              "finding": "ecgfounder_003"
+            },
+            {
+              "evidence_id": "2583a1d9c68b45edb6febff49e948da5",
+              "finding": "ecgfounder_001"
+            },
+            {
+              "evidence_id": "2583a1d9c68b45edb6febff49e948da5",
+              "finding": "ecgfounder_002"
+            },
+            {
+              "evidence_id": "2583a1d9c68b45edb6febff49e948da5",
+              "finding": "ecgfounder_034"
+            },
+            {
+              "evidence_id": "2583a1d9c68b45edb6febff49e948da5",
+              "finding": "ecgfounder_007"
+            }
+          ],
+          "replacement": true,
+          "rejection_categories": [
+            "nonconforming_final_format"
+          ],
+          "explanations": [],
+          "unavailable": [],
+          "status": "failed",
+          "elapsed_seconds": 4.38680833298713,
+          "requested_fields": [
+            "heart_rate_bpm",
+            "pr_interval_ms",
+            "q_s_peak_span_ms",
+            "qtc_bazett_ms",
+            "rr_interval_ms"
+          ],
+          "requested_fields_released": [
+            "heart_rate_bpm",
+            "pr_interval_ms",
+            "q_s_peak_span_ms",
+            "qtc_bazett_ms",
+            "rr_interval_ms"
+          ],
+          "all_requested_fields_released": true,
+          "requested_null_fields_released": []
+        },
+        {
+          "user_turn": 5,
+          "executed_tools": [],
+          "tool_statuses": [],
+          "released_references": [
+            {
+              "evidence_id": "c959be74f6984f2d8c3189f95dcb3f4a",
+              "finding": "heart_rate_bpm"
+            },
+            {
+              "evidence_id": "c959be74f6984f2d8c3189f95dcb3f4a",
+              "finding": "rr_interval_ms"
+            },
+            {
+              "evidence_id": "c959be74f6984f2d8c3189f95dcb3f4a",
+              "finding": "pr_interval_ms"
+            },
+            {
+              "evidence_id": "c959be74f6984f2d8c3189f95dcb3f4a",
+              "finding": "q_s_peak_span_ms"
+            },
+            {
+              "evidence_id": "c959be74f6984f2d8c3189f95dcb3f4a",
+              "finding": "qtc_bazett_ms"
+            },
+            {
+              "evidence_id": "2583a1d9c68b45edb6febff49e948da5",
+              "finding": "ecgfounder_003"
+            },
+            {
+              "evidence_id": "2583a1d9c68b45edb6febff49e948da5",
+              "finding": "ecgfounder_001"
+            },
+            {
+              "evidence_id": "2583a1d9c68b45edb6febff49e948da5",
+              "finding": "ecgfounder_002"
+            },
+            {
+              "evidence_id": "2583a1d9c68b45edb6febff49e948da5",
+              "finding": "ecgfounder_034"
+            },
+            {
+              "evidence_id": "2583a1d9c68b45edb6febff49e948da5",
+              "finding": "ecgfounder_007"
+            }
+          ],
+          "replacement": true,
+          "rejection_categories": [
+            "nonconforming_final_format"
+          ],
+          "explanations": [],
+          "unavailable": [],
+          "status": "failed",
+          "elapsed_seconds": 14.065735917072743,
+          "requested_fields": [],
+          "requested_fields_released": [],
+          "all_requested_fields_released": true,
+          "requested_null_fields_released": []
+        }
+      ]
+    },
+    {
+      "record_id": "ptbxl:17",
+      "checks": {
+        "expected_tool_sequence": true,
+        "all_tools_completed": true,
+        "all_requested_fields_in_accepted_reports": false,
+        "second_turn_accepted_report_reuses_all_requested_references": false,
+        "third_turn_accepted_report_references_all_requested_new_scores": false,
+        "fourth_turn_accepted_report_reuses_all_requested_measurements": true
+      },
+      "turns": [
+        {
+          "user_turn": 1,
+          "executed_tools": [
+            "call_measurement_tool",
+            "call_classification_tool"
+          ],
+          "tool_statuses": [
+            "success",
+            "success"
+          ],
+          "released_references": [
+            {
+              "evidence_id": "33b8c119e7be492084820d67f6da673b",
+              "finding": "heart_rate_bpm"
+            },
+            {
+              "evidence_id": "33b8c119e7be492084820d67f6da673b",
+              "finding": "pr_interval_ms"
+            },
+            {
+              "evidence_id": "33b8c119e7be492084820d67f6da673b",
+              "finding": "q_s_peak_span_ms"
+            },
+            {
+              "evidence_id": "33b8c119e7be492084820d67f6da673b",
+              "finding": "qtc_bazett_ms"
+            },
+            {
+              "evidence_id": "33b8c119e7be492084820d67f6da673b",
+              "finding": "rr_interval_ms"
+            },
+            {
+              "evidence_id": "8fc81095d35541ebbcbfa9ed42570e42",
+              "finding": "ecgfounder_005"
+            },
+            {
+              "evidence_id": "8fc81095d35541ebbcbfa9ed42570e42",
+              "finding": "ecgfounder_002"
+            },
+            {
+              "evidence_id": "8fc81095d35541ebbcbfa9ed42570e42",
+              "finding": "ecgfounder_001"
+            }
+          ],
+          "replacement": false,
+          "rejection_categories": [],
+          "explanations": [],
+          "unavailable": [],
+          "status": "success",
+          "elapsed_seconds": 15.801799041917548,
+          "requested_fields": [
+            "ecgfounder_002",
+            "ecgfounder_003",
+            "ecgfounder_005",
+            "heart_rate_bpm",
+            "pr_interval_ms",
+            "q_s_peak_span_ms",
+            "qtc_bazett_ms",
+            "rr_interval_ms"
+          ],
+          "requested_fields_released": [
+            "ecgfounder_002",
+            "ecgfounder_005",
+            "heart_rate_bpm",
+            "pr_interval_ms",
+            "q_s_peak_span_ms",
+            "qtc_bazett_ms",
+            "rr_interval_ms"
+          ],
+          "all_requested_fields_released": false,
+          "requested_null_fields_released": []
+        },
+        {
+          "user_turn": 2,
+          "executed_tools": [],
+          "tool_statuses": [],
+          "released_references": [
+            {
+              "evidence_id": "33b8c119e7be492084820d67f6da673b",
+              "finding": "heart_rate_bpm"
+            },
+            {
+              "evidence_id": "33b8c119e7be492084820d67f6da673b",
+              "finding": "pr_interval_ms"
+            },
+            {
+              "evidence_id": "33b8c119e7be492084820d67f6da673b",
+              "finding": "q_s_peak_span_ms"
+            },
+            {
+              "evidence_id": "33b8c119e7be492084820d67f6da673b",
+              "finding": "qtc_bazett_ms"
+            },
+            {
+              "evidence_id": "33b8c119e7be492084820d67f6da673b",
+              "finding": "rr_interval_ms"
+            },
+            {
+              "evidence_id": "8fc81095d35541ebbcbfa9ed42570e42",
+              "finding": "ecgfounder_005"
+            },
+            {
+              "evidence_id": "8fc81095d35541ebbcbfa9ed42570e42",
+              "finding": "ecgfounder_002"
+            },
+            {
+              "evidence_id": "8fc81095d35541ebbcbfa9ed42570e42",
+              "finding": "ecgfounder_001"
+            }
+          ],
+          "replacement": false,
+          "rejection_categories": [],
+          "explanations": [],
+          "unavailable": [],
+          "status": "success",
+          "elapsed_seconds": 7.118012083927169,
+          "requested_fields": [
+            "ecgfounder_002",
+            "ecgfounder_003",
+            "ecgfounder_005",
+            "heart_rate_bpm",
+            "pr_interval_ms",
+            "q_s_peak_span_ms",
+            "qtc_bazett_ms",
+            "rr_interval_ms"
+          ],
+          "requested_fields_released": [
+            "ecgfounder_002",
+            "ecgfounder_005",
+            "heart_rate_bpm",
+            "pr_interval_ms",
+            "q_s_peak_span_ms",
+            "qtc_bazett_ms",
+            "rr_interval_ms"
+          ],
+          "all_requested_fields_released": false,
+          "requested_null_fields_released": []
+        },
+        {
+          "user_turn": 3,
+          "executed_tools": [
+            "call_classification_tool"
+          ],
+          "tool_statuses": [
+            "success"
+          ],
+          "released_references": [
+            {
+              "evidence_id": "e577ea77deed428eaf0b9062b2fcda03",
+              "finding": "ecgfounder_005"
+            },
+            {
+              "evidence_id": "e577ea77deed428eaf0b9062b2fcda03",
+              "finding": "ecgfounder_002"
+            },
+            {
+              "evidence_id": "e577ea77deed428eaf0b9062b2fcda03",
+              "finding": "ecgfounder_001"
+            }
+          ],
+          "replacement": false,
+          "rejection_categories": [],
+          "explanations": [],
+          "unavailable": [],
+          "status": "success",
+          "elapsed_seconds": 19.99707349995151,
+          "requested_fields": [
+            "ecgfounder_002",
+            "ecgfounder_003",
+            "ecgfounder_005"
+          ],
+          "requested_fields_released": [
+            "ecgfounder_002",
+            "ecgfounder_005"
+          ],
+          "all_requested_fields_released": false,
+          "requested_null_fields_released": []
+        },
+        {
+          "user_turn": 4,
+          "executed_tools": [],
+          "tool_statuses": [],
+          "released_references": [
+            {
+              "evidence_id": "33b8c119e7be492084820d67f6da673b",
+              "finding": "heart_rate_bpm"
+            },
+            {
+              "evidence_id": "33b8c119e7be492084820d67f6da673b",
+              "finding": "pr_interval_ms"
+            },
+            {
+              "evidence_id": "33b8c119e7be492084820d67f6da673b",
+              "finding": "q_s_peak_span_ms"
+            },
+            {
+              "evidence_id": "33b8c119e7be492084820d67f6da673b",
+              "finding": "qtc_bazett_ms"
+            },
+            {
+              "evidence_id": "33b8c119e7be492084820d67f6da673b",
+              "finding": "rr_interval_ms"
+            }
+          ],
+          "replacement": false,
+          "rejection_categories": [],
+          "explanations": [],
+          "unavailable": [],
+          "status": "success",
+          "elapsed_seconds": 6.759271958144382,
+          "requested_fields": [
+            "heart_rate_bpm",
+            "pr_interval_ms",
+            "q_s_peak_span_ms",
+            "qtc_bazett_ms",
+            "rr_interval_ms"
+          ],
+          "requested_fields_released": [
+            "heart_rate_bpm",
+            "pr_interval_ms",
+            "q_s_peak_span_ms",
+            "qtc_bazett_ms",
+            "rr_interval_ms"
+          ],
+          "all_requested_fields_released": true,
+          "requested_null_fields_released": []
+        },
+        {
+          "user_turn": 5,
+          "executed_tools": [],
+          "tool_statuses": [],
+          "released_references": [
+            {
+              "evidence_id": "33b8c119e7be492084820d67f6da673b",
+              "finding": "heart_rate_bpm"
+            },
+            {
+              "evidence_id": "33b8c119e7be492084820d67f6da673b",
+              "finding": "rr_interval_ms"
+            },
+            {
+              "evidence_id": "33b8c119e7be492084820d67f6da673b",
+              "finding": "pr_interval_ms"
+            },
+            {
+              "evidence_id": "33b8c119e7be492084820d67f6da673b",
+              "finding": "q_s_peak_span_ms"
+            },
+            {
+              "evidence_id": "33b8c119e7be492084820d67f6da673b",
+              "finding": "qtc_bazett_ms"
+            },
+            {
+              "evidence_id": "e577ea77deed428eaf0b9062b2fcda03",
+              "finding": "ecgfounder_000"
+            },
+            {
+              "evidence_id": "e577ea77deed428eaf0b9062b2fcda03",
+              "finding": "ecgfounder_032"
+            },
+            {
+              "evidence_id": "e577ea77deed428eaf0b9062b2fcda03",
+              "finding": "ecgfounder_003"
+            },
+            {
+              "evidence_id": "e577ea77deed428eaf0b9062b2fcda03",
+              "finding": "ecgfounder_042"
+            },
+            {
+              "evidence_id": "e577ea77deed428eaf0b9062b2fcda03",
+              "finding": "ecgfounder_006"
+            }
+          ],
+          "replacement": true,
+          "rejection_categories": [
+            "nonconforming_final_format"
+          ],
+          "explanations": [],
+          "unavailable": [],
+          "status": "failed",
+          "elapsed_seconds": 15.747727875132114,
+          "requested_fields": [],
+          "requested_fields_released": [],
+          "all_requested_fields_released": true,
+          "requested_null_fields_released": []
+        }
+      ]
+    },
+    {
+      "record_id": "ptbxl:144",
+      "checks": {
+        "expected_tool_sequence": true,
+        "all_tools_completed": true,
+        "all_requested_fields_in_accepted_reports": false,
+        "second_turn_accepted_report_reuses_all_requested_references": false,
+        "third_turn_accepted_report_references_all_requested_new_scores": false,
+        "fourth_turn_accepted_report_reuses_all_requested_measurements": false
+      },
+      "turns": [
+        {
+          "user_turn": 1,
+          "executed_tools": [
+            "call_classification_tool",
+            "call_measurement_tool"
+          ],
+          "tool_statuses": [
+            "success",
+            "partial"
+          ],
+          "released_references": [
+            {
+              "evidence_id": "b52f521d93e4478993d49e430a13cc96",
+              "finding": "ecgfounder_005"
+            },
+            {
+              "evidence_id": "b52f521d93e4478993d49e430a13cc96",
+              "finding": "ecgfounder_002"
+            },
+            {
+              "evidence_id": "b52f521d93e4478993d49e430a13cc96",
+              "finding": "ecgfounder_001"
+            },
+            {
+              "evidence_id": "e8d03fc3920d4f619608d147a0cd3fc2",
+              "finding": "heart_rate_bpm"
+            },
+            {
+              "evidence_id": "e8d03fc3920d4f619608d147a0cd3fc2",
+              "finding": "rr_interval_ms"
+            },
+            {
+              "evidence_id": "e8d03fc3920d4f619608d147a0cd3fc2",
+              "finding": "pr_interval_ms"
+            },
+            {
+              "evidence_id": "e8d03fc3920d4f619608d147a0cd3fc2",
+              "finding": "q_s_peak_span_ms"
+            },
+            {
+              "evidence_id": "e8d03fc3920d4f619608d147a0cd3fc2",
+              "finding": "qtc_bazett_ms"
+            }
+          ],
+          "replacement": false,
+          "rejection_categories": [],
+          "explanations": [
+            "classifier_scores",
+            "classifier_limits",
+            "measurement_limits"
+          ],
+          "unavailable": [],
+          "status": "success",
+          "elapsed_seconds": 10.152528958162293,
+          "requested_fields": [
+            "ecgfounder_002",
+            "ecgfounder_003",
+            "ecgfounder_005",
+            "heart_rate_bpm",
+            "pr_interval_ms",
+            "q_s_peak_span_ms",
+            "qtc_bazett_ms",
+            "rr_interval_ms"
+          ],
+          "requested_fields_released": [
+            "ecgfounder_002",
+            "ecgfounder_005",
+            "heart_rate_bpm",
+            "pr_interval_ms",
+            "q_s_peak_span_ms",
+            "qtc_bazett_ms",
+            "rr_interval_ms"
+          ],
+          "all_requested_fields_released": false,
+          "requested_null_fields_released": [
+            "heart_rate_bpm",
+            "pr_interval_ms",
+            "q_s_peak_span_ms",
+            "qtc_bazett_ms",
+            "rr_interval_ms"
+          ]
+        },
+        {
+          "user_turn": 2,
+          "executed_tools": [],
+          "tool_statuses": [],
+          "released_references": [
+            {
+              "evidence_id": "e8d03fc3920d4f619608d147a0cd3fc2",
+              "finding": "heart_rate_bpm"
+            },
+            {
+              "evidence_id": "e8d03fc3920d4f619608d147a0cd3fc2",
+              "finding": "rr_interval_ms"
+            },
+            {
+              "evidence_id": "e8d03fc3920d4f619608d147a0cd3fc2",
+              "finding": "pr_interval_ms"
+            },
+            {
+              "evidence_id": "e8d03fc3920d4f619608d147a0cd3fc2",
+              "finding": "q_s_peak_span_ms"
+            },
+            {
+              "evidence_id": "e8d03fc3920d4f619608d147a0cd3fc2",
+              "finding": "qtc_bazett_ms"
+            },
+            {
+              "evidence_id": "b52f521d93e4478993d49e430a13cc96",
+              "finding": "ecgfounder_000"
+            },
+            {
+              "evidence_id": "b52f521d93e4478993d49e430a13cc96",
+              "finding": "ecgfounder_052"
+            },
+            {
+              "evidence_id": "b52f521d93e4478993d49e430a13cc96",
+              "finding": "ecgfounder_003"
+            },
+            {
+              "evidence_id": "b52f521d93e4478993d49e430a13cc96",
+              "finding": "ecgfounder_008"
+            },
+            {
+              "evidence_id": "b52f521d93e4478993d49e430a13cc96",
+              "finding": "ecgfounder_005"
+            }
+          ],
+          "replacement": true,
+          "rejection_categories": [
+            "nonconforming_final_format"
+          ],
+          "explanations": [],
+          "unavailable": [],
+          "status": "failed",
+          "elapsed_seconds": 7.834687458118424,
+          "requested_fields": [
+            "ecgfounder_002",
+            "ecgfounder_003",
+            "ecgfounder_005",
+            "heart_rate_bpm",
+            "pr_interval_ms",
+            "q_s_peak_span_ms",
+            "qtc_bazett_ms",
+            "rr_interval_ms"
+          ],
+          "requested_fields_released": [
+            "ecgfounder_003",
+            "ecgfounder_005",
+            "heart_rate_bpm",
+            "pr_interval_ms",
+            "q_s_peak_span_ms",
+            "qtc_bazett_ms",
+            "rr_interval_ms"
+          ],
+          "all_requested_fields_released": false,
+          "requested_null_fields_released": [
+            "heart_rate_bpm",
+            "pr_interval_ms",
+            "q_s_peak_span_ms",
+            "qtc_bazett_ms",
+            "rr_interval_ms"
+          ]
+        },
+        {
+          "user_turn": 3,
+          "executed_tools": [
+            "call_classification_tool"
+          ],
+          "tool_statuses": [
+            "success"
+          ],
+          "released_references": [
+            {
+              "evidence_id": "e8d03fc3920d4f619608d147a0cd3fc2",
+              "finding": "heart_rate_bpm"
+            },
+            {
+              "evidence_id": "e8d03fc3920d4f619608d147a0cd3fc2",
+              "finding": "rr_interval_ms"
+            },
+            {
+              "evidence_id": "e8d03fc3920d4f619608d147a0cd3fc2",
+              "finding": "pr_interval_ms"
+            },
+            {
+              "evidence_id": "e8d03fc3920d4f619608d147a0cd3fc2",
+              "finding": "q_s_peak_span_ms"
+            },
+            {
+              "evidence_id": "e8d03fc3920d4f619608d147a0cd3fc2",
+              "finding": "qtc_bazett_ms"
+            },
+            {
+              "evidence_id": "8c0ba2df92594146b24794334a4ec16c",
+              "finding": "ecgfounder_000"
+            },
+            {
+              "evidence_id": "8c0ba2df92594146b24794334a4ec16c",
+              "finding": "ecgfounder_052"
+            },
+            {
+              "evidence_id": "8c0ba2df92594146b24794334a4ec16c",
+              "finding": "ecgfounder_003"
+            },
+            {
+              "evidence_id": "8c0ba2df92594146b24794334a4ec16c",
+              "finding": "ecgfounder_008"
+            },
+            {
+              "evidence_id": "8c0ba2df92594146b24794334a4ec16c",
+              "finding": "ecgfounder_005"
+            }
+          ],
+          "replacement": true,
+          "rejection_categories": [
+            "nonconforming_final_format"
+          ],
+          "explanations": [],
+          "unavailable": [],
+          "status": "failed",
+          "elapsed_seconds": 13.212161666946486,
+          "requested_fields": [
+            "ecgfounder_002",
+            "ecgfounder_003",
+            "ecgfounder_005"
+          ],
+          "requested_fields_released": [
+            "ecgfounder_003",
+            "ecgfounder_005"
+          ],
+          "all_requested_fields_released": false,
+          "requested_null_fields_released": []
+        },
+        {
+          "user_turn": 4,
+          "executed_tools": [],
+          "tool_statuses": [],
+          "released_references": [
+            {
+              "evidence_id": "e8d03fc3920d4f619608d147a0cd3fc2",
+              "finding": "heart_rate_bpm"
+            },
+            {
+              "evidence_id": "e8d03fc3920d4f619608d147a0cd3fc2",
+              "finding": "rr_interval_ms"
+            },
+            {
+              "evidence_id": "e8d03fc3920d4f619608d147a0cd3fc2",
+              "finding": "pr_interval_ms"
+            },
+            {
+              "evidence_id": "e8d03fc3920d4f619608d147a0cd3fc2",
+              "finding": "q_s_peak_span_ms"
+            },
+            {
+              "evidence_id": "e8d03fc3920d4f619608d147a0cd3fc2",
+              "finding": "qtc_bazett_ms"
+            },
+            {
+              "evidence_id": "8c0ba2df92594146b24794334a4ec16c",
+              "finding": "ecgfounder_000"
+            },
+            {
+              "evidence_id": "8c0ba2df92594146b24794334a4ec16c",
+              "finding": "ecgfounder_052"
+            },
+            {
+              "evidence_id": "8c0ba2df92594146b24794334a4ec16c",
+              "finding": "ecgfounder_003"
+            },
+            {
+              "evidence_id": "8c0ba2df92594146b24794334a4ec16c",
+              "finding": "ecgfounder_008"
+            },
+            {
+              "evidence_id": "8c0ba2df92594146b24794334a4ec16c",
+              "finding": "ecgfounder_005"
+            }
+          ],
+          "replacement": true,
+          "rejection_categories": [
+            "nonconforming_final_format"
+          ],
+          "explanations": [],
+          "unavailable": [],
+          "status": "failed",
+          "elapsed_seconds": 8.118197625037283,
+          "requested_fields": [
+            "heart_rate_bpm",
+            "pr_interval_ms",
+            "q_s_peak_span_ms",
+            "qtc_bazett_ms",
+            "rr_interval_ms"
+          ],
+          "requested_fields_released": [
+            "heart_rate_bpm",
+            "pr_interval_ms",
+            "q_s_peak_span_ms",
+            "qtc_bazett_ms",
+            "rr_interval_ms"
+          ],
+          "all_requested_fields_released": true,
+          "requested_null_fields_released": [
+            "heart_rate_bpm",
+            "pr_interval_ms",
+            "q_s_peak_span_ms",
+            "qtc_bazett_ms",
+            "rr_interval_ms"
+          ]
+        },
+        {
+          "user_turn": 5,
+          "executed_tools": [],
+          "tool_statuses": [],
+          "released_references": [
+            {
+              "evidence_id": "e8d03fc3920d4f619608d147a0cd3fc2",
+              "finding": "heart_rate_bpm"
+            },
+            {
+              "evidence_id": "e8d03fc3920d4f619608d147a0cd3fc2",
+              "finding": "rr_interval_ms"
+            },
+            {
+              "evidence_id": "e8d03fc3920d4f619608d147a0cd3fc2",
+              "finding": "pr_interval_ms"
+            },
+            {
+              "evidence_id": "e8d03fc3920d4f619608d147a0cd3fc2",
+              "finding": "q_s_peak_span_ms"
+            },
+            {
+              "evidence_id": "e8d03fc3920d4f619608d147a0cd3fc2",
+              "finding": "qtc_bazett_ms"
+            },
+            {
+              "evidence_id": "8c0ba2df92594146b24794334a4ec16c",
+              "finding": "ecgfounder_000"
+            },
+            {
+              "evidence_id": "8c0ba2df92594146b24794334a4ec16c",
+              "finding": "ecgfounder_052"
+            },
+            {
+              "evidence_id": "8c0ba2df92594146b24794334a4ec16c",
+              "finding": "ecgfounder_003"
+            },
+            {
+              "evidence_id": "8c0ba2df92594146b24794334a4ec16c",
+              "finding": "ecgfounder_008"
+            },
+            {
+              "evidence_id": "8c0ba2df92594146b24794334a4ec16c",
+              "finding": "ecgfounder_005"
+            }
+          ],
+          "replacement": true,
+          "rejection_categories": [
+            "nonconforming_final_format"
+          ],
+          "explanations": [],
+          "unavailable": [],
+          "status": "failed",
+          "elapsed_seconds": 19.765962874982506,
+          "requested_fields": [],
+          "requested_fields_released": [],
+          "all_requested_fields_released": true,
+          "requested_null_fields_released": []
+        }
+      ]
+    }
+  ],
+  "rejection_reasons": {
+    "finding has no usable evidence for the selected record": 2,
+    "final response must follow the report JSON contract": 7,
+    "unsupported report explanation or capability": 2
+  },
+  "rejection_categories": {
+    "unknown_finding_key": 2,
+    "nonconforming_final_format": 9
+  },
+  "case_check_counts": {
+    "expected_tool_sequence": 4,
+    "all_tools_completed": 4,
+    "all_requested_fields_in_accepted_reports": 0,
+    "second_turn_accepted_report_reuses_all_requested_references": 0,
+    "third_turn_accepted_report_references_all_requested_new_scores": 0,
+    "fourth_turn_accepted_report_reuses_all_requested_measurements": 2
+  },
+  "summary": {
+    "expected_turns": 20,
+    "completed_answers": 9,
+    "provider_errors": 0,
+    "tool_errors": 0,
+    "runner_errors": 11,
+    "judge_errors": 0,
+    "failed_tool_observations": 0,
+    "live_observations": 12,
+    "replay_observations": 0,
+    "runner_observations": 0,
+    "reused_observations": 40,
+    "excluded_claim_turns": 11,
+    "supported": 56,
+    "contradicted": 0,
+    "unverifiable": 0,
+    "requested_available": 56,
+    "requested_supported": 49,
+    "statuses": {
+      "success": 9,
+      "failed": 11
+    },
+    "completion_rate": 0.45,
+    "answer_rejections": 11,
+    "answer_rejection_rate": 0.55,
+    "timed_turns": 20,
+    "total_elapsed_seconds": 282.41945108538494,
+    "mean_elapsed_seconds": 14.120972554269247,
+    "attempted_tool_calls": 12,
+    "model_responses": 29,
+    "claim_scope": "explicit_numeric_claims_only",
+    "checkable_claims": 56,
+    "claim_support_rate": 1.0,
+    "requested_available_coverage": 0.875,
+    "clinical_accuracy": null,
+    "prose_faithfulness": null
+  },
+  "limitations": [
+    "Execution checks use actual tool_result events; accepted-reference checks require a nonreplacement report.",
+    "All requested fields includes requested null measurements; numeric coverage in the benchmark summary excludes nulls and failed turns.",
+    "No independent clinical validation or prose-quality score.",
+    "Raw model text, keys, account details, waveform arrays, and checkpoint bytes are excluded."
+  ],
+  "source_benchmark": "evidence/benchmark-live-cohere.json",
+  "source_sha256": {
+    "evaluation.py": "e77f0bef4527216147560095d06a46106dfd00cb3af52f7fa140e8ee561e9518",
+    "contracts.py": "90bde83c168e6a106b4cf1870b9e6fc82ef8f4155c3d51d6a454381d1ecde6d9",
+    "eko.py": "550a8ffad6d2ab3a9b6b28a691f958331f2be41b090225f70d1739db2318038a",
+    "host.py": "8c161cc7142057bef46f7255f1e97170ab2f7f78caa489f0474f12c3cd1f7919",
+    "records.py": "1e5b9513d0b66029b8c423b6041b63735ed4c1b4df0798afab0c3e822477ce29",
+    "measurements.py": "37fbec523cb5763de791fcf443d3986f7f2b9c1d9bc8bb363a4893e4ec16cd89",
+    "worker.py": "2c362b88b1f15acb54f2997a3ec5b2ae1d2b885e4a42c6237ca99b696ce588f2",
+    "traces.py": "e0859b7041cf3bffe5cb36ccc518438d62ed22ac56d122727ae8ef529e6dcb29",
+    "reporting.py": "16e839469dea9540aaefeaf6abb0d3ee0389f529408dbd546d058137e01038b4",
+    "classifier.py": "ca806bf25be0ef5105ea6ce481993e905f8644350a748098d0684958bba3ea91",
+    "ecgfounder.py": "fcc55f63a3701836785e1fb45ee27cbcd520790a5f38f4cb6e8fcbf9067dfd32",
+    "ecgfounder_labels.py": "eb8956a88740e530454e8504735d26e15404ab67241bdb6f90c92959f10f8298",
+    "providers/openrouter.py": "565ed80e358ab7a3bb26d8ce1a58595fcd2d74ebb6994b29ba59889ea892d7a5",
+    "benchmark.py": "7ee2af11ab5a1c87d445c90ced230e535cf5d54d65f979f4182d4adf3b7587c0"
+  },
+  "task_fulfillment": {
+    "accepted_reports": 9,
+    "accepted_reports_with_all_requested_fields": 2,
+    "accepted_classification_reports": 7,
+    "accepted_classification_reports_substituting_normal_sinus_for_sinus": 7,
+    "complete_five_turn_cases": 0
+  }
+}

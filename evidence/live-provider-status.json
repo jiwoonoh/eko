@@ -1,7 +1,39 @@
 {
   "schema_version": 1,
   "kind": "live_provider_dialogue",
-  "status": "pending",
-  "reason": "OPENROUTER_API_KEY is not available; no live request was made",
-  "requested_model": "openrouter/free"
+  "status": "incomplete",
+  "recorded_at": "2026-10-15T16:23:37.522302+00:00",
+  "connection_verified": true,
+  "selected_model": "cohere/north-mini-code:free",
+  "expected_turns": 20,
+  "accepted_reports": 9,
+  "rejected_reports": 11,
+  "provider_error_turns": 0,
+  "tool_error_turns": 0,
+  "scientific_tool_calls": 12,
+  "scientific_tool_calls_completed": 12,
+  "requested_available_fields_in_accepted_turns": 56,
+  "requested_available_fields_reported": 49,
+  "reported_inference_cost_usd": 0,
+  "rejection_categories": {
+    "unknown_finding_key": 2,
+    "nonconforming_final_format": 9
+  },
+  "prior_endpoint_attempt": {
+    "model": "google/gemma-4-31b-it:free",
+    "status": "provider_failure",
+    "http_status": 429,
+    "turns": 20,
+    "model_responses": 0
+  },
+  "evidence": [
+    "benchmark-live-cohere.json",
+    "benchmark-live-gemma.json",
+    "live-report-audit.json"
+  ],
+  "limitations": [
+    "Numeric coverage excludes null measurements and failed turns.",
+    "Runner success and numeric consistency do not establish full question completion or clinical accuracy.",
+    "Raw logs, credentials and account details are excluded."
+  ]
 }

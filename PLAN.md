@@ -61,8 +61,19 @@ final source definitions. Automated provider tests are explicitly mocked.
 
 ## Pending, blocked, and deferred
 
-- **Pending:** live OpenRouter classification dialogue. This implementation
-  session has no API key; no live-provider result is claimed.
+- **Executed, reporting incomplete:** live OpenRouter classification dialogue.
+  The free Cohere model completed all twelve scientific calls across four cases;
+  nine of twenty turns produced accepted reports. Eleven replies were rejected
+  for unknown finding names or invalid report format. Numeric coverage was 49/56
+  available requested fields among accepted turns. The initial free Gemma endpoint
+  returned HTTP 429 before any model response. Evidence and raw logs are separate;
+  only sanitized results are committed.
+- **Next:** improve report-contract adherence and requested-field coverage, then
+  rerun the frozen benchmark. All seven accepted classifier reports substituted
+  NORMAL SINUS RHYTHM for requested SINUS RHYTHM; add explicit abbreviation/key
+  guidance and verify requested-label selection. Keep the guard and failed
+  baseline intact. Any bounded report-repair experiment must retain rejection
+  events and be evaluated separately from this baseline.
 - **Blocked:** exact ECG-Agent 71-label reproduction without its checkpoint,
   verified ordering/input dimensions, preprocessing, and fairseq revision.
 - **Deferred:** diagnostic thresholds/calibration, clinical validation, local

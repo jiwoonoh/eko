@@ -26,9 +26,14 @@
   },
   "documentation": {
     "explicit_production_functions": 148,
-    "local_links_checked": 331,
+    "local_links_checked": 334,
     "missing_links": 0,
-    "ast_inventory_matches_catalog": true
+    "ast_inventory_matches_catalog": true,
+    "checked_at": "2026-10-15T16:25:24.960099+00:00",
+    "source_sha256": {
+      "README.md": "ed3487195f3187a3c367ca1819804815fe5e3f2ed63150ccdf8430f396a443fd",
+      "PLAN.md": "f91fc190e584fc3fbc1f5d0195c5b40107cecafc967cf0c2bc8936f9fa04d366"
+    }
   },
   "packaging": {
     "wheel_build": "passed",

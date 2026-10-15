@@ -22,7 +22,8 @@ validation in this release.
 | [`973537b`](https://github.com/jiwoonoh/eko/commit/973537b) | Enforced evidence-based answer rendering. |
 | [`1f96d8f`](https://github.com/jiwoonoh/eko/commit/1f96d8f) | Added and verified the ECGFounder CPU backend. |
 | [`8bc21d9`](https://github.com/jiwoonoh/eko/commit/8bc21d9) | Connected classification to named calls and bounded reports. |
-| This revision | Added the frozen development benchmark, saved execution evidence, and this function reference. |
+| [`895f4fa`](https://github.com/jiwoonoh/eko/commit/895f4fa) | Added the frozen development benchmark, saved execution evidence, and this function reference. |
+| This revision | Recorded live OpenRouter execution and reporting failures with the existing guard unchanged. |
 
 Removed: generated Python execution, child agents, model/inbox/world sockets,
 Linux sandbox machinery, terminal rendering, Claude and Hugging Face dialogue
@@ -199,7 +200,7 @@ for attribution and licenses.
 
 | Behavior | Implementation | Verification | Reproduce |
 |---|---|---|---|
-| Repeated native calls and follow-ups | [Runner](eko.py), [provider](providers/openrouter.py) | [Runtime tests](tests/test_runtime.py), [provider tests](tests/test_openrouter.py) | Start the CLI and use the questions above; live API execution is pending for this release. |
+| Repeated native calls and follow-ups | [Runner](eko.py), [provider](providers/openrouter.py) | [Runtime tests](tests/test_runtime.py), [provider tests](tests/test_openrouter.py), [live run](evidence/benchmark-live-cohere.json) | Start the CLI and use the questions above; live reporting limitations are measured below. |
 | Record validation and real measurements | [Records](records.py), [measurements](measurements.py) | [Measurement tests](tests/test_measurements.py), [public-record evidence](evidence/classifier-smoke.json) | `python -m demo`, then `python -m classifier check ...` with the options above. |
 | Strict classifier loading and preprocessing | [Backend](classifier.py), [architecture](ecgfounder.py) | [Classifier tests](tests/test_classifier.py), [CPU evidence](evidence/classifier-smoke.json) | The classifier check above; no API key needed. |
 | Worker reuse and timeout recovery | [Worker](worker.py) | [Worker tests](tests/test_worker.py), [classifier runtime tests](tests/test_classification_runtime.py) | `python -m unittest discover -s tests -p 'test_worker.py' -v`. |
@@ -220,7 +221,8 @@ sanitized results. Weights, waveforms, and raw conversations are excluded.
 | Direct scientific tools | All 20 classifier calls succeeded; measurements returned 17 success and 3 partial results, retaining unavailable metrics. | [Direct run](evidence/benchmark-direct.json) |
 | Four-record dialogue | Five turns per record; 20 completed turns, 12 tool executions, 81/81 available requested findings reported, zero rejected reports or execution failures. Model responses were scripted; tools were real. | [Dialogue run](evidence/benchmark-dialogue.json) |
 | Automated checks | 182 tests pass with the scientific environment. Core-only execution passes with 31 optional-dependency skips. | [Verification record](evidence/verification.json), [tests](tests/) |
-| Live OpenRouter classification dialogue | Pending: no API key was available to this implementation session; no live request was made. | [Pending status](evidence/live-provider-status.json) |
+| Live OpenRouter with `cohere/north-mini-code:free` | 9/20 accepted reports; 12 completed tool calls; 11 rejected reports; 49/56 available requested fields reported among accepted turns. Provider-reported inference cost was $0. | [Live run](evidence/benchmark-live-cohere.json), [report audit](evidence/live-report-audit.json) |
+| Initial live attempt with `google/gemma-4-31b-it:free` | All 20 turns failed with provider HTTP 429 before any model response or tool execution. Model behavior was not assessed. | [Provider failure](evidence/benchmark-live-gemma.json) |
 
 Timing and memory are measurements from this environment, not resource guarantees.
 The memory figure is the maximum RSS of terminated children in the check process.
@@ -228,6 +230,26 @@ Dialogue coverage measures the references actually released in `TurnResult.repor
 it does not credit every value in accumulated evidence or the CLI appendix.
 Available-value coverage excludes requested null measurements. Clinical accuracy
 and unrestricted prose faithfulness are unscored.
+
+The live Cohere run followed the requested tool sequence in all four cases:
+both tools, evidence reuse, classifier rerun, measurement reuse, then a limits
+question. Scientific execution succeeded, including partial measurement results.
+Reporting was unreliable: two replies used unknown finding names and nine failed
+the final JSON contract. These eleven replies were replaced by safe summaries
+and counted as failures. None of the four cases completed all five turns with
+accepted reports covering every requested field. The 87.5% numeric coverage above
+applies only to accepted turns and excludes null measurements. It does not mean
+87.5% task completion, model accuracy, or clinical accuracy. Zero contradictions
+reflects the renderer's enforced evidence boundary. The live audit separately
+checks tool scheduling, requested null fields, and evidence reuse.
+
+All seven accepted reports with requested classifier scores selected NORMAL
+SINUS RHYTHM (`ecgfounder_001`) in place of SINUS RHYTHM (`ecgfounder_003`). The
+renderer labeled those scores correctly, but the requested sinus-rhythm score
+was omitted. This accounts for the seven uncovered requested fields. Only two
+accepted turns reported every requested field; both were measurement follow-ups.
+All four final limits-question replies failed the JSON contract. These results
+identify report adherence and class selection as the next implementation work.
 
 ## Development benchmark and adapters
 
@@ -289,8 +311,12 @@ real waveforms. Mocked-provider tests cannot establish live model behavior.
 ## Remaining work
 
 The implementation, CPU checks, and development benchmark are complete. Live
-OpenRouter classifier dialogue is pending an API key. No clinical validation has
-been performed. Independent waveform annotations are needed to evaluate
+OpenRouter requests and native tool execution were verified; reliable final
+reporting remains unfinished. The tested free Cohere model produced accepted
+reports on nine of twenty turns. Improve report-contract adherence and requested
+field coverage, then rerun the frozen benchmark while retaining these baseline
+failures. Do not relax evidence validation to raise completion counts. No clinical
+validation has been performed. Independent waveform annotations are needed to evaluate
 measurement validity. Threshold calibration and an independent evaluation design
 must precede diagnostic performance claims. Exact ECG-Agent reproduction remains
 blocked by its unavailable 71-label checkpoint and unverified fairseq revision;
