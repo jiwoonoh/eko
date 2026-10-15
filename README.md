@@ -7,13 +7,46 @@ child agents, Linux sandboxing, and the terminal UI with a basic CLI and one
 persistent scientific-tool worker.
 
 The core has no third-party dependencies. The optional ECG extra installs the
-numerical measurement backend. Classification and local dialogue models are not
-activated in this first milestone.
+numerical measurement backend. The optional ECGFounder backend now supports verified CPU inference.
+Agent integration and the development benchmark are delivered in the following changes.
+
+## Rebuild progress
+
+| Change | State | Evidence |
+|---|---|---|
+| Coding-agent teardown | Complete | [`ac4aad8`](https://github.com/jiwoonoh/eko/commit/ac4aad8) |
+| Live measurements and public demo | Complete | [`37a7557`](https://github.com/jiwoonoh/eko/commit/37a7557) |
+| Artifact adapters and shared evaluation | Complete | [`344fc8b`](https://github.com/jiwoonoh/eko/commit/344fc8b) |
+| OpenRouter parameter-routing fix | Complete | [`8d4e838`](https://github.com/jiwoonoh/eko/commit/8d4e838) |
+| Bounded evidence reports | Complete | [`973537b`](https://github.com/jiwoonoh/eko/commit/973537b) |
+| ECGFounder CPU backend | Verified | [Classifier tests](tests/test_classifier.py), [public-record check](evidence/classifier-smoke.json) |
+| Agent classifier integration | In progress | Delivered in the next change |
+| Development benchmark and function reference | In progress | Delivered in the final change |
+
+The classifier is ECGFounder's public 150-label model, distinct from ECG-Agent's
+unavailable 71-label checkpoint. The complete trained head is loaded with strict
+parameter matching. Input is verified 12-lead, 500 Hz, 5000-sample mV data,
+normalized globally as in the pinned official PTB-XL evaluator. No bandpass filter
+or diagnostic threshold is added. Weights are downloaded explicitly, verified by
+SHA-256, and kept outside Git.
+
+```bash
+./.venv/bin/python -m pip install -r requirements-classifier.lock
+./.venv/bin/python -m pip install --no-deps -e '.[ecg,classifier]'
+./.venv/bin/python -m classifier download --directory checkpoints/ecgfounder
+./.venv/bin/python -m classifier check \
+  --checkpoint checkpoints/ecgfounder/12_lead_ECGFounder.pth \
+  --ecg data/demo/HR00705.mat
+```
+
+The check uses the actual waveform and CPU model without a language-model API
+request. It tests repeatability and reuse of one worker for both scientific tools.
+It does not establish clinical validity.
 
 ## Install
 
 The core supports Python 3.10 or newer. Use Python 3.11 for the locked ECG
-environment, tested on macOS arm64. Your existing local `.venv` is already set up.
+environment, tested on macOS arm64.
 
 ```bash
 cd ~/code/eko
@@ -174,8 +207,9 @@ pinned to `0ab07899ec0a39b087bebd560b280cad484eb0d0`. See
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for its MIT notice and [PLAN.md](PLAN.md)
 for the implementation scope.
 
-Live classification requires a supplied checkpoint, verified input preprocessing,
-71-label ordering and output dimensions, and a compatible fairseq revision. Later
+Exact ECG-Agent reproduction still requires its 71-label checkpoint and compatible
+fairseq revision. The optional ECGFounder backend uses a separate, pinned 150-label
+checkpoint and does not require fairseq. Later
 work adds a local dialogue-model adapter, structured evidence-linked claims,
 clinical validation, and training experiments. These capabilities are deferred;
 the first prototype uses real measurements and OpenRouter named calls.

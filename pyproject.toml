@@ -4,17 +4,18 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "eko"
-version = "0.2.0"
+version = "0.3.0"
 requires-python = ">=3.10"
 dependencies = []
 license-files = ["THIRD_PARTY_NOTICES.md"]
 
 [project.optional-dependencies]
 ecg = ["numpy==1.26.4", "scipy==1.13.1", "neurokit2==0.2.7", "pandas==2.2.3", "requests==2.32.5"]
+classifier = ["torch==2.6.0"]
 
 [project.scripts]
 eko = "host:main"
 
 [tool.setuptools]
-py-modules = ["contracts", "eko", "host", "records", "measurements", "worker", "traces", "evaluation", "demo", "reporting"]
+py-modules = ["contracts", "eko", "host", "records", "measurements", "worker", "traces", "evaluation", "demo", "reporting", "classifier", "ecgfounder", "ecgfounder_labels"]
 packages = ["providers"]

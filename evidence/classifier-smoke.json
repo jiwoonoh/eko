@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "kind": "public_record_cpu_inference",
+  "record_id": "ptbxl:705",
+  "record_sha256": "6066938e0458b7f7c69be3832029585d4f902bfd9c9457b0bc4c72366ac5788b",
+  "provenance": {
+    "backend": "ecgfounder",
+    "source_revision": "04edac702b61c91face519774ddcc0cd712fef23",
+    "model_revision": "d9b1793951b2342f5f7e84f1ac03cd37f8a08724",
+    "checkpoint_sha256": "ee199f3781f4ae1f732973267f003da0a759ea12bddb0dd28a77faa60aca7997",
+    "label_map_sha256": "7c087a0d383c7ea9ae9b818ad00a551b029334edfa5f1fbb5036bfbaa0df0c39",
+    "preprocessing_version": "ecgfounder-ptbxl-global-zscore-v1",
+    "device": "cpu",
+    "task_count": 150,
+    "output_transform": "sigmoid"
+  },
+  "versions": {
+    "python": "3.11.4",
+    "eko": "0.3.0",
+    "numpy": "1.26.4",
+    "scipy": "1.13.1",
+    "neurokit2": "0.2.7",
+    "pandas": "2.2.3",
+    "matplotlib": "3.11.2",
+    "scikit-learn": "1.9.1",
+    "requests": "2.32.5",
+    "torch": "2.6.0"
+  },
+  "environment": {
+    "platform": "Darwin",
+    "architecture": "arm64"
+  },
+  "readiness_seconds": 3.3671006669756025,
+  "first_inference_seconds": 0.045702083967626095,
+  "repeat_inference_seconds": 0.04246179200708866,
+  "child_peak_rss_mib": 999.3125,
+  "complete_score_count": 150,
+  "deterministic_repeat": true,
+  "same_worker_for_both_tools": true,
+  "focus_scores": {
+    "NORMAL SINUS RHYTHM": 0.9921140670776367,
+    "NORMAL ECG": 0.028745215386152267,
+    "SINUS RHYTHM": 0.9950788021087646,
+    "ATRIAL FIBRILLATION": 0.06419049203395844,
+    "LEFT ANTERIOR FASCICULAR BLOCK": 0.581631064414978
+  },
+  "measurements": {
+    "heart_rate_bpm": 75.95,
+    "rr_interval_ms": 790.0,
+    "pr_interval_ms": 116.0,
+    "q_s_peak_span_ms": 93.0,
+    "qtc_bazett_ms": 432.53
+  },
+  "limitations": [
+    "Uncalibrated scores; no diagnostic threshold or clinical validation.",
+    "Memory is the maximum RSS among this process's terminated children.",
+    "No language-model API call."
+  ],
+  "command": "python -m classifier check --checkpoint checkpoints/ecgfounder/12_lead_ECGFounder.pth --ecg data/demo/HR00705.mat",
+  "recorded_at": "2026-10-15T14:52:19.798252+00:00",
+  "source_sha256": {
+    "classifier.py": "ca806bf25be0ef5105ea6ce481993e905f8644350a748098d0684958bba3ea91",
+    "ecgfounder.py": "fcc55f63a3701836785e1fb45ee27cbcd520790a5f38f4cb6e8fcbf9067dfd32",
+    "ecgfounder_labels.py": "eb8956a88740e530454e8504735d26e15404ab67241bdb6f90c92959f10f8298",
+    "worker.py": "2c362b88b1f15acb54f2997a3ec5b2ae1d2b885e4a42c6237ca99b696ce588f2",
+    "records.py": "1e5b9513d0b66029b8c423b6041b63735ed4c1b4df0798afab0c3e822477ce29",
+    "measurements.py": "37fbec523cb5763de791fcf443d3986f7f2b9c1d9bc8bb363a4893e4ec16cd89",
+    "traces.py": "e0859b7041cf3bffe5cb36ccc518438d62ed22ac56d122727ae8ef529e6dcb29"
+  }
+}

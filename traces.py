@@ -18,7 +18,7 @@ from contracts import Record, UPSTREAM_REVISION
 
 def dependency_versions() -> dict[str, str | None]:
     versions = {"python": platform.python_version()}
-    for name in ("eko", "numpy", "scipy", "neurokit2", "pandas", "matplotlib", "scikit-learn", "requests"):
+    for name in ("eko", "numpy", "scipy", "neurokit2", "pandas", "matplotlib", "scikit-learn", "requests", "torch"):
         try:
             versions[name] = importlib.metadata.version(name)
         except importlib.metadata.PackageNotFoundError:
@@ -35,7 +35,8 @@ def _json_value(value):
 def code_hashes() -> dict[str, str]:
     root = Path(__file__).resolve().parent
     names = ("contracts.py", "eko.py", "host.py", "records.py", "measurements.py",
-             "worker.py", "traces.py", "reporting.py", "providers/openrouter.py")
+             "worker.py", "traces.py", "reporting.py", "classifier.py", "ecgfounder.py",
+             "ecgfounder_labels.py", "providers/openrouter.py")
     return {name: hashlib.sha256((root / name).read_bytes()).hexdigest()
             for name in names if (root / name).is_file()}
 
