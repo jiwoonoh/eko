@@ -10,7 +10,7 @@ import uuid
 from typing import Any, Callable
 
 from contracts import Decision, Record, ToolCall, ToolObservation, TurnResult
-from reporting import REPORT_INSTRUCTIONS, render_report, safe_report
+from reporting import fallback_report, parse_report, render_report, report_instructions
 
 
 def measurement_schema(record_id: str) -> dict[str, Any]:
@@ -31,6 +31,21 @@ def measurement_schema(record_id: str) -> dict[str, Any]:
             },
         },
     }
+
+
+def classification_schema(record_id: str) -> dict[str, Any]:
+    schema = measurement_schema(record_id)
+    schema["function"].update(
+        name="call_classification_tool",
+        description=(
+            "Run the verified ECGFounder classifier on the selected waveform. Returns 150 independent "
+            "sigmoid model scores, not clinical diagnoses or calibrated disease probabilities. "
+            "ecgfounder_005=ATRIAL FIBRILLATION; ecgfounder_003=SINUS RHYTHM; "
+            "ecgfounder_001=NORMAL SINUS RHYTHM; ecgfounder_002=NORMAL ECG. "
+            "Keep these labels separate. The full pinned label catalog is in the report instructions."
+        ),
+    )
+    return schema
 
 
 def _record_key(record: Record) -> str:
@@ -68,6 +83,8 @@ class Session:
         self._identity = _record_key(self.record)
         self.tools = deepcopy(self._custom_tools) if self._custom_tools is not None else [
             measurement_schema(self.record.record_id)]
+        if self._custom_tools is None and getattr(self.worker, "classifier_ready", False):
+            self.tools.append(classification_schema(self.record.record_id))
         names = [tool["function"]["name"] for tool in self.tools]
         if len(names) != len(set(names)):
             raise ValueError("tool names must be unique")
@@ -80,9 +97,10 @@ class Session:
             "Base numeric findings on those observations, preserve units and missingness, "
             "Describe Q-to-S peak span as a peak-span estimate, never as full QRS duration. "
             "Explain failed or unavailable analysis. Reuse evidence for follow-ups "
-            "about this record. Classification and diagnostic interpretation are unavailable. "
+            "about this record. Report classifier scores only when returned by the registered classifier; "
+            "never derive classification from measurement summaries. Clinical diagnosis is unavailable. "
             "Do not provide diagnosis or treatment advice.\n"
-            f"{REPORT_INSTRUCTIONS}\n"
+            f"{report_instructions(set(names))}\n"
             f"Selected record: {json.dumps(self.record.public(), sort_keys=True)}"
         )
         self.history = [{"role": "system", "content": prompt}]
@@ -153,6 +171,9 @@ def _observation(session: Session, call: ToolCall, raw: dict[str, Any],
         raise ValueError("tool output belongs to a different record or file hash")
     if raw.get("status") not in ("success", "partial", "failed"):
         raise ValueError("tool output has an invalid status")
+    if call.name == "call_classification_tool" and raw["status"] in ("success", "partial"):
+        from classifier import validate_output
+        validate_output(raw)
     _finite(raw)
     findings = raw.get("findings", {})
     if not isinstance(findings, dict) or any(
@@ -214,11 +235,12 @@ def run_turn(session: Session, question: str) -> TurnResult:
     pending: list[ToolCall] = []
     failed_observations: list[ToolObservation] = []
     unresolved: dict[str, str] = {}
+    released_report: dict[str, Any] | None = None
 
     def finish(status: str, *, answer: str = "", error: str | None = None) -> TurnResult:
         result = TurnResult(turn_id, status, answer,
                             tuple(session.evidence) + tuple(failed_observations), error,
-                            responses, calls, time.monotonic() - started)
+                            responses, calls, time.monotonic() - started, report=deepcopy(released_report))
         session.log("turn_end", **result.to_dict())
         return result
 
@@ -286,14 +308,19 @@ def run_turn(session: Session, question: str) -> TurnResult:
                 try:
                     answer = render_report(decision.content, session.record, session.evidence,
                                            tool_names=set(session._schemas))
+                    released_report = parse_report(decision.content)
                 except ValueError as error:
                     session.log("answer_rejected", turn_id=turn_id, reason=str(error))
-                    answer = safe_report(session.record, session.evidence,
-                                         tool_names=set(session._schemas))
+                    released_report = fallback_report(session.record, session.evidence,
+                                                      tool_names=set(session._schemas))
+                    answer = render_report(json.dumps(released_report), session.record, session.evidence,
+                                           tool_names=set(session._schemas))
+                    session.log("report_released", turn_id=turn_id, report=released_report, replacement=True)
                     session.history.append({"role": "assistant", "content": answer})
                     errors = [*unresolved.values(), f"runner: unsupported final response blocked: {error}"]
                     return finish("failed", answer=answer, error="; ".join(errors))
                 session.history.append({"role": "assistant", "content": answer})
+                session.log("report_released", turn_id=turn_id, report=released_report, replacement=False)
                 error = "; ".join(unresolved.values()) if unresolved else None
                 return finish("failed" if unresolved else "success", answer=answer,
                               error=error)

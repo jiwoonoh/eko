@@ -1,12 +1,14 @@
 import json
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
 import unittest
 
-from contracts import Record, STANDARD_LEADS
-from host import lead_order
+from contracts import Record, STANDARD_LEADS, ToolObservation, TurnResult
+from host import lead_order, show_result
 from traces import EventLog
 
 
@@ -25,6 +27,30 @@ class CliTests(unittest.TestCase):
         self.assertIsNone(lead_order(None))
         self.assertEqual(lead_order("standard"), STANDARD_LEADS)
         self.assertEqual(lead_order("II, I"), ("II", "I"))
+
+    def test_classifier_requires_explicit_checkpoint_before_record_loading(self):
+        root = Path(__file__).resolve().parents[1]
+        result = subprocess.run(
+            [sys.executable, "-S", str(root / "host.py"), "--model", "test", "--ecg", "absent.mat", "--classifier", "ecgfounder"],
+            capture_output=True, text=True, timeout=5)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("must be provided together", result.stderr)
+
+    def test_text_limits_classifier_evidence_to_five_but_json_preserves_all_scores(self):
+        from tests.test_classification_runtime import classification
+        raw = classification()
+        observation = ToolObservation(**raw, call_id="call", evidence_id="evidence", tool="call_classification_tool")
+        result = TurnResult("turn", "success", evidence=(observation,))
+        output = StringIO()
+        with redirect_stdout(output):
+            show_result(result)
+        self.assertIn("Five highest classifier scores", output.getvalue())
+        lines = [line for line in output.getvalue().splitlines() if line.startswith("  ") and line.endswith(" score")]
+        self.assertEqual(len(lines), 5)
+        output = StringIO()
+        with redirect_stdout(output):
+            show_result(result, as_json=True)
+        self.assertEqual(json.loads(output.getvalue())["evidence"][0]["findings"], raw["findings"])
 
     def test_colliding_timestamps_do_not_overwrite_logs(self):
         record = Record("/private/example/HR25.mat", "ptbxl:25", "abc", 500,

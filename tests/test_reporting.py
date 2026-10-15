@@ -2,8 +2,9 @@ import json
 from dataclasses import replace
 import unittest
 
+from classifier import SCORE_METHOD, TASK_COUNT, TOOL_NAME, VERSION, load_labels, provenance, score_key
 from contracts import Record, STANDARD_LEADS, ToolObservation
-from reporting import REPORT_INSTRUCTIONS, render_report, safe_report
+from reporting import REPORT_INSTRUCTIONS, fallback_report, parse_report, render_report, report_instructions, safe_report
 
 
 class ReportingTests(unittest.TestCase):
@@ -197,6 +198,195 @@ class ReportingTests(unittest.TestCase):
         for key in ["findings", "evidence_id", "explanations", "unavailable"]:
             self.assertIn(key, REPORT_INSTRUCTIONS)
         self.assertTrue(REPORT_INSTRUCTIONS.strip())
+
+    def test_parse_report_returns_only_normalized_reference_fields(self):
+        content = '{"unavailable": [], "explanations": ["record"], "findings": [{"finding": "heart_rate_bpm", "evidence_id": "e-1"}]}'
+        self.assertEqual(parse_report(content), {
+            "findings": [{"evidence_id": "e-1", "finding": "heart_rate_bpm"}],
+            "explanations": ["record"], "unavailable": [],
+        })
+        for bad in [self.report(), '{"findings": [], "explanations": [], "unavailable": [], "content": "Normal"}',
+                    '{"findings": [{"evidence_id":"e-1","finding":"heart_rate_bpm","value":99}],"explanations":[],"unavailable":[]}']:
+            with self.subTest(content=bad), self.assertRaises(ValueError):
+                parse_report(bad)
+
+    def test_fallback_report_references_are_exactly_the_rendered_measurements(self):
+        report = fallback_report(self.record, [self.observation])
+        self.assertEqual(len(report["findings"]), len(self.observation.findings))
+        self.assertEqual(report["unavailable"], ["classification"])
+        self.assertEqual(render_report(json.dumps(report), self.record, [self.observation]),
+                         safe_report(self.record, [self.observation]))
+
+
+class ClassifierReportingTests(unittest.TestCase):
+    def setUp(self):
+        self.record = Record("/private/local/HR00705.mat", "ptbxl:705", "a" * 64, 500,
+                             STANDARD_LEADS, ("mV",) * 12)
+        self.tools = {"call_measurement_tool", TOOL_NAME}
+        findings = {score_key(index): 0.01 for index in range(TASK_COUNT)}
+        findings.update({score_key(1): .85, score_key(2): .65, score_key(3): .45, score_key(5): .05})
+        self.observation = ToolObservation(
+            record_id=self.record.record_id, record_hash=self.record.sha256,
+            call_id="classifier-call", evidence_id="classifier-evidence", tool=TOOL_NAME,
+            version=VERSION, status="success", source="live", findings=findings,
+            units={key: "score" for key in findings}, methods={key: SCORE_METHOD for key in findings},
+            missingness={}, details=provenance(),
+        )
+
+    def report(self, indices=(), explanations=(), unavailable=()):
+        return json.dumps({
+            "findings": [{"evidence_id": self.observation.evidence_id, "finding": score_key(index)}
+                         for index in indices],
+            "explanations": list(explanations), "unavailable": list(unavailable),
+        })
+
+    def render(self, content, evidence=None, tools=None):
+        return render_report(content, self.record,
+                             [self.observation] if evidence is None else evidence,
+                             tool_names=self.tools if tools is None else tools)
+
+    def test_distinct_normal_sinus_normal_ecg_sinus_and_af_scores_use_pinned_labels(self):
+        answer = self.render(self.report([1, 2, 3, 5]))
+        for index, value in [(1, .85), (2, .65), (3, .45), (5, .05)]:
+            self.assertIn(f"Model score for {load_labels()[index]}: {value} score", answer)
+        self.assertIn("independent, uncalibrated model scores", answer)
+        self.assertIn("No validated decision threshold", answer)
+        self.assertNotIn("Classification is unavailable", answer)
+        self.assertNotIn("positive", answer.lower())
+        self.assertNotIn("negative", answer.lower())
+        self.assertEqual(len(self.observation.findings), 150)
+
+    def test_low_and_boundary_scores_remain_scores_without_rule_out(self):
+        output = replace(self.observation, findings={**self.observation.findings,
+                                                   score_key(5): 0, score_key(1): 1})
+        answer = self.render(self.report([1, 5]), [output])
+        self.assertIn("NORMAL SINUS RHYTHM: 1 score", answer)
+        self.assertIn("ATRIAL FIBRILLATION: 0 score", answer)
+        self.assertNotIn("no atrial fibrillation", answer.lower())
+        self.assertIn("does not establish a clinical diagnosis or rule out", answer)
+
+    def test_all_150_scores_may_be_explicitly_referenced_without_mutating_evidence(self):
+        original = self.observation.to_dict()
+        answer = self.render(self.report(range(TASK_COUNT)))
+        self.assertEqual(answer.count("Model score for "), TASK_COUNT)
+        self.assertEqual(self.observation.to_dict(), original)
+
+    def test_partial_score_mapping_and_invalid_unselected_scores_are_rejected(self):
+        findings = dict(self.observation.findings)
+        findings.pop(score_key(149))
+        bad = [replace(self.observation, findings=findings)]
+        for value in (-.1, 1.1, float("nan"), float("inf"), None, True, "0.4"):
+            bad.append(replace(self.observation,
+                               findings={**self.observation.findings, score_key(149): value}))
+        for observation in bad:
+            with self.subTest(observation=observation), self.assertRaises(ValueError):
+                self.render(self.report([5]), [observation])
+
+    def test_provenance_units_methods_and_label_map_must_match_even_for_one_reference(self):
+        bad = [replace(self.observation, version="unknown"),
+               replace(self.observation, units={**self.observation.units, score_key(149): "bpm"}),
+               replace(self.observation, methods={**self.observation.methods, score_key(149): "softmax"}),
+               replace(self.observation, missingness={score_key(149): "not computed"})]
+        for name in provenance():
+            bad.append(replace(self.observation, details={**provenance(), name: "wrong"}))
+        for observation in bad:
+            with self.subTest(observation=observation), self.assertRaises(ValueError):
+                self.render(self.report([5]), [observation])
+
+    def test_model_supplied_label_metadata_cannot_replace_the_pinned_label(self):
+        output = replace(self.observation, details={**provenance(), "labels": ["INJECTED DIAGNOSIS"] * 150})
+        answer = self.render(self.report([5]), [output])
+        self.assertIn("Model score for ATRIAL FIBRILLATION", answer)
+        self.assertNotIn("INJECTED DIAGNOSIS", answer)
+        report = json.loads(self.report([5]))
+        report["findings"][0]["label"] = "INJECTED DIAGNOSIS"
+        with self.assertRaises(ValueError):
+            self.render(json.dumps(report))
+
+    def test_classification_requires_enabled_tool_and_current_successful_live_observation(self):
+        with self.assertRaises(ValueError):
+            self.render(self.report([5]), tools={"call_measurement_tool"})
+        for change in ({"record_id": "ptbxl:706"}, {"record_hash": "b" * 64},
+                       {"source": "replay"}, {"source": "runner"}, {"source": "fixture"},
+                       {"status": "partial"}, {"status": "failed"}):
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                self.render(self.report([5]), [replace(self.observation, **change)])
+
+    def test_dynamic_capabilities_and_measurement_limits_do_not_deny_ready_classifier(self):
+        answer = self.render(self.report(explanations=["capabilities", "measurement_limits", "classifier_scores", "classifier_limits"]))
+        self.assertIn("ECGFounder model scores", answer)
+        self.assertNotIn("Classification is unavailable", answer)
+        self.assertIn("Clinical diagnosis and treatment remain unavailable", answer)
+        self.assertIn("NORMAL ECG", answer)
+        with self.assertRaises(ValueError):
+            render_report(self.report(explanations=["classifier_scores"]), self.record, [])
+
+    def test_ready_tool_without_result_reports_record_specific_unavailability(self):
+        answer = self.render(self.report(unavailable=["classification"]), [])
+        self.assertIn("Classifier scores are unavailable for this record", answer)
+        self.assertNotIn("no verified classifier is enabled", answer)
+        with self.assertRaises(ValueError):
+            self.render(self.report(unavailable=["classification"]))
+
+    def test_instructions_enable_score_calls_and_complete_label_catalog_only_when_ready(self):
+        enabled = report_instructions(self.tools)
+        self.assertIn("registered call_classification_tool", enabled)
+        self.assertIn("ecgfounder_001=NORMAL SINUS RHYTHM", enabled)
+        self.assertIn("ecgfounder_002=NORMAL ECG", enabled)
+        self.assertIn("ecgfounder_003=SINUS RHYTHM", enabled)
+        self.assertIn("ecgfounder_005=ATRIAL FIBRILLATION", enabled)
+        self.assertIn("ecgfounder_149=MULTIFOCAL ATRIAL TACHYCARDIA", enabled)
+        self.assertNotIn("For classification or rhythm questions, return findings=[]", enabled)
+        disabled = report_instructions({"call_measurement_tool"})
+        self.assertEqual(disabled, REPORT_INSTRUCTIONS)
+        self.assertNotIn("ecgfounder_005", disabled)
+        self.assertIn('unavailable=["classification"]', disabled)
+
+    def test_fallback_keeps_latest_classifier_top_five_and_all_measurements(self):
+        measurement = replace(self.observation, tool="call_measurement_tool", evidence_id="measurements",
+                              findings={"heart_rate_bpm": 75, "pr_interval_ms": None},
+                              units={"heart_rate_bpm": "bpm", "pr_interval_ms": "ms"},
+                              missingness={"pr_interval_ms": "P onset unavailable"})
+        latest = replace(self.observation, evidence_id="latest-classifier",
+                         findings={**self.observation.findings, score_key(149): .99})
+        observations = [self.observation, measurement, latest]
+        report = fallback_report(self.record, observations, tool_names=self.tools)
+        self.assertEqual(len(report["findings"]), 7)
+        self.assertEqual(report["unavailable"], [])
+        scores = [ref for ref in report["findings"] if ref["finding"].startswith("ecgfounder_")]
+        self.assertEqual([ref["finding"] for ref in scores], [score_key(index) for index in (149, 1, 2, 3, 5)])
+        self.assertTrue(all(ref["evidence_id"] == latest.evidence_id for ref in scores))
+        answer = safe_report(self.record, observations, tool_names=self.tools)
+        self.assertEqual(answer.count("Model score for "), 5)
+        self.assertIn("75 bpm", answer)
+        self.assertIn("P onset unavailable", answer)
+        self.assertNotIn("Classification is unavailable", answer)
+        self.assertEqual(answer, self.render(json.dumps(report), observations))
+        self.assertEqual(len(latest.findings), 150)
+
+    def test_fallback_ignores_incomplete_or_misattributed_classifier_results(self):
+        invalid = [replace(self.observation, record_hash="b" * 64),
+                   replace(self.observation, findings={score_key(5): .99}),
+                   replace(self.observation, details={}), replace(self.observation, source="replay")]
+        for observation in invalid:
+            with self.subTest(observation=observation):
+                report = fallback_report(self.record, [observation], tool_names=self.tools)
+                self.assertEqual(report["findings"], [])
+                self.assertEqual(report["unavailable"], ["classification"])
+                answer = safe_report(self.record, [observation], tool_names=self.tools)
+                self.assertNotIn("Model score for ", answer)
+
+    def test_fallback_ties_are_stable_and_fields_from_distinct_custom_tools_survive(self):
+        tied = replace(self.observation, findings={key: .5 for key in self.observation.findings})
+        first = replace(tied, tool="first_tool", evidence_id="first", findings={"quality": .2}, units={"quality": "ratio"})
+        second = replace(first, tool="second_tool", evidence_id="second", findings={"quality": .8})
+        tools = self.tools | {"first_tool", "second_tool"}
+        report = fallback_report(self.record, [tied, first, second], tool_names=tools)
+        scores = [ref["finding"] for ref in report["findings"] if ref["finding"].startswith("ecgfounder_")]
+        self.assertEqual(scores, [score_key(index) for index in range(5)])
+        answer = render_report(json.dumps(report), self.record, [tied, first, second], tool_names=tools)
+        self.assertIn("quality: 0.2 ratio", answer)
+        self.assertIn("quality: 0.8 ratio", answer)
 
 
 if __name__ == "__main__":

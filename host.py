@@ -34,11 +34,17 @@ def show_result(result, *, as_json: bool = False) -> None:
         if observation.status not in ("success", "partial"):
             continue
         print(f"\nEvidence {observation.evidence_id} ({observation.status})")
-        for name, value in observation.findings.items():
+        findings = observation.findings.items()
+        if observation.tool == "call_classification_tool":
+            from classifier import label_for_key
+            findings = sorted(findings, key=lambda item: (-item[1], item[0]))[:5]
+            print("  Five highest classifier scores; all 150 are available in JSON output and the log.")
+        for name, value in findings:
             if value is None:
                 print(f"  {name}: unavailable ({observation.missingness.get(name, 'unknown reason')})")
             else:
-                print(f"  {name}: {value:g} {observation.units.get(name, '')}")
+                label = label_for_key(name) if observation.tool == "call_classification_tool" else name
+                print(f"  {label}: {value:g} {observation.units.get(name, '')}")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -54,7 +60,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--tool-timeout", type=float, default=30.0)
     parser.add_argument("--request-timeout", type=float, default=60.0)
     parser.add_argument("--max-tokens", type=int, default=4096)
+    parser.add_argument("--classifier", choices=("ecgfounder",), help="enable the verified optional classifier")
+    parser.add_argument("--checkpoint", type=Path, help="local ECGFounder checkpoint; never sent to the language model")
     args = parser.parse_args(argv)
+    if bool(args.classifier) != bool(args.checkpoint):
+        parser.error("--classifier and --checkpoint must be provided together")
     for name in ("max_responses", "max_tool_calls", "tool_timeout", "request_timeout", "max_tokens"):
         if not math.isfinite(getattr(args, name)) or getattr(args, name) <= 0:
             parser.error(f"--{name.replace('_', '-')} must be positive and finite")
@@ -88,11 +98,26 @@ def main(argv: list[str] | None = None) -> int:
         "tool_timeout": args.tool_timeout,
         "request_timeout": args.request_timeout,
         "max_tokens": args.max_tokens,
+        "classifier": args.classifier,
     }
     with EventLog(args.log_dir, record, config) as log:
+        worker = ToolWorker(checkpoint=args.checkpoint)
+        if args.classifier:
+            try:
+                ready = worker.prepare_classifier(record, timeout=args.tool_timeout)
+            except (TimeoutError, KeyboardInterrupt) as error:
+                worker.close()
+                ready = False
+                worker.classifier_error = str(error) or "classifier preparation interrupted"
+                if isinstance(error, KeyboardInterrupt):
+                    return 130
+            log("classifier_readiness", ready=ready, provenance=worker.classifier_provenance,
+                error=worker.classifier_error)
+            if not ready:
+                print(f"Classification unavailable: {worker.classifier_error}", file=sys.stderr)
         model = OpenRouter(args.model, api_key=api_key, max_tokens=args.max_tokens,
                            timeout=args.request_timeout)
-        session = Session(model, ToolWorker(), record, log=log,
+        session = Session(model, worker, record, log=log,
                           max_responses=args.max_responses,
                           max_tool_calls=args.max_tool_calls,
                           tool_timeout=args.tool_timeout,
@@ -103,7 +128,8 @@ def main(argv: list[str] | None = None) -> int:
                 result = run_turn(session, args.question)
                 show_result(result, as_json=args.json)
                 return 0 if result.status == "success" else (130 if result.status == "interrupted" else 1)
-            print("Ask about this ECG's measurements. Classification is unavailable. Ctrl+D exits.", file=sys.stderr)
+            capability = "Measurements and classifier scores are available." if worker.classifier_ready else "Classification is unavailable."
+            print(f"Ask about this ECG. {capability} Ctrl+D exits.", file=sys.stderr)
             while True:
                 try:
                     question = input("You: ")

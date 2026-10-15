@@ -84,6 +84,7 @@ class TurnResult:
     model_responses: int = 0
     tool_calls: int = 0
     elapsed: float = 0.0
+    report: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

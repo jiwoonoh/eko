@@ -8,7 +8,8 @@ persistent scientific-tool worker.
 
 The core has no third-party dependencies. The optional ECG extra installs the
 numerical measurement backend. The optional ECGFounder backend now supports verified CPU inference.
-Agent integration and the development benchmark are delivered in the following changes.
+The agent can now request measurements and classifier scores through the same worker.
+The development benchmark and full function reference follow in the final change.
 
 ## Rebuild progress
 
@@ -20,7 +21,7 @@ Agent integration and the development benchmark are delivered in the following c
 | OpenRouter parameter-routing fix | Complete | [`8d4e838`](https://github.com/jiwoonoh/eko/commit/8d4e838) |
 | Bounded evidence reports | Complete | [`973537b`](https://github.com/jiwoonoh/eko/commit/973537b) |
 | ECGFounder CPU backend | Verified | [Classifier tests](tests/test_classifier.py), [public-record check](evidence/classifier-smoke.json) |
-| Agent classifier integration | In progress | Delivered in the next change |
+| Agent classifier integration | Verified with mocked provider | [Runtime integration tests](tests/test_classification_runtime.py), [reporting tests](tests/test_reporting.py) |
 | Development benchmark and function reference | In progress | Delivered in the final change |
 
 The classifier is ECGFounder's public 150-label model, distinct from ECG-Agent's
@@ -42,6 +43,22 @@ SHA-256, and kept outside Git.
 The check uses the actual waveform and CPU model without a language-model API
 request. It tests repeatability and reuse of one worker for both scientific tools.
 It does not establish clinical validity.
+
+To enable classification in the dialogue CLI:
+
+```bash
+./.venv/bin/eko --model YOUR_OPENROUTER_TOOL_CAPABLE_MODEL_ID \
+  --ecg data/demo/HR00705.mat --classifier ecgfounder \
+  --checkpoint checkpoints/ecgfounder/12_lead_ECGFounder.pth
+```
+
+Classifier readiness runs before tool registration. A failed check leaves the
+measurement tool available. Model-selected checkpoint paths are rejected.
+`TurnResult.report` records the exact finding references released to the user,
+separately from all accumulated evidence. Classification scores remain independent
+model outputs; no diagnostic thresholds or free-form clinical conclusions are
+released. New live OpenRouter classifier checks are pending because no API key is
+available to the implementation session.
 
 ## Install
 
