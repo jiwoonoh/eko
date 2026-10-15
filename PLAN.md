@@ -17,6 +17,12 @@ One session owns history and evidence. OpenRouter native calls translate into th
 same model-neutral decisions a later local model adapter will use. Predicted
 Tool_Output is never accepted as an observation.
 
+Render final answers from evidence references and fixed explanations. Do not
+display unrestricted generated medical prose. Reject malformed reports and
+unsupported conclusions with a safe evidence summary, failed completion, and an
+auditable rejection event; keep rejected text out of follow-up history. Median RR
+does not establish regularity and estimator filter bounds do not establish normality.
+
 One persistent registered-tool worker reuses scientific state and terminates on
 hard timeout. The controller owns credentials and logs. Defaults: eight responses,
 four tool calls per turn, thirty seconds per tool, sixty seconds per model request,

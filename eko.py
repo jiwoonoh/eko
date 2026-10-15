@@ -10,6 +10,7 @@ import uuid
 from typing import Any, Callable
 
 from contracts import Decision, Record, ToolCall, ToolObservation, TurnResult
+from reporting import REPORT_INSTRUCTIONS, render_report, safe_report
 
 
 def measurement_schema(record_id: str) -> dict[str, Any]:
@@ -78,9 +79,10 @@ class Session:
             "Tool messages contain observations from the runner; never invent Tool_Output. "
             "Base numeric findings on those observations, preserve units and missingness, "
             "Describe Q-to-S peak span as a peak-span estimate, never as full QRS duration. "
-            "and explain failed or unavailable analysis. Reuse evidence for follow-ups "
-            "about this record. Classification is unavailable unless explicitly registered. "
-            "Do not provide diagnosis or treatment advice. Answer briefly.\n"
+            "Explain failed or unavailable analysis. Reuse evidence for follow-ups "
+            "about this record. Classification and diagnostic interpretation are unavailable. "
+            "Do not provide diagnosis or treatment advice.\n"
+            f"{REPORT_INSTRUCTIONS}\n"
             f"Selected record: {json.dumps(self.record.public(), sort_keys=True)}"
         )
         self.history = [{"role": "system", "content": prompt}]
@@ -195,7 +197,7 @@ def _observation(session: Session, call: ToolCall, raw: dict[str, Any],
 
 
 def _assistant(decision: Decision) -> dict[str, Any]:
-    message: dict[str, Any] = {"role": "assistant", "content": decision.content or None}
+    message: dict[str, Any] = {"role": "assistant", "content": None}
     if decision.tool_calls:
         message["tool_calls"] = [
             {"id": call.id, "type": "function", "function": {
@@ -281,9 +283,19 @@ def run_turn(session: Session, question: str) -> TurnResult:
             if not decision.tool_calls:
                 if not decision.content.strip():
                     return finish("failed", error="provider: empty model response")
-                session.history.append(assistant)
+                try:
+                    answer = render_report(decision.content, session.record, session.evidence,
+                                           tool_names=set(session._schemas))
+                except ValueError as error:
+                    session.log("answer_rejected", turn_id=turn_id, reason=str(error))
+                    answer = safe_report(session.record, session.evidence,
+                                         tool_names=set(session._schemas))
+                    session.history.append({"role": "assistant", "content": answer})
+                    errors = [*unresolved.values(), f"runner: unsupported final response blocked: {error}"]
+                    return finish("failed", answer=answer, error="; ".join(errors))
+                session.history.append({"role": "assistant", "content": answer})
                 error = "; ".join(unresolved.values()) if unresolved else None
-                return finish("failed" if unresolved else "success", answer=decision.content,
+                return finish("failed" if unresolved else "success", answer=answer,
                               error=error)
             session.history.append(assistant)
             pending = list(decision.tool_calls)

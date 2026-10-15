@@ -44,8 +44,10 @@ class IntegrationTests(unittest.TestCase):
                     finish = "tool_calls"
                 else:
                     observation = observations[-1]
-                    heart_rate = observation["findings"]["heart_rate_bpm"]
-                    message = {"role": "assistant", "content": f"Measured heart rate: {heart_rate} bpm; evidence {observation['evidence_id']}."}
+                    message = {"role": "assistant", "content": json.dumps({
+                        "findings": [{"evidence_id": observation["evidence_id"], "finding": "heart_rate_bpm"}],
+                        "explanations": [], "unavailable": [],
+                    })}
                     finish = "stop"
                 return {"model": "fixture-model", "choices": [{"finish_reason": finish, "message": message}],
                         "usage": {"prompt_tokens": 1, "completion_tokens": 1}}

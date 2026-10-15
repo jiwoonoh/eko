@@ -114,10 +114,19 @@ The backend supplies measurements rather than the source's hardcoded diagnostic
 interpretations. Matching source outputs establishes reproducibility; clinical
 validity requires independent annotated measurements.
 
-The controller keeps tool results separate from model-authored text. The initial
-runtime records evidence and presents it alongside the answer; it does not verify
-every medical claim in free-form prose. A `success` turn means the execution loop
-completed, not that a diagnosis was validated.
+The controller renders answers from a small JSON report contract. The model
+selects evidence IDs, finding names, and fixed explanation or unavailable codes;
+it cannot supply displayed values, diagnostic labels, or free-form medical prose.
+Measurement definitions and follow-ups remain available. Rhythm classification,
+normality judgments, and treatment recommendations are explicitly unavailable.
+Median RR does not establish regularity, and estimator filter bounds are not
+clinical reference ranges.
+
+Invalid final reports return `failed`, with a safe evidence summary and an
+`answer_rejected` log event. Original model text stays in `model_response` events
+for research review; it does not enter the displayed answer or subsequent model
+history. This boundary also strips prose accompanying native tool calls. A
+`success` turn means a permitted report completed, not clinical validation.
 
 JSONL events are appended under `runs/` with unique run and call identities. Logs,
 ECG files, datasets, API-key files, and checkpoints are ignored by Git. The worker

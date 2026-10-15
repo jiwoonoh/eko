@@ -2,6 +2,7 @@
 
 from copy import deepcopy
 from dataclasses import replace
+import json
 import math
 import unittest
 from unittest import mock
@@ -30,6 +31,23 @@ def measurement(**updates):
     return result
 
 
+def report(*findings, explanations=(), unavailable=()):
+    def decision(messages):
+        observations = [json.loads(message["content"]) for message in messages if message["role"] == "tool"]
+        refs = []
+        for name in findings:
+            observation = next(obs for obs in reversed(observations)
+                               if obs["status"] in ("success", "partial") and name in obs["findings"])
+            refs.append({"evidence_id": observation["evidence_id"], "finding": name})
+        codes = list(explanations)
+        if not refs and not codes and not unavailable:
+            codes = ["capabilities"]
+        return Decision(json.dumps({"findings": refs,
+                                    "explanations": codes,
+                                    "unavailable": list(unavailable)}))
+    return decision
+
+
 class FakeModel:
     def __init__(self, decisions):
         self.decisions = list(decisions)
@@ -42,6 +60,8 @@ class FakeModel:
         decision = self.decisions.pop(0)
         if isinstance(decision, BaseException):
             raise decision
+        if callable(decision):
+            return decision(messages)
         return decision
 
     def set_deadline(self, deadline):
@@ -82,8 +102,8 @@ class RuntimeTests(unittest.TestCase):
     def test_measurements_are_actual_tool_results_and_followup_reuses_evidence(self):
         session, model, worker, logs = self.session([
             Decision("Tool_Output: heart_rate=999", (call(),), "fixture-model", {"total_tokens": 8}),
-            Decision("Heart rate is 72 bpm."),
-            Decision("PR is 160 ms."),
+            report("heart_rate"),
+            report("pr_interval"),
         ])
         result = run_turn(session, "Measure this ECG.")
         followup = run_turn(session, "And its PR interval?")
@@ -91,6 +111,9 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(result.evidence[0].findings["heart_rate"], 72)
         self.assertEqual(len(worker.calls), 1)
         self.assertEqual(followup.evidence[0].evidence_id, result.evidence[0].evidence_id)
+        self.assertRegex(result.answer, r"72(?:\.0)? bpm")
+        self.assertRegex(followup.answer, r"160(?:\.0)? ms")
+        self.assertNotIn("Tool_Output: heart_rate=999", str(session.history))
         tool_messages = [message for message in model.requests[1][0] if message["role"] == "tool"]
         self.assertEqual(tool_messages[0]["tool_call_id"], "call-1")
         self.assertNotIn("local-only.mat", model.requests[0][0][0]["content"])
@@ -103,7 +126,7 @@ class RuntimeTests(unittest.TestCase):
         tools[1]["function"]["name"] = "fixture_second_tool"
         session, model, worker, _ = self.session([
             Decision(tool_calls=(call("a"), call("b", "fixture_second_tool"))),
-            Decision("Both requested analyses completed."),
+            report(),
         ], tools=tools)
         result = run_turn(session, "Use both fixtures.")
         self.assertEqual(result.status, "success")
@@ -115,7 +138,7 @@ class RuntimeTests(unittest.TestCase):
     def test_repeated_model_tool_model_loop_is_not_limited_to_one_tool(self):
         session, _, worker, _ = self.session([
             Decision(tool_calls=(call("a"),)), Decision(tool_calls=(call("b"),)),
-            Decision("Both measurements are available."),
+            report(),
         ])
         result = run_turn(session, "Check again.")
         self.assertEqual((result.model_responses, result.tool_calls), (3, 2))
@@ -144,7 +167,7 @@ class RuntimeTests(unittest.TestCase):
     def test_classification_unavailable_and_not_advertised(self):
         session, model, worker, _ = self.session([
             Decision(tool_calls=(call(name="call_classification_tool"),)),
-            Decision("Classification is unavailable."),
+            report(unavailable=("classification",)),
         ])
         result = run_turn(session, "Classify.")
         self.assertEqual(worker.calls, [])
@@ -154,12 +177,67 @@ class RuntimeTests(unittest.TestCase):
                          ["call_measurement_tool"])
         self.assertEqual(session.evidence, [])
 
+    def test_diagnostic_prose_cannot_bypass_unavailable_classifier(self):
+        diagnosis = (
+            "This ECG shows normal sinus rhythm, not atrial fibrillation. "
+            "RR is regular; PR is within normal limits. "
+            "Note: formal classification requires a registered classifier."
+        )
+        session, _, _, logs = self.session([
+            Decision(tool_calls=(call(),)), Decision(diagnosis),
+        ])
+        result = run_turn(session, "Classify this ECG as normal or atrial fibrillation.")
+        self.assertEqual(result.status, "failed")
+        self.assertIn("Classification is unavailable", result.answer)
+        self.assertNotIn("normal sinus rhythm", result.answer)
+        self.assertNotIn("within normal limits", result.answer)
+        self.assertEqual(result.evidence[0].findings["heart_rate"], 72)
+        self.assertNotIn(diagnosis, str(session.history))
+        self.assertTrue(any(kind == "answer_rejected" for kind, _ in logs))
+
+    def test_classification_request_returns_explicit_unavailability_without_tools(self):
+        session, _, worker, _ = self.session([report(unavailable=("classification",))])
+        result = run_turn(session, "Is this ECG normal or atrial fibrillation?")
+        self.assertEqual(result.status, "success")
+        self.assertIn("Classification is unavailable", result.answer)
+        self.assertEqual(result.evidence, ())
+        self.assertEqual(worker.calls, [])
+
+    def test_diagnosis_without_evidence_and_normality_paraphrases_are_blocked(self):
+        for prose in ("This is normal sinus rhythm, not AF.", "The tracing is reassuring.",
+                      "Regular rhythm; no fibrillatory activity.", "PR is within normal limits."):
+            with self.subTest(prose=prose):
+                session, _, worker, _ = self.session([Decision(prose)])
+                result = run_turn(session, "Interpret this ECG.")
+                self.assertEqual(result.status, "failed")
+                self.assertIn("unsupported final response blocked", result.error)
+                self.assertIn("Classification is unavailable", result.answer)
+                self.assertEqual(result.evidence, ())
+                self.assertEqual(worker.calls, [])
+                self.assertNotIn(prose, str(session.history))
+
+    def test_rejected_prose_stays_out_of_followup_history_and_evidence_is_reused(self):
+        diagnosis = "The ECG is normal sinus rhythm."
+        session, model, worker, logs = self.session([
+            Decision(diagnosis, (call(),)), Decision(diagnosis), report("heart_rate"),
+        ])
+        rejected = run_turn(session, "Classify this ECG.")
+        followup = run_turn(session, "What was the heart rate?")
+        self.assertEqual(rejected.status, "failed")
+        self.assertEqual(followup.status, "success")
+        self.assertNotIn(diagnosis, str(model.requests[-1][0]))
+        self.assertEqual(followup.evidence[0].evidence_id, rejected.evidence[0].evidence_id)
+        self.assertEqual(len(worker.calls), 1)
+        self.assertEqual([message["tool_call_id"] for message in session.history
+                          if message["role"] == "tool"], ["call-1"])
+        self.assertTrue(any(kind == "model_response" and fields["content"] == diagnosis for kind, fields in logs))
+
     def test_model_paths_and_wrong_record_ids_never_reach_worker(self):
         for args in ({"record_id": "ptbxl:2"}, {"record_id": RECORD.record_id, "ecg_path": "/secret.mat"}):
             with self.subTest(args=args):
                 session, _, worker, _ = self.session([
                     Decision(tool_calls=(ToolCall("a", "call_measurement_tool", args),)),
-                    Decision("I could not execute that request."),
+                    report(unavailable=("unregistered_tool",)),
                 ])
                 result = run_turn(session, "Measure.")
                 self.assertEqual(result.status, "failed")
@@ -169,7 +247,7 @@ class RuntimeTests(unittest.TestCase):
         invalid = ToolCall("invalid", "call_measurement_tool", {"record_id": "ptbxl:2"})
         session, _, worker, _ = self.session([
             Decision(tool_calls=(invalid,)), Decision(tool_calls=(call("corrected"),)),
-            Decision("Heart rate is 72 bpm."),
+            report("heart_rate"),
         ])
         result = run_turn(session, "Measure.")
         self.assertEqual(result.status, "success")
@@ -181,7 +259,7 @@ class RuntimeTests(unittest.TestCase):
     def test_repaired_tool_failure_succeeds_but_unavailable_other_tool_remains_failed(self):
         session, _, _, _ = self.session([
             Decision(tool_calls=(call("first"),)), Decision(tool_calls=(call("retry"),)),
-            Decision("Heart rate is 72 bpm."),
+            report("heart_rate"),
         ], [measurement(status="failed", findings={}, details={"reason": "no R peaks"}), measurement()])
         result = run_turn(session, "Measure.")
         self.assertEqual(result.status, "success")
@@ -189,7 +267,7 @@ class RuntimeTests(unittest.TestCase):
 
         session, _, _, _ = self.session([
             Decision(tool_calls=(call("classify", "call_classification_tool"),)),
-            Decision(tool_calls=(call("measure"),)), Decision("Measurement succeeded; classification unavailable."),
+            Decision(tool_calls=(call("measure"),)), report(unavailable=("classification",)),
         ])
         result = run_turn(session, "Classify and measure.")
         self.assertEqual(result.status, "failed")
@@ -206,7 +284,7 @@ class RuntimeTests(unittest.TestCase):
         for output in bad_outputs:
             with self.subTest(output=output):
                 session, _, _, _ = self.session([
-                    Decision(tool_calls=(call(),)), Decision("The measurement was rejected."),
+                    Decision(tool_calls=(call(),)), report(),
                 ], [output])
                 result = run_turn(session, "Measure.")
                 self.assertEqual(result.status, "failed")
@@ -217,7 +295,7 @@ class RuntimeTests(unittest.TestCase):
         output = measurement(status="partial", findings={"heart_rate": 72, "pr_interval": None},
                              missingness={"pr_interval": "P onset was not detected"})
         session, _, _, _ = self.session([
-            Decision(tool_calls=(call(),)), Decision("PR could not be measured."),
+            Decision(tool_calls=(call(),)), report("pr_interval"),
         ], [output])
         result = run_turn(session, "Measure.")
         self.assertEqual(result.status, "success")
@@ -227,7 +305,7 @@ class RuntimeTests(unittest.TestCase):
     def test_failed_tool_observation_is_auditable_but_not_reusable_evidence(self):
         output = measurement(status="failed", findings={}, details={"error": "no R peaks"})
         session, _, _, _ = self.session([
-            Decision(tool_calls=(call(),)), Decision("There were no usable R peaks."),
+            Decision(tool_calls=(call(),)), report(),
         ], [output])
         result = run_turn(session, "Measure.")
         self.assertEqual(result.status, "failed")
@@ -241,7 +319,7 @@ class RuntimeTests(unittest.TestCase):
             with self.subTest(fields=fields):
                 output = measurement(status="failed", findings={}, **fields)
                 session, _, _, _ = self.session([
-                    Decision(tool_calls=(call(),)), Decision("Measurement unavailable."),
+                    Decision(tool_calls=(call(),)), report(),
                 ], [output])
                 result = run_turn(session, "Measure.")
                 reason = fields.get("reason") or fields.get("message") or fields["details"]["reason"]
@@ -259,7 +337,7 @@ class RuntimeTests(unittest.TestCase):
 
     def test_interrupt_during_tools_leaves_history_valid_for_next_turn(self):
         session, model, worker, _ = self.session([
-            Decision(tool_calls=(call("a"), call("b"))), Decision("Ready for a new request."),
+            Decision(tool_calls=(call("a"), call("b"))), report(),
         ], [KeyboardInterrupt()])
         result = run_turn(session, "Measure.")
         next_result = run_turn(session, "Try a different question.")
@@ -281,7 +359,7 @@ class RuntimeTests(unittest.TestCase):
 
     def test_request_deadline_is_per_model_request_not_per_turn(self):
         session, model, worker, _ = self.session([
-            Decision(tool_calls=(call(),)), Decision("Done."),
+            Decision(tool_calls=(call(),)), report(),
         ])
         clock = iter(range(0, 1000, 10))
         with mock.patch("eko.time.monotonic", side_effect=lambda: next(clock)):
@@ -294,7 +372,7 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(worker.calls[0][3], 30)
 
     def test_record_change_requires_explicit_reset(self):
-        session, model, _, _ = self.session([Decision("Ready."), Decision("New record.")])
+        session, model, _, _ = self.session([report(), report()])
         run_turn(session, "Hello.")
         new = replace(RECORD, record_id="ptbxl:2", sha256="b" * 64)
         session.record = new
