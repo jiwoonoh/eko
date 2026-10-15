@@ -1,0 +1,522 @@
+{
+  "schema_version": 1,
+  "dataset": "PTB-XL",
+  "dataset_version": "1.0.3",
+  "metadata_sha256": "7600de9c1b27d181d850b3c6038a35d7c3ddb6bb33b702e3a20252a6859d216b",
+  "registry_sha256": "ad05b0b1fcae83bb1230755ad9cfc7c96f303feddc08a4a9ad5bdc9ca63bac8f",
+  "metadata_url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/ptbxl_database.csv",
+  "registry_url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/scp_statements.csv",
+  "license": "CC BY 4.0",
+  "dataset_url": "https://physionet.org/content/ptb-xl/1.0.3/",
+  "selection": "fold 9; group priority AFIB,NORM_SR,SR_ABNORMAL,OTHER_RHYTHM; ascending ECG ID; first five unused patients per group; exclude ECG705 and its patient",
+  "excluded_ecg_ids": [
+    705
+  ],
+  "excluded_patient_ids": [
+    4874
+  ],
+  "reference_definition": "presence of SCP annotation keys; development challenge sample, not prevalence-weighted or clinically certified",
+  "cases": [
+    {
+      "ecg_id": 17,
+      "patient_id": 13619,
+      "group": "AFIB",
+      "strat_fold": 9,
+      "filename_hr": "records500/00000/00017_hr",
+      "reference": {
+        "AFIB": true,
+        "NORM": false,
+        "SR": false
+      },
+      "rhythm_codes": [
+        "AFIB",
+        "AFLT"
+      ],
+      "sources": {
+        "hea": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00017_hr.hea",
+          "sha256": "26b150d717295bf85741d9742d06725d6f16c357f3ebce3ad243532a1c988e61"
+        },
+        "dat": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00017_hr.dat",
+          "sha256": "df6c894df5314f62087c4ac67af1e50e6487e378e8982c6530cd90176fdaf958"
+        }
+      }
+    },
+    {
+      "ecg_id": 152,
+      "patient_id": 9796,
+      "group": "AFIB",
+      "strat_fold": 9,
+      "filename_hr": "records500/00000/00152_hr",
+      "reference": {
+        "AFIB": true,
+        "NORM": false,
+        "SR": false
+      },
+      "rhythm_codes": [
+        "AFIB"
+      ],
+      "sources": {
+        "hea": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00152_hr.hea",
+          "sha256": "3a3729e3f7d8cd8e6d7310b69f650688839aa25700ab007d528e4083ce4cc48d"
+        },
+        "dat": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00152_hr.dat",
+          "sha256": "d8a9dc9d92658799c2da79069950428a54d91ae59774d1f9bf3334e8b5aed08b"
+        }
+      }
+    },
+    {
+      "ecg_id": 717,
+      "patient_id": 3795,
+      "group": "AFIB",
+      "strat_fold": 9,
+      "filename_hr": "records500/00000/00717_hr",
+      "reference": {
+        "AFIB": true,
+        "NORM": false,
+        "SR": false
+      },
+      "rhythm_codes": [
+        "AFIB"
+      ],
+      "sources": {
+        "hea": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00717_hr.hea",
+          "sha256": "119cd52d987ff955577e5f4762acfd7b9c2158b24b85ebd086574ff870f9d7bb"
+        },
+        "dat": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00717_hr.dat",
+          "sha256": "484b6f1190be2e81c0a72c36e1515b00547ec27b572091963477566a069ea53c"
+        }
+      }
+    },
+    {
+      "ecg_id": 722,
+      "patient_id": 6446,
+      "group": "AFIB",
+      "strat_fold": 9,
+      "filename_hr": "records500/00000/00722_hr",
+      "reference": {
+        "AFIB": true,
+        "NORM": false,
+        "SR": false
+      },
+      "rhythm_codes": [
+        "AFIB"
+      ],
+      "sources": {
+        "hea": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00722_hr.hea",
+          "sha256": "1d5a994d6f936286e0ccfe4ba9d30bfe72bf9385ad5b2bbc8d61d7f6d35305d8"
+        },
+        "dat": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00722_hr.dat",
+          "sha256": "c81e83556453ca9215c42dd436556524be7c009553b291ceeff64ad2d61d2ee3"
+        }
+      }
+    },
+    {
+      "ecg_id": 866,
+      "patient_id": 6697,
+      "group": "AFIB",
+      "strat_fold": 9,
+      "filename_hr": "records500/00000/00866_hr",
+      "reference": {
+        "AFIB": true,
+        "NORM": true,
+        "SR": false
+      },
+      "rhythm_codes": [
+        "AFIB"
+      ],
+      "sources": {
+        "hea": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00866_hr.hea",
+          "sha256": "a52b58e6a37caaf180c6e853ccd94abd9d79f70e3c55a694d0221377bf99f8c3"
+        },
+        "dat": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00866_hr.dat",
+          "sha256": "a29b76ea6d5775836faf47892b930dd7c8f4ea4b11f25cdf2b3735f3aa422308"
+        }
+      }
+    },
+    {
+      "ecg_id": 10,
+      "patient_id": 9456,
+      "group": "NORM_SR",
+      "strat_fold": 9,
+      "filename_hr": "records500/00000/00010_hr",
+      "reference": {
+        "AFIB": false,
+        "NORM": true,
+        "SR": true
+      },
+      "rhythm_codes": [
+        "SR"
+      ],
+      "sources": {
+        "hea": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00010_hr.hea",
+          "sha256": "8203b3e2708cc7d29f53e521e7bad952b55046acd508880e1bc262476ce1eecb"
+        },
+        "dat": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00010_hr.dat",
+          "sha256": "e1ac8a8873741cb85d2533c9c3c79acfaa34b2f9f80a108b6b1dfc0635c0c2e5"
+        }
+      }
+    },
+    {
+      "ecg_id": 47,
+      "patient_id": 8295,
+      "group": "NORM_SR",
+      "strat_fold": 9,
+      "filename_hr": "records500/00000/00047_hr",
+      "reference": {
+        "AFIB": false,
+        "NORM": true,
+        "SR": true
+      },
+      "rhythm_codes": [
+        "SR"
+      ],
+      "sources": {
+        "hea": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00047_hr.hea",
+          "sha256": "86ca7304dcb4e5876849ee8b1fe6b67ea56541705d151a3e69ec5e81a667819b"
+        },
+        "dat": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00047_hr.dat",
+          "sha256": "1e13a805b18d3c355e00d3b76c260cbf96cadec264dbffa9c7b4334378d3f0c9"
+        }
+      }
+    },
+    {
+      "ecg_id": 51,
+      "patient_id": 16750,
+      "group": "NORM_SR",
+      "strat_fold": 9,
+      "filename_hr": "records500/00000/00051_hr",
+      "reference": {
+        "AFIB": false,
+        "NORM": true,
+        "SR": true
+      },
+      "rhythm_codes": [
+        "SR"
+      ],
+      "sources": {
+        "hea": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00051_hr.hea",
+          "sha256": "7c9e6f6f22ec63e5dbf27f1c404dbf497ad7363f9c20b9b872f9a897c34fab1a"
+        },
+        "dat": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00051_hr.dat",
+          "sha256": "555b321e0588865601bad5516b7e804c592e0c9ccc99f3bd234c831616134035"
+        }
+      }
+    },
+    {
+      "ecg_id": 62,
+      "patient_id": 21273,
+      "group": "NORM_SR",
+      "strat_fold": 9,
+      "filename_hr": "records500/00000/00062_hr",
+      "reference": {
+        "AFIB": false,
+        "NORM": true,
+        "SR": true
+      },
+      "rhythm_codes": [
+        "SR"
+      ],
+      "sources": {
+        "hea": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00062_hr.hea",
+          "sha256": "aa8d87d5a07aecb16e415b54bda6702ce361c8e1c22c2fd615bd71d88360d357"
+        },
+        "dat": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00062_hr.dat",
+          "sha256": "18f291b4c859d5a9d8a5259bb79a706002dcdbf378f2fe782dde395efb9a7461"
+        }
+      }
+    },
+    {
+      "ecg_id": 72,
+      "patient_id": 14060,
+      "group": "NORM_SR",
+      "strat_fold": 9,
+      "filename_hr": "records500/00000/00072_hr",
+      "reference": {
+        "AFIB": false,
+        "NORM": true,
+        "SR": true
+      },
+      "rhythm_codes": [
+        "SR"
+      ],
+      "sources": {
+        "hea": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00072_hr.hea",
+          "sha256": "20a42916f6e2979b29172bb8b6349245b95a39ee97cf2e493ead79f9e4944b5d"
+        },
+        "dat": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00072_hr.dat",
+          "sha256": "c5b8ae3a33c9b101e8c3188bc6abd7e67dca333aba498808e86ff3c7a756b7ea"
+        }
+      }
+    },
+    {
+      "ecg_id": 8,
+      "patient_id": 11275,
+      "group": "SR_ABNORMAL",
+      "strat_fold": 9,
+      "filename_hr": "records500/00000/00008_hr",
+      "reference": {
+        "AFIB": false,
+        "NORM": false,
+        "SR": true
+      },
+      "rhythm_codes": [
+        "SR"
+      ],
+      "sources": {
+        "hea": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00008_hr.hea",
+          "sha256": "8bbdf911c433bef64fd520330c6ea2b8520efeb1704b3b892cee6754d2158a4e"
+        },
+        "dat": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00008_hr.dat",
+          "sha256": "119d2eaf8e8aaa4a091f9f76523bf559691cfd8dd4d936cf724af1f630357233"
+        }
+      }
+    },
+    {
+      "ecg_id": 30,
+      "patient_id": 19053,
+      "group": "SR_ABNORMAL",
+      "strat_fold": 9,
+      "filename_hr": "records500/00000/00030_hr",
+      "reference": {
+        "AFIB": false,
+        "NORM": false,
+        "SR": true
+      },
+      "rhythm_codes": [
+        "SR"
+      ],
+      "sources": {
+        "hea": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00030_hr.hea",
+          "sha256": "6bf970252384d0d3fe0b8b8b0e130c86b52e15cf4bc2fc26522239415c9f1b36"
+        },
+        "dat": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00030_hr.dat",
+          "sha256": "6107fe8e79c83554ac9780dd08a666b709299ac9141874291b390d1f6619dd92"
+        }
+      }
+    },
+    {
+      "ecg_id": 41,
+      "patient_id": 8420,
+      "group": "SR_ABNORMAL",
+      "strat_fold": 9,
+      "filename_hr": "records500/00000/00041_hr",
+      "reference": {
+        "AFIB": false,
+        "NORM": false,
+        "SR": true
+      },
+      "rhythm_codes": [
+        "SR"
+      ],
+      "sources": {
+        "hea": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00041_hr.hea",
+          "sha256": "99dd861a94837a0bfb172b334f291c253d07b2eb51141d183a43e584caefb928"
+        },
+        "dat": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00041_hr.dat",
+          "sha256": "63f9b4bcd724af592b35ec3063d492d52b8d1f7b292ff6734e1475f48749cfac"
+        }
+      }
+    },
+    {
+      "ecg_id": 48,
+      "patient_id": 13672,
+      "group": "SR_ABNORMAL",
+      "strat_fold": 9,
+      "filename_hr": "records500/00000/00048_hr",
+      "reference": {
+        "AFIB": false,
+        "NORM": false,
+        "SR": true
+      },
+      "rhythm_codes": [
+        "SR"
+      ],
+      "sources": {
+        "hea": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00048_hr.hea",
+          "sha256": "de9bcc807ea7f0a6e05a82f1e7fe90133468a69f5fb213233f2a23609cef97d7"
+        },
+        "dat": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00048_hr.dat",
+          "sha256": "e99ad83362cb6514564d61459fe0f5483e4dddb168905df2b03362f5c53edfe8"
+        }
+      }
+    },
+    {
+      "ecg_id": 49,
+      "patient_id": 13958,
+      "group": "SR_ABNORMAL",
+      "strat_fold": 9,
+      "filename_hr": "records500/00000/00049_hr",
+      "reference": {
+        "AFIB": false,
+        "NORM": false,
+        "SR": true
+      },
+      "rhythm_codes": [
+        "SR"
+      ],
+      "sources": {
+        "hea": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00049_hr.hea",
+          "sha256": "506218e67c3e16ab6cc160f0e2443aedcdfeb211c10130b55c3d14e464c29ea2"
+        },
+        "dat": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00049_hr.dat",
+          "sha256": "8c99161748a020498663b96d8253a374d90cfb2eb58d1de35c0d00c6a08fe366"
+        }
+      }
+    },
+    {
+      "ecg_id": 144,
+      "patient_id": 16914,
+      "group": "OTHER_RHYTHM",
+      "strat_fold": 9,
+      "filename_hr": "records500/00000/00144_hr",
+      "reference": {
+        "AFIB": false,
+        "NORM": false,
+        "SR": false
+      },
+      "rhythm_codes": [
+        "PACE"
+      ],
+      "sources": {
+        "hea": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00144_hr.hea",
+          "sha256": "f44146226ec157aa8639d592f07483c3db1d5dcb2305970eab610b4ab7e58608"
+        },
+        "dat": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00144_hr.dat",
+          "sha256": "57352802572e1d5efab00a2e038f8d82a3a2186ee653567e16633472c8ba5c22"
+        }
+      }
+    },
+    {
+      "ecg_id": 190,
+      "patient_id": 10782,
+      "group": "OTHER_RHYTHM",
+      "strat_fold": 9,
+      "filename_hr": "records500/00000/00190_hr",
+      "reference": {
+        "AFIB": false,
+        "NORM": false,
+        "SR": false
+      },
+      "rhythm_codes": [
+        "PACE"
+      ],
+      "sources": {
+        "hea": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00190_hr.hea",
+          "sha256": "6ef7661ee73995803eb6a4ef45f2a735daa0c03ca7636765bd09ccb41ae9fce3"
+        },
+        "dat": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00190_hr.dat",
+          "sha256": "e3336566eb87d8566b678dee0a7db75237c0c8b678ce0bbc08a585c82448d8e7"
+        }
+      }
+    },
+    {
+      "ecg_id": 498,
+      "patient_id": 16911,
+      "group": "OTHER_RHYTHM",
+      "strat_fold": 9,
+      "filename_hr": "records500/00000/00498_hr",
+      "reference": {
+        "AFIB": false,
+        "NORM": false,
+        "SR": false
+      },
+      "rhythm_codes": [
+        "PACE"
+      ],
+      "sources": {
+        "hea": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00498_hr.hea",
+          "sha256": "5ee23ec3d00d00f171adea202a06a60ffe4f1b5b2d9183c71b708e68bc13aa3e"
+        },
+        "dat": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00498_hr.dat",
+          "sha256": "0611bf1a609d65c6cc14e69cf75eb862d8859b97c0491383c40578b7e0adfe9f"
+        }
+      }
+    },
+    {
+      "ecg_id": 612,
+      "patient_id": 6556,
+      "group": "OTHER_RHYTHM",
+      "strat_fold": 9,
+      "filename_hr": "records500/00000/00612_hr",
+      "reference": {
+        "AFIB": false,
+        "NORM": false,
+        "SR": false
+      },
+      "rhythm_codes": [
+        "SBRAD"
+      ],
+      "sources": {
+        "hea": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00612_hr.hea",
+          "sha256": "32f6e194202e837d73eb4e81fd58de30f8f5b729113671918936c4371e95e734"
+        },
+        "dat": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00612_hr.dat",
+          "sha256": "b4131ff554718ef1d34192f6ffa4a30925b10be8248f8c47b6b49e495ea8de8d"
+        }
+      }
+    },
+    {
+      "ecg_id": 823,
+      "patient_id": 1791,
+      "group": "OTHER_RHYTHM",
+      "strat_fold": 9,
+      "filename_hr": "records500/00000/00823_hr",
+      "reference": {
+        "AFIB": false,
+        "NORM": false,
+        "SR": false
+      },
+      "rhythm_codes": [
+        "SBRAD"
+      ],
+      "sources": {
+        "hea": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00823_hr.hea",
+          "sha256": "f0cdf83a8fd637b8217b2ee6cedc7b8df31b3ede6fa8560c43161169faa8b678"
+        },
+        "dat": {
+          "url": "https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/records500/00000/00823_hr.dat",
+          "sha256": "122418e91b0af138e37b94b07e4e0f46efa21d0bb526ab68261d3d7a5872c528"
+        }
+      }
+    }
+  ]
+}

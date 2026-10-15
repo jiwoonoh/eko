@@ -1,84 +1,73 @@
-# Reduce Eko into an ECG research runtime
+# ECG runtime implementation record
 
-Accepted scope: named tools, OpenRouter initially, real measurements first,
-classification after checkpoint verification. Source audit is pinned to official
-ECG-Agent commit `0ab07899ec0a39b087bebd560b280cad484eb0d0`.
+The original direction was named tools, OpenRouter first, live measurements first,
+then classification after checkpoint verification. The measurement reference is
+ECG-Agent revision `0ab07899ec0a39b087bebd560b280cad484eb0d0`.
 
-## Foundation
+## Completed foundation
 
-Keep repeated model decisions, actual observations, conversation, timeouts,
-interruption, and attribution. Remove generated Python, child agents, Unix sockets,
-world relay, Linux sandboxing, rich terminal rendering, Claude/HF dialogue backends,
-feral mode, and automatic context resets. Develop and publish on `ecg-core` in
-`jiwoonoh/eko`, retaining the original in Git history.
+- Replaced Eko's generated-code agent, child agents, sockets, Linux sandbox, and
+  terminal UI with `Decision`, `ToolObservation`, `Session`, and shared `run_turn`.
+- Kept repeated native tool calls, conversation, cancellation, hard worker timeouts,
+  request limits, and bounded transient provider retry.
+- Added metadata-validated twelve-lead MAT inputs and real NeuroKit2 measurements.
+  Corrected status preservation, measurement labels, and beat-aligned QT/RR pairing.
+- Added a verified public HR00705 download, explicit evidence identities, input and
+  source hashes, dependency versions, and append-only JSONL logs.
+- Added CSV/transcript adapters that preserve aliases, missingness, repeated
+  generations, and user-turn/tool-step alignment.
+- Replaced unsupported model prose with rendered evidence references and fixed
+  explanations. Rejected answers are failed and logged; they do not enter
+  follow-up history. Median intervals do not establish a rhythm diagnosis.
 
-Use `Decision`, `ToolObservation`, and `run_turn(session, question) -> TurnResult`.
-One session owns history and evidence. OpenRouter native calls translate into the
-same model-neutral decisions a later local model adapter will use. Predicted
-Tool_Output is never accepted as an observation.
+History: `ac4aad8`, `37a7557`, `344fc8b`, `8d4e838`, `973537b`.
 
-Render final answers from evidence references and fixed explanations. Do not
-display unrestricted generated medical prose. Reject malformed reports and
-unsupported conclusions with a safe evidence summary, failed completion, and an
-auditable rejection event; keep rejected text out of follow-up history. Median RR
-does not establish regularity and estimator filter bounds do not establish normality.
+## Completed classification delivery
 
-One persistent registered-tool worker reuses scientific state and terminates on
-hard timeout. The controller owns credentials and logs. Defaults: eight responses,
-four tool calls per turn, thirty seconds per tool, sixty seconds per model request,
-one bounded transient retry. Expose a basic interactive/single-question CLI with
-explicit model and record selection.
+1. **Backend (`1f96d8f`):** extracted the attributed ECGFounder inference
+   architecture, preserved the trained 150-label head, pinned source/model/label
+   revisions, and required full parameter matching. Explicit checkpoint download
+   verifies SHA-256 and preserves existing files. Inputs require verified twelve
+   leads, 500 Hz, 5,000 samples, and mV units. Global z-score normalization follows
+   the pinned PTB-XL evaluator without added filtering. CPU readiness, finite
+   dimensions, repeatability, latency, and memory were checked on HR00705.
+2. **Runtime/reporting (`8bc21d9`):** added `call_classification_tool(record_id)` to
+   the persistent worker. Readiness failure keeps measurements available. All 150
+   independent scores and provenance remain in JSON/logs. Rendered labels come
+   from the trusted manifest; no diagnostic thresholds are imposed. Optional
+   `TurnResult.report` records released references for coverage scoring.
+3. **Benchmark/documentation (this revision):** froze twenty distinct fold-9
+   patients, excluding HR00705 and its patient. Ran both scientific tools on all
+   twenty and five dialogue turns on four representatives. Dialogue used a
+   scripted provider and real tools. Dataset references stayed outside model
+   history and classifier inputs. README records the teardown, capabilities,
+   methods, execution evidence, limitations, and every production function.
 
-## Measurements
+The public 150-label checkpoint is an explicit alternative to ECG-Agent's
+unavailable 71-label weights. These are different models and label spaces.
 
-Extract a NumPy/SciPy/NeuroKit2 backend without importing MedRAX or its image/model
-packages. Require full 12-lead MAT data, valid metadata sampling frequency, and
-verified lead order. Unknown waveform units stay unknown.
+## Verification and delivery
 
-Preserve beat identity for QT/RR pairing. Return heart rate, RR, PR, Q–S peak span,
-and documented Bazett QTc, with numeric/null values, units and methods. Preserve
-raw estimates, filtering reasons, partial status and missingness. Exclude hardcoded
-diagnostic interpretation. Version corrections separately from the upstream
-reference, including preceding-RR QTc pairing and metadata-aware sampling rate.
+Keep weights, waveforms, secrets, and raw interaction logs outside Git. Commit
+sanitized evidence with input/configuration/source hashes and actual dependency
+versions. Test checkpoint integrity, preprocessing, dimensions, record binding,
+malformed outputs, score/report validation, evidence reuse, timeout restart,
+partial results, aliases, repeated samples, and separate failure counts.
 
-Persist actual evidence, record hashes, tool/runtime versions, call IDs, errors and
-timings in unique append-only JSONL run logs. Keep data, logs, weights and secrets
-out of Git. Preserve upstream MIT attribution.
+Deliver the backend, runtime/reporting, and benchmark/documentation as three
+reviewable commits on `ecg-core` in `jiwoonoh/eko`. README links each behavior to
+implementation and evidence. Full function-reference links are checked against
+final source definitions. Automated provider tests are explicitly mocked.
 
-## Evaluation
+## Pending, blocked, and deferred
 
-Use separate tracks for recorded-output regression, live measurement validity,
-and agent reporting. Interactive and manifest evaluation use one runner.
-
-Support both published `{ecg_id, dialogue, batch_idx}` and current inference
-transcript formats through explicit adapters. Keep source SHA/line identities and
-replicates; do not deduplicate by ECG. Resolve padded aliases uniquely, reject
-collisions, and preserve blank/null measurement reasons as unknown when absent.
-
-Align by sample/user turn/tool step; legitimate additional calls do not shift
-later comparisons. Include failed/unanswered cases in completion counts and keep
-provider/judge failures separate from answer-quality scores. Freeze sorted manifests
-and configurations; preserve assisted vs autonomous history labels. Legacy action
-agreement is secondary and requires actual reference actions. Broad prose and
-clinical correctness verification remain later capabilities.
-
-## Delivery and acceptance
-
-Three reviewable changes: core teardown; live measurements and evidence; evaluation
-adapters and acceptance tests. Push the tested branch with this plan and README.
-
-Test multiple calls, worker reuse/restart, invalid/empty/truncated model output,
-limits/cancellation, non-500-Hz input, invalid/missing lead order, flat/nonfinite
-signals, partial delineation, missing intermediate QT, units/nulls/filtering,
-record aliases/collisions, repeated queries/generations, record-bound evidence,
-unique logs, and replay/live distinction. Use controlled signals and mock model
-responses. Since no local records were supplied, use the exact HR00705 record from
-the first published ECG-Agent transcript, fetching its public PTB-XL waveform with
-pinned checksums and preserving the published measurement question/reference.
-
-First milestone: actual measurements from a selected ECG reach the model, produce
-an explanation, and support follow-up questions. Classification stays unavailable.
-Then verify checkpoint readiness, expected 71-label dimensions/order, preprocessing,
-window/frequency, thresholds, and fairseq compatibility before exposing classification.
-Later: local dialogue models, structured claim checks, clinical interpretation,
-independent measurement/diagnosis validation, and SFT/RL.
+- **Pending:** live OpenRouter classification dialogue. This implementation
+  session has no API key; no live-provider result is claimed.
+- **Blocked:** exact ECG-Agent 71-label reproduction without its checkpoint,
+  verified ordering/input dimensions, preprocessing, and fairseq revision.
+- **Deferred:** diagnostic thresholds/calibration, clinical validation, local
+  dialogue adapters, broader structured claim verification, structured ECG
+  interpretation, training, and SFT/RL. Reserve fold 10 for later evaluation.
+- **Required before clinical claims:** independent measurement annotations and
+  diagnosis references, an appropriate evaluation population, and a documented
+  validation protocol. Development AUROCs are exploratory only.

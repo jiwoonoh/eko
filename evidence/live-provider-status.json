@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "kind": "live_provider_dialogue",
+  "status": "pending",
+  "reason": "OPENROUTER_API_KEY is not available; no live request was made",
+  "requested_model": "openrouter/free"
+}

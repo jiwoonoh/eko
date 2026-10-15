@@ -413,6 +413,7 @@ class EvaluationCase:
     questions: tuple[str, ...]
     requested_findings: tuple[str, ...] = ()
     history: str = "without_gt"
+    requested_findings_by_turn: tuple[tuple[str, ...], ...] = ()
 
 
 def _json_sha256(value: Any) -> str:
@@ -435,6 +436,7 @@ def _session_configuration(session: Any) -> dict[str, Any]:
         },
         "prompt_sha256": _json_sha256([message for message in session.history if message.get("role") == "system"]),
         "tools_sha256": _json_sha256(session.tools),
+        "classifier": getattr(getattr(session, "worker", None), "classifier_provenance", None),
     }
     provider_module = sys.modules.get(type(model).__module__)
     provider_source = getattr(provider_module, "__file__", None)
@@ -461,7 +463,7 @@ def _error_kind(turn: dict[str, Any]) -> str | None:
 
 def _package_versions() -> dict[str, str | None]:
     versions = {}
-    for name in ("numpy", "scipy", "neurokit2"):
+    for name in ("numpy", "scipy", "neurokit2", "torch"):
         try:
             versions[name] = metadata.version(name)
         except metadata.PackageNotFoundError:
@@ -484,6 +486,8 @@ def run_manifest(
             raise ValueError("with_gt evaluation is not implemented")
         if not case.case_id or not case.questions or any(not isinstance(question, str) or not question.strip() for question in case.questions):
             raise ValueError("case needs a stable identifier and nonempty questions")
+        if case.requested_findings_by_turn and len(case.requested_findings_by_turn) != len(case.questions):
+            raise ValueError("per-turn requested findings must match the question count")
     turns = []
     manifest = []
     for case in ordered:
@@ -497,20 +501,25 @@ def run_manifest(
                 "case_id": case.case_id, "history": case.history,
                 "questions_sha256": _json_sha256(case.questions),
                 "requested_findings": case.requested_findings,
+                "requested_findings_by_turn": case.requested_findings_by_turn,
                 "record": record, "configuration": configuration,
             })
             evidence_steps = {}
             response_trace = []
+            answer_rejections = []
             original_log = session.log
 
             def collect_models(event_type: str, **fields: Any) -> None:
                 if event_type == "model_response":
                     response_trace.append({"model": fields.get("model"), "usage": fields.get("usage", {})})
+                if event_type == "answer_rejected":
+                    answer_rejections.append(fields.get("reason"))
                 original_log(event_type, **fields)
 
             session.log = collect_models
             for index, question in enumerate(case.questions, 1):
                 response_trace.clear()
+                answer_rejections.clear()
                 result = run_turn(session, question)
                 row = result.to_dict()
                 row.update(
@@ -518,6 +527,7 @@ def run_manifest(
                     configuration=configuration, model_responses_trace=list(response_trace),
                     user_turn=index, question=question, runtime_turn_id=result.turn_id,
                     turn_id=f"{case.case_id}/user:{index}",
+                    answer_rejections=len(answer_rejections),
                 )
                 new_steps = 0
                 for observation in row["evidence"]:
@@ -529,16 +539,18 @@ def run_manifest(
                     observation["step_id"] = evidence_steps[evidence_id]
                     observation["reused"] = reused
                 claims = tuple(claims_for_result(case, index, result)) if claims_for_result else ()
-                row["claim_checks"] = evaluate_claims(claims, result.evidence, record_id=case.record_id, requested_findings=case.requested_findings)
+                requested = case.requested_findings_by_turn[index - 1] if case.requested_findings_by_turn else case.requested_findings
+                row["claim_checks"] = evaluate_claims(claims, result.evidence, record_id=case.record_id, requested_findings=requested)
                 row["error_kind"] = _error_kind(row)
                 turns.append(row)
         finally:
             session.close()
+    from traces import code_hashes
     return {
         "metadata": {
             "format_version": 1, "upstream_revision": UPSTREAM_REVISION,
             "python_version": sys.version.split()[0], "package_versions": _package_versions(),
-            "source_sha256": {name: file_sha256(Path(__file__).with_name(name)) for name in ("evaluation.py", "eko.py", "contracts.py")},
+            "source_sha256": {"evaluation.py": file_sha256(__file__), **code_hashes()},
             "manifest_sha256": _json_sha256(manifest),
         },
         "manifest": manifest, "summary": summarize(turns), "turns": turns,
@@ -562,6 +574,10 @@ def summarize(turns: Iterable[dict[str, Any]]) -> dict[str, Any]:
         counts["expected_turns"] += 1
         counts["completed_answers"] += status == "success"
         counts[f"status_{status}"] += 1
+        rejected = turn.get("answer_rejections", 0)
+        if isinstance(rejected, bool) or not isinstance(rejected, int) or rejected < 0:
+            raise ValueError("answer rejections must be a nonnegative integer")
+        counts["answer_rejections"] += rejected
         kind = _error_kind(turn)
         if kind in {"provider", "tool", "runner", "judge"}:
             counts[f"{kind}_errors"] += 1
@@ -614,6 +630,8 @@ def summarize(turns: Iterable[dict[str, Any]]) -> dict[str, Any]:
         **{name: counts[name] for name in ("expected_turns", "completed_answers", "provider_errors", "tool_errors", "runner_errors", "judge_errors", "failed_tool_observations", "live_observations", "replay_observations", "runner_observations", "reused_observations", "excluded_claim_turns", "supported", "contradicted", "unverifiable", "requested_available", "requested_supported")},
         "statuses": {name.removeprefix("status_"): count for name, count in counts.items() if name.startswith("status_")},
         "completion_rate": counts["completed_answers"] / counts["expected_turns"] if counts["expected_turns"] else None,
+        "answer_rejections": counts["answer_rejections"],
+        "answer_rejection_rate": counts["answer_rejections"] / counts["expected_turns"] if counts["expected_turns"] else None,
         "timed_turns": counts["timed_turns"], "total_elapsed_seconds": total_elapsed,
         "mean_elapsed_seconds": total_elapsed / counts["timed_turns"] if counts["timed_turns"] else None,
         "attempted_tool_calls": counts["tool_calls"], "model_responses": counts["model_responses"],

@@ -1,0 +1,1569 @@
+{
+  "schema_version": 1,
+  "kind": "mock_boundary_real_tools",
+  "status": "complete",
+  "manifest_sha256": "40b1e26138c17e886c917562894b040f745d972aa7b376174ab20e6d6fadf257",
+  "metadata": {
+    "format_version": 1,
+    "upstream_revision": "0ab07899ec0a39b087bebd560b280cad484eb0d0",
+    "python_version": "3.11.4",
+    "package_versions": {
+      "numpy": "1.26.4",
+      "scipy": "1.13.1",
+      "neurokit2": "0.2.7",
+      "torch": "2.6.0"
+    },
+    "source_sha256": {
+      "evaluation.py": "e77f0bef4527216147560095d06a46106dfd00cb3af52f7fa140e8ee561e9518",
+      "contracts.py": "90bde83c168e6a106b4cf1870b9e6fc82ef8f4155c3d51d6a454381d1ecde6d9",
+      "eko.py": "550a8ffad6d2ab3a9b6b28a691f958331f2be41b090225f70d1739db2318038a",
+      "host.py": "8c161cc7142057bef46f7255f1e97170ab2f7f78caa489f0474f12c3cd1f7919",
+      "records.py": "1e5b9513d0b66029b8c423b6041b63735ed4c1b4df0798afab0c3e822477ce29",
+      "measurements.py": "37fbec523cb5763de791fcf443d3986f7f2b9c1d9bc8bb363a4893e4ec16cd89",
+      "worker.py": "2c362b88b1f15acb54f2997a3ec5b2ae1d2b885e4a42c6237ca99b696ce588f2",
+      "traces.py": "e0859b7041cf3bffe5cb36ccc518438d62ed22ac56d122727ae8ef529e6dcb29",
+      "reporting.py": "16e839469dea9540aaefeaf6abb0d3ee0389f529408dbd546d058137e01038b4",
+      "classifier.py": "ca806bf25be0ef5105ea6ce481993e905f8644350a748098d0684958bba3ea91",
+      "ecgfounder.py": "fcc55f63a3701836785e1fb45ee27cbcd520790a5f38f4cb6e8fcbf9067dfd32",
+      "ecgfounder_labels.py": "eb8956a88740e530454e8504735d26e15404ab67241bdb6f90c92959f10f8298",
+      "providers/openrouter.py": "565ed80e358ab7a3bb26d8ce1a58595fcd2d74ebb6994b29ba59889ea892d7a5",
+      "benchmark.py": "7ee2af11ab5a1c87d445c90ced230e535cf5d54d65f979f4182d4adf3b7587c0"
+    },
+    "manifest_sha256": "d5f78f0ae6dbf5c79cd4337927507bd88f8a0aa62c4f1283200df4f6c31d3596"
+  },
+  "summary": {
+    "expected_turns": 20,
+    "completed_answers": 20,
+    "provider_errors": 0,
+    "tool_errors": 0,
+    "runner_errors": 0,
+    "judge_errors": 0,
+    "failed_tool_observations": 0,
+    "live_observations": 12,
+    "replay_observations": 0,
+    "runner_observations": 0,
+    "reused_observations": 40,
+    "excluded_claim_turns": 0,
+    "supported": 81,
+    "contradicted": 0,
+    "unverifiable": 0,
+    "requested_available": 81,
+    "requested_supported": 81,
+    "statuses": {
+      "success": 20
+    },
+    "completion_rate": 1.0,
+    "answer_rejections": 0,
+    "answer_rejection_rate": 0.0,
+    "timed_turns": 20,
+    "total_elapsed_seconds": 5.779533583903685,
+    "mean_elapsed_seconds": 0.28897667919518427,
+    "attempted_tool_calls": 12,
+    "model_responses": 28,
+    "claim_scope": "explicit_numeric_claims_only",
+    "checkable_claims": 81,
+    "claim_support_rate": 1.0,
+    "requested_available_coverage": 1.0,
+    "clinical_accuracy": null,
+    "prose_faithfulness": null
+  },
+  "cases": [
+    {
+      "case_id": "ptbxl-00008",
+      "history": "without_gt",
+      "questions_sha256": "07f6e32fa2b36e72b01748b4fc7575167ac97cfeb5fee46e01e63a2141ce8a02",
+      "requested_findings": [],
+      "requested_findings_by_turn": [
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003"
+        ],
+        [
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        []
+      ],
+      "record": {
+        "record_id": "ptbxl:8",
+        "sha256": "75b7bd107cef3f3657129b35a6d495d971037e6789004a53dff8d86e97c11cc1",
+        "sampling_rate_hz": 500.0,
+        "lead_names": [
+          "I",
+          "II",
+          "III",
+          "aVR",
+          "aVL",
+          "aVF",
+          "V1",
+          "V2",
+          "V3",
+          "V4",
+          "V5",
+          "V6"
+        ],
+        "waveform_units": [
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV"
+        ]
+      },
+      "configuration": {
+        "provider": "__main__.MockBoundaryModel",
+        "model": "mock-boundary-v1",
+        "provider_settings": {},
+        "limits": {
+          "max_responses": 8,
+          "max_tool_calls": 4,
+          "tool_timeout": 30,
+          "request_timeout": 60.0
+        },
+        "prompt_sha256": "c727b061cd1102c4cfcd3966a499576c059e3697383e4225a3a2ddd2c138065e",
+        "tools_sha256": "bc0b23ce2a0ac516e1fe880c426bf861fdaf2d37ec3d94003466211b28ae6c42",
+        "classifier": {
+          "backend": "ecgfounder",
+          "source_revision": "04edac702b61c91face519774ddcc0cd712fef23",
+          "model_revision": "d9b1793951b2342f5f7e84f1ac03cd37f8a08724",
+          "checkpoint_sha256": "ee199f3781f4ae1f732973267f003da0a759ea12bddb0dd28a77faa60aca7997",
+          "label_map_sha256": "7c087a0d383c7ea9ae9b818ad00a551b029334edfa5f1fbb5036bfbaa0df0c39",
+          "preprocessing_version": "ecgfounder-ptbxl-global-zscore-v1",
+          "device": "cpu",
+          "task_count": 150,
+          "output_transform": "sigmoid"
+        },
+        "provider_source_sha256": "7ee2af11ab5a1c87d445c90ced230e535cf5d54d65f979f4182d4adf3b7587c0"
+      }
+    },
+    {
+      "case_id": "ptbxl-00010",
+      "history": "without_gt",
+      "questions_sha256": "07f6e32fa2b36e72b01748b4fc7575167ac97cfeb5fee46e01e63a2141ce8a02",
+      "requested_findings": [],
+      "requested_findings_by_turn": [
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003"
+        ],
+        [
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        []
+      ],
+      "record": {
+        "record_id": "ptbxl:10",
+        "sha256": "2e71501382d1f53e4f7ea435b262a55f717476d642f3849608bbaff6cc2b5c9b",
+        "sampling_rate_hz": 500.0,
+        "lead_names": [
+          "I",
+          "II",
+          "III",
+          "aVR",
+          "aVL",
+          "aVF",
+          "V1",
+          "V2",
+          "V3",
+          "V4",
+          "V5",
+          "V6"
+        ],
+        "waveform_units": [
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV"
+        ]
+      },
+      "configuration": {
+        "provider": "__main__.MockBoundaryModel",
+        "model": "mock-boundary-v1",
+        "provider_settings": {},
+        "limits": {
+          "max_responses": 8,
+          "max_tool_calls": 4,
+          "tool_timeout": 30,
+          "request_timeout": 60.0
+        },
+        "prompt_sha256": "ce895c3782eb9539b87667be03df58c6cb90dea20d32f4af213b7760ee9598fc",
+        "tools_sha256": "c6c5a2f1496d9d96a907b5f3f90e83e4a5b15e7dfa25ba1110026d7f0982fadb",
+        "classifier": {
+          "backend": "ecgfounder",
+          "source_revision": "04edac702b61c91face519774ddcc0cd712fef23",
+          "model_revision": "d9b1793951b2342f5f7e84f1ac03cd37f8a08724",
+          "checkpoint_sha256": "ee199f3781f4ae1f732973267f003da0a759ea12bddb0dd28a77faa60aca7997",
+          "label_map_sha256": "7c087a0d383c7ea9ae9b818ad00a551b029334edfa5f1fbb5036bfbaa0df0c39",
+          "preprocessing_version": "ecgfounder-ptbxl-global-zscore-v1",
+          "device": "cpu",
+          "task_count": 150,
+          "output_transform": "sigmoid"
+        },
+        "provider_source_sha256": "7ee2af11ab5a1c87d445c90ced230e535cf5d54d65f979f4182d4adf3b7587c0"
+      }
+    },
+    {
+      "case_id": "ptbxl-00017",
+      "history": "without_gt",
+      "questions_sha256": "07f6e32fa2b36e72b01748b4fc7575167ac97cfeb5fee46e01e63a2141ce8a02",
+      "requested_findings": [],
+      "requested_findings_by_turn": [
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003"
+        ],
+        [
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        []
+      ],
+      "record": {
+        "record_id": "ptbxl:17",
+        "sha256": "e12710400e97e81685d24516bb99d99cf9a9915e3fe7b7ce19d67692c1cb99a9",
+        "sampling_rate_hz": 500.0,
+        "lead_names": [
+          "I",
+          "II",
+          "III",
+          "aVR",
+          "aVL",
+          "aVF",
+          "V1",
+          "V2",
+          "V3",
+          "V4",
+          "V5",
+          "V6"
+        ],
+        "waveform_units": [
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV"
+        ]
+      },
+      "configuration": {
+        "provider": "__main__.MockBoundaryModel",
+        "model": "mock-boundary-v1",
+        "provider_settings": {},
+        "limits": {
+          "max_responses": 8,
+          "max_tool_calls": 4,
+          "tool_timeout": 30,
+          "request_timeout": 60.0
+        },
+        "prompt_sha256": "cbc8409b039424a7ec5aff4fc74b68a8fe908dfe954ed9da26b24eada9fd2435",
+        "tools_sha256": "d8885c1cb7244d645bd8ba546d8e66a89fe641bd63d6aaa2fa00cd2c6301c3c5",
+        "classifier": {
+          "backend": "ecgfounder",
+          "source_revision": "04edac702b61c91face519774ddcc0cd712fef23",
+          "model_revision": "d9b1793951b2342f5f7e84f1ac03cd37f8a08724",
+          "checkpoint_sha256": "ee199f3781f4ae1f732973267f003da0a759ea12bddb0dd28a77faa60aca7997",
+          "label_map_sha256": "7c087a0d383c7ea9ae9b818ad00a551b029334edfa5f1fbb5036bfbaa0df0c39",
+          "preprocessing_version": "ecgfounder-ptbxl-global-zscore-v1",
+          "device": "cpu",
+          "task_count": 150,
+          "output_transform": "sigmoid"
+        },
+        "provider_source_sha256": "7ee2af11ab5a1c87d445c90ced230e535cf5d54d65f979f4182d4adf3b7587c0"
+      }
+    },
+    {
+      "case_id": "ptbxl-00144",
+      "history": "without_gt",
+      "questions_sha256": "07f6e32fa2b36e72b01748b4fc7575167ac97cfeb5fee46e01e63a2141ce8a02",
+      "requested_findings": [],
+      "requested_findings_by_turn": [
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003"
+        ],
+        [
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        []
+      ],
+      "record": {
+        "record_id": "ptbxl:144",
+        "sha256": "a95fe5417174476d4c5fdf1b0bb25406c8904be71fd7efbf1b426fe4f9340d99",
+        "sampling_rate_hz": 500.0,
+        "lead_names": [
+          "I",
+          "II",
+          "III",
+          "aVR",
+          "aVL",
+          "aVF",
+          "V1",
+          "V2",
+          "V3",
+          "V4",
+          "V5",
+          "V6"
+        ],
+        "waveform_units": [
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV"
+        ]
+      },
+      "configuration": {
+        "provider": "__main__.MockBoundaryModel",
+        "model": "mock-boundary-v1",
+        "provider_settings": {},
+        "limits": {
+          "max_responses": 8,
+          "max_tool_calls": 4,
+          "tool_timeout": 30,
+          "request_timeout": 60.0
+        },
+        "prompt_sha256": "f69995d630bc1f25554328f3cc4701fc4dd2894022ef14a43e6b70d809263c11",
+        "tools_sha256": "5771887fea909ad05aaec42b4fe4a23d2657996e16e05bf6093ed1ffd79a37c2",
+        "classifier": {
+          "backend": "ecgfounder",
+          "source_revision": "04edac702b61c91face519774ddcc0cd712fef23",
+          "model_revision": "d9b1793951b2342f5f7e84f1ac03cd37f8a08724",
+          "checkpoint_sha256": "ee199f3781f4ae1f732973267f003da0a759ea12bddb0dd28a77faa60aca7997",
+          "label_map_sha256": "7c087a0d383c7ea9ae9b818ad00a551b029334edfa5f1fbb5036bfbaa0df0c39",
+          "preprocessing_version": "ecgfounder-ptbxl-global-zscore-v1",
+          "device": "cpu",
+          "task_count": 150,
+          "output_transform": "sigmoid"
+        },
+        "provider_source_sha256": "7ee2af11ab5a1c87d445c90ced230e535cf5d54d65f979f4182d4adf3b7587c0"
+      }
+    }
+  ],
+  "turns": [
+    {
+      "case_id": "ptbxl-00008",
+      "turn_id": "ptbxl-00008/user:1",
+      "status": "success",
+      "tool_calls": 2,
+      "model_responses": 2,
+      "elapsed": 1.6364315419923514,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "6ce4e43d17a647a0887c4be03db93b02",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "6ce4e43d17a647a0887c4be03db93b02",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "6ce4e43d17a647a0887c4be03db93b02",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "6ce4e43d17a647a0887c4be03db93b02",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "6ce4e43d17a647a0887c4be03db93b02",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "b8b7dd7caf0348bba8274eeacfa5ca49",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "b8b7dd7caf0348bba8274eeacfa5ca49",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "b8b7dd7caf0348bba8274eeacfa5ca49",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 8,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 8,
+        "support_rate": 1.0,
+        "requested_available": 8,
+        "requested_supported": 8,
+        "coverage": 1.0
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        },
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0
+    },
+    {
+      "case_id": "ptbxl-00008",
+      "turn_id": "ptbxl-00008/user:2",
+      "status": "success",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 0.003000417025759816,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "6ce4e43d17a647a0887c4be03db93b02",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "6ce4e43d17a647a0887c4be03db93b02",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "6ce4e43d17a647a0887c4be03db93b02",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "6ce4e43d17a647a0887c4be03db93b02",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "6ce4e43d17a647a0887c4be03db93b02",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "b8b7dd7caf0348bba8274eeacfa5ca49",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "b8b7dd7caf0348bba8274eeacfa5ca49",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "b8b7dd7caf0348bba8274eeacfa5ca49",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 8,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 8,
+        "support_rate": 1.0,
+        "requested_available": 8,
+        "requested_supported": 8,
+        "coverage": 1.0
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0
+    },
+    {
+      "case_id": "ptbxl-00008",
+      "turn_id": "ptbxl-00008/user:3",
+      "status": "success",
+      "tool_calls": 1,
+      "model_responses": 2,
+      "elapsed": 0.06051445798948407,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "70554a7a73444e4bafdb7b1a8f7fadd1",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "70554a7a73444e4bafdb7b1a8f7fadd1",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "70554a7a73444e4bafdb7b1a8f7fadd1",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 3,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 3,
+        "support_rate": 1.0,
+        "requested_available": 3,
+        "requested_supported": 3,
+        "coverage": 1.0
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        },
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0
+    },
+    {
+      "case_id": "ptbxl-00008",
+      "turn_id": "ptbxl-00008/user:4",
+      "status": "success",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 0.0011634589172899723,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "6ce4e43d17a647a0887c4be03db93b02",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "6ce4e43d17a647a0887c4be03db93b02",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "6ce4e43d17a647a0887c4be03db93b02",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "6ce4e43d17a647a0887c4be03db93b02",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "6ce4e43d17a647a0887c4be03db93b02",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 5,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 5,
+        "support_rate": 1.0,
+        "requested_available": 5,
+        "requested_supported": 5,
+        "coverage": 1.0
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0
+    },
+    {
+      "case_id": "ptbxl-00008",
+      "turn_id": "ptbxl-00008/user:5",
+      "status": "success",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 0.0008365840185433626,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [],
+        "supported": 0,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 0,
+        "support_rate": null,
+        "requested_available": 0,
+        "requested_supported": 0,
+        "coverage": null
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0
+    },
+    {
+      "case_id": "ptbxl-00010",
+      "turn_id": "ptbxl-00010/user:1",
+      "status": "success",
+      "tool_calls": 2,
+      "model_responses": 2,
+      "elapsed": 1.411576749989763,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "d433dd818cf648cab85ce3ee11ccc7d2",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "d433dd818cf648cab85ce3ee11ccc7d2",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "d433dd818cf648cab85ce3ee11ccc7d2",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "d433dd818cf648cab85ce3ee11ccc7d2",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "d433dd818cf648cab85ce3ee11ccc7d2",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "c828b135561c4bcc8564584ce47cba33",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "c828b135561c4bcc8564584ce47cba33",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "c828b135561c4bcc8564584ce47cba33",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 8,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 8,
+        "support_rate": 1.0,
+        "requested_available": 8,
+        "requested_supported": 8,
+        "coverage": 1.0
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        },
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0
+    },
+    {
+      "case_id": "ptbxl-00010",
+      "turn_id": "ptbxl-00010/user:2",
+      "status": "success",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 0.0019129158463329077,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "d433dd818cf648cab85ce3ee11ccc7d2",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "d433dd818cf648cab85ce3ee11ccc7d2",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "d433dd818cf648cab85ce3ee11ccc7d2",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "d433dd818cf648cab85ce3ee11ccc7d2",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "d433dd818cf648cab85ce3ee11ccc7d2",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "c828b135561c4bcc8564584ce47cba33",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "c828b135561c4bcc8564584ce47cba33",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "c828b135561c4bcc8564584ce47cba33",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 8,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 8,
+        "support_rate": 1.0,
+        "requested_available": 8,
+        "requested_supported": 8,
+        "coverage": 1.0
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0
+    },
+    {
+      "case_id": "ptbxl-00010",
+      "turn_id": "ptbxl-00010/user:3",
+      "status": "success",
+      "tool_calls": 1,
+      "model_responses": 2,
+      "elapsed": 0.04842779110185802,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "f4b1b5f716ce4c10818a9f7fb1762a11",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "f4b1b5f716ce4c10818a9f7fb1762a11",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "f4b1b5f716ce4c10818a9f7fb1762a11",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 3,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 3,
+        "support_rate": 1.0,
+        "requested_available": 3,
+        "requested_supported": 3,
+        "coverage": 1.0
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        },
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0
+    },
+    {
+      "case_id": "ptbxl-00010",
+      "turn_id": "ptbxl-00010/user:4",
+      "status": "success",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 0.001895874971523881,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "d433dd818cf648cab85ce3ee11ccc7d2",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "d433dd818cf648cab85ce3ee11ccc7d2",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "d433dd818cf648cab85ce3ee11ccc7d2",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "d433dd818cf648cab85ce3ee11ccc7d2",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "d433dd818cf648cab85ce3ee11ccc7d2",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 5,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 5,
+        "support_rate": 1.0,
+        "requested_available": 5,
+        "requested_supported": 5,
+        "coverage": 1.0
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0
+    },
+    {
+      "case_id": "ptbxl-00010",
+      "turn_id": "ptbxl-00010/user:5",
+      "status": "success",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 0.0008295408915728331,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [],
+        "supported": 0,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 0,
+        "support_rate": null,
+        "requested_available": 0,
+        "requested_supported": 0,
+        "coverage": null
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0
+    },
+    {
+      "case_id": "ptbxl-00017",
+      "turn_id": "ptbxl-00017/user:1",
+      "status": "success",
+      "tool_calls": 2,
+      "model_responses": 2,
+      "elapsed": 1.3501386670395732,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "f8cd5635f5c941788dde34912fffd486",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "f8cd5635f5c941788dde34912fffd486",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "f8cd5635f5c941788dde34912fffd486",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "f8cd5635f5c941788dde34912fffd486",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "f8cd5635f5c941788dde34912fffd486",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "2c63fe97bf644042bfc9def4eb0ff884",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "2c63fe97bf644042bfc9def4eb0ff884",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "2c63fe97bf644042bfc9def4eb0ff884",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 8,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 8,
+        "support_rate": 1.0,
+        "requested_available": 8,
+        "requested_supported": 8,
+        "coverage": 1.0
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        },
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0
+    },
+    {
+      "case_id": "ptbxl-00017",
+      "turn_id": "ptbxl-00017/user:2",
+      "status": "success",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 0.0018279999494552612,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "f8cd5635f5c941788dde34912fffd486",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "f8cd5635f5c941788dde34912fffd486",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "f8cd5635f5c941788dde34912fffd486",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "f8cd5635f5c941788dde34912fffd486",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "f8cd5635f5c941788dde34912fffd486",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "2c63fe97bf644042bfc9def4eb0ff884",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "2c63fe97bf644042bfc9def4eb0ff884",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "2c63fe97bf644042bfc9def4eb0ff884",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 8,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 8,
+        "support_rate": 1.0,
+        "requested_available": 8,
+        "requested_supported": 8,
+        "coverage": 1.0
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0
+    },
+    {
+      "case_id": "ptbxl-00017",
+      "turn_id": "ptbxl-00017/user:3",
+      "status": "success",
+      "tool_calls": 1,
+      "model_responses": 2,
+      "elapsed": 0.05187608301639557,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "e7af294835734ff18594c9636188d864",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "e7af294835734ff18594c9636188d864",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "e7af294835734ff18594c9636188d864",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 3,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 3,
+        "support_rate": 1.0,
+        "requested_available": 3,
+        "requested_supported": 3,
+        "coverage": 1.0
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        },
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0
+    },
+    {
+      "case_id": "ptbxl-00017",
+      "turn_id": "ptbxl-00017/user:4",
+      "status": "success",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 0.0015167919918894768,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "f8cd5635f5c941788dde34912fffd486",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "f8cd5635f5c941788dde34912fffd486",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "f8cd5635f5c941788dde34912fffd486",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "f8cd5635f5c941788dde34912fffd486",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "f8cd5635f5c941788dde34912fffd486",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 5,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 5,
+        "support_rate": 1.0,
+        "requested_available": 5,
+        "requested_supported": 5,
+        "coverage": 1.0
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0
+    },
+    {
+      "case_id": "ptbxl-00017",
+      "turn_id": "ptbxl-00017/user:5",
+      "status": "success",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 0.0008517911192029715,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [],
+        "supported": 0,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 0,
+        "support_rate": null,
+        "requested_available": 0,
+        "requested_supported": 0,
+        "coverage": null
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0
+    },
+    {
+      "case_id": "ptbxl-00144",
+      "turn_id": "ptbxl-00144/user:1",
+      "status": "success",
+      "tool_calls": 2,
+      "model_responses": 2,
+      "elapsed": 1.1516606251243502,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "6a354207f4114ffc85f4199319732f83",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "6a354207f4114ffc85f4199319732f83",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "6a354207f4114ffc85f4199319732f83",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 3,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 3,
+        "support_rate": 1.0,
+        "requested_available": 3,
+        "requested_supported": 3,
+        "coverage": 1.0
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        },
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0
+    },
+    {
+      "case_id": "ptbxl-00144",
+      "turn_id": "ptbxl-00144/user:2",
+      "status": "success",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 0.0017380837816745043,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "6a354207f4114ffc85f4199319732f83",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "6a354207f4114ffc85f4199319732f83",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "6a354207f4114ffc85f4199319732f83",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 3,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 3,
+        "support_rate": 1.0,
+        "requested_available": 3,
+        "requested_supported": 3,
+        "coverage": 1.0
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0
+    },
+    {
+      "case_id": "ptbxl-00144",
+      "turn_id": "ptbxl-00144/user:3",
+      "status": "success",
+      "tool_calls": 1,
+      "model_responses": 2,
+      "elapsed": 0.051258624996989965,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "eb8663989a66460da121ea362ee3f239",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "eb8663989a66460da121ea362ee3f239",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "eb8663989a66460da121ea362ee3f239",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 3,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 3,
+        "support_rate": 1.0,
+        "requested_available": 3,
+        "requested_supported": 3,
+        "coverage": 1.0
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        },
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0
+    },
+    {
+      "case_id": "ptbxl-00144",
+      "turn_id": "ptbxl-00144/user:4",
+      "status": "success",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 0.0012112921103835106,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [],
+        "supported": 0,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 0,
+        "support_rate": null,
+        "requested_available": 0,
+        "requested_supported": 0,
+        "coverage": null
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0
+    },
+    {
+      "case_id": "ptbxl-00144",
+      "turn_id": "ptbxl-00144/user:5",
+      "status": "success",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 0.0008642920292913914,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [],
+        "supported": 0,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 0,
+        "support_rate": null,
+        "requested_available": 0,
+        "requested_supported": 0,
+        "coverage": null
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0
+    }
+  ],
+  "limitations": [
+    "Reference annotations were not passed to Session, model history, or classifier inputs.",
+    "Rendered numeric consistency is enforced by the report contract; it is not clinical validation."
+  ],
+  "command": "python -m benchmark dialogue --checkpoint checkpoints/ecgfounder/12_lead_ECGFounder.pth --output /tmp/benchmark-dialogue-new.json",
+  "recorded_at": "2026-10-15T15:47:18.721893+00:00"
+}
