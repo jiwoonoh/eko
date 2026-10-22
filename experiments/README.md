@@ -66,3 +66,8 @@ compact-view and correction trials were removed. The correction trial recovered
 two tasks after a first rejection but matched the native trial overall and used
 more tokens. Screening results are not statistically conclusive; the live
 accuracy gate and three-repeat confirmation remain outstanding.
+
+A follow-up screen tests canonical report JSON in conversation history. The
+displayed answer remains rendered prose. The hypothesis is that mixing rendered
+assistant prose with structured-output instructions encourages prose on later
+turns. No model, tool, limit, expected result or validation predicate changes.

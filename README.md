@@ -340,7 +340,10 @@ runtime; its source revisions and results remain in the study record.
 The free endpoint did not reliably honor required tool decisions. The best
 screened candidate still substitutes the sinus-rhythm label on three accepted
 reports and does not meet the proposed eighteen-of-twenty development gate.
-High live-task accuracy has not been established. A separate model comparison
+High live-task accuracy has not been established. The next screen stores validated
+report JSON in conversation history while keeping rendered prose in the displayed
+answer. Saved traces showed repeated rendered-style replies on follow-ups. This
+changes history representation alone; no retry or schema relaxation is added. A separate model comparison
 and three-repeat confirmation remain outstanding.
 
 Run the frozen experiment from the repository root:
@@ -510,7 +513,7 @@ This inventory covers **155 explicitly defined production functions and methods*
 
 | Function | Purpose | Inputs, outputs, and failures | Evidence |
 |---|---|---|---|
-| [`report_schema`](reporting.py#L52) | Describe terminal report arguments from current usable evidence. | Record, evidence and scientific tool names -> native controller-action schema. Only known evidence/finding keys are offered; no scientific execution or numeric values accepted. | [Direct test](tests/test_submission.py#L20) |
+| [`report_schema`](reporting.py#L52) | Describe terminal report arguments from current usable evidence. | Record, evidence and scientific tool names -> native controller-action schema. Only known evidence/finding keys are offered; no scientific execution or numeric values accepted. | [Direct test](tests/test_submission.py#L35) |
 | [`report_instructions`](reporting.py#L77) | Give the model an exact reference-only final-report contract. | Registered tool names -> prompt including enabled label catalog. Classifier instructions are omitted when its tool is absent. | [Direct test](tests/test_reporting.py#L331) |
 | [`_unique_object`](reporting.py#L118) | Reject duplicate keys while parsing report JSON. | JSON key/value pairs -> dictionary. Repeated keys raise ValueError rather than overwriting. | [Indirect test](tests/test_reporting.py#L115) |
 | [`_usable`](reporting.py#L127) | Check record/hash/status/source/tool eligibility for report evidence. | Observation, current record, allowed tools -> boolean. Replay, runner, failed, foreign, or unregistered evidence is ineligible. | [Indirect test](tests/test_reporting.py#L105) |

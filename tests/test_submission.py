@@ -5,7 +5,7 @@ import unittest
 
 from contracts import Decision, ToolCall
 from eko import Session, run_turn
-from tests.test_runtime import FakeModel, FakeWorker, RECORD, call, measurement
+from tests.test_runtime import FakeModel, FakeWorker, RECORD, call, measurement, report
 
 
 def submit(messages):
@@ -17,6 +17,21 @@ def submit(messages):
 
 
 class SubmissionTests(unittest.TestCase):
+    def test_followup_history_uses_validated_report_json_while_display_remains_rendered(self):
+        for final in (report("heart_rate"), Decision("Unvalidated prose")):
+            model = FakeModel([Decision(tool_calls=(call(),)), final, report("pr_interval")])
+            session = Session(model, FakeWorker([measurement()]), RECORD)
+            first = run_turn(session, "Measure heart rate.")
+            history_report = json.loads(session.history[-1]["content"])
+            self.assertEqual(history_report, first.report)
+            self.assertIn("72", first.answer)
+            self.assertNotEqual(first.answer, session.history[-1]["content"])
+            followup = run_turn(session, "Repeat the PR interval from that evidence.")
+            self.assertEqual(followup.status, "success")
+            previous = [item for item in model.requests[-1][0] if item["role"] == "assistant" and item.get("content")]
+            self.assertEqual(json.loads(previous[-1]["content"]), first.report)
+            self.assertNotIn("Unvalidated prose", str(model.requests[-1][0]))
+
     def test_terminal_submission_does_not_execute_a_scientific_tool_or_leak_prose(self):
         model = FakeModel([Decision(tool_calls=(call(),)), submit])
         worker = FakeWorker([measurement()])

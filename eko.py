@@ -324,10 +324,10 @@ def run_turn(session: Session, question: str) -> TurnResult:
                     answer = render_report(json.dumps(released_report), session.record, session.evidence,
                                            tool_names=set(session._schemas))
                     session.log("report_released", turn_id=turn_id, report=released_report, replacement=True)
-                    session.history.append({"role": "assistant", "content": answer})
+                    session.history.append({"role": "assistant", "content": json.dumps(released_report, allow_nan=False)})
                     errors = [*unresolved.values(), f"runner: unsupported final response blocked: {error}"]
                     return finish("failed", answer=answer, error="; ".join(errors))
-                session.history.append({"role": "assistant", "content": answer})
+                session.history.append({"role": "assistant", "content": json.dumps(released_report, allow_nan=False)})
                 session.log("report_released", turn_id=turn_id, report=released_report, replacement=False)
                 error = "; ".join(unresolved.values()) if unresolved else None
                 return finish("failed" if unresolved else "success", answer=answer,

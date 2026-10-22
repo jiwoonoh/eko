@@ -91,7 +91,7 @@ def report_instructions(tool_names: set[str] | None = None) -> str:
         'For greetings, use explanations=["capabilities"]. '
         "Never infer normality, rhythm regularity, sinus rhythm, AF absence, P-wave morphology, "
         "or clinical reference ranges from measurement summaries. "
-        "Earlier assistant messages are controller-rendered; finish using submit_report rather than writing text. "
+        "Assistant history contains validated report JSON; finish using submit_report rather than writing text. "
     )
     if not enabled:
         return instructions + (
