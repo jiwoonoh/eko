@@ -132,7 +132,7 @@ class ClassificationRuntimeTests(unittest.TestCase):
         prose = "You have atrial fibrillation and need treatment. This ECG is normal."
         session, model, worker, logs = self.session([
             Decision(tool_calls=(call("classify", classifier.TOOL_NAME),)),
-            Decision(prose), Decision(prose), report("ecgfounder_005"),
+            Decision(prose), report("ecgfounder_005"),
         ], [classification()])
         rejected = run_turn(session, "Is it atrial fibrillation or normal?")
         self.assertEqual(rejected.status, "failed")

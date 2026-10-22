@@ -239,8 +239,6 @@ def run_turn(session: Session, question: str) -> TurnResult:
     failed_observations: list[ToolObservation] = []
     unresolved: dict[str, str] = {}
     released_report: dict[str, Any] | None = None
-    report_feedback: str | None = None
-    report_error: str | None = None
 
     def finish(status: str, *, answer: str = "", error: str | None = None) -> TurnResult:
         result = TurnResult(turn_id, status, answer,
@@ -259,15 +257,6 @@ def run_turn(session: Session, question: str) -> TurnResult:
                                 "name": call.name, "content": json.dumps(observation.to_dict())})
         session.log("tool_error", turn_id=turn_id, observation=observation.to_dict(), error=reason)
 
-    def report_failure(error: str, status: str = "failed") -> TurnResult:
-        nonlocal released_report
-        released_report = fallback_report(session.record, session.evidence, tool_names=set(session._schemas))
-        answer = render_report(json.dumps(released_report), session.record, session.evidence,
-                               tool_names=set(session._schemas))
-        session.log("report_released", turn_id=turn_id, report=released_report, replacement=True)
-        session.history.append({"role": "assistant", "content": answer})
-        return finish(status, answer=answer, error="; ".join([*unresolved.values(), error]))
-
     if session._active:
         raise RuntimeError("a session can run only one turn at a time")
     if _record_key(session.record) != session._identity:
@@ -280,27 +269,20 @@ def run_turn(session: Session, question: str) -> TurnResult:
     try:
         while responses < session.max_responses:
             session.tools[-1] = report_schema(session.record, session.evidence, set(session._schemas))
-            messages = deepcopy(session.history)
-            if report_feedback:
-                messages[0]["content"] += "\n" + report_feedback
             session.log("model_request", turn_id=turn_id,
                         requested_model=getattr(session.model, "model", None),
-                        messages=messages, tools=session.tools)
+                        messages=deepcopy(session.history), tools=session.tools)
             if hasattr(session.model, "set_deadline"):
                 session.model.set_deadline(time.monotonic() + session.request_timeout)
             try:
-                decision = session.model.complete(deepcopy(messages), deepcopy(session.tools))
+                decision = session.model.complete(deepcopy(session.history), deepcopy(session.tools))
             except TimeoutError as error:
                 session.log("model_error", turn_id=turn_id, error=str(error),
                             provider_attempts=getattr(session.model, "last_attempts", []))
-                if report_error:
-                    return report_failure(f"runner: unsupported final response blocked: {report_error}; provider: {error}", "timeout")
                 return finish("timeout", error=f"provider: {error}")
             except Exception as error:
                 session.log("model_error", turn_id=turn_id, error=str(error),
                             provider_attempts=getattr(session.model, "last_attempts", []))
-                if report_error:
-                    return report_failure(f"runner: unsupported final response blocked: {report_error}; provider: {error}")
                 return finish("failed", error=f"provider: {error}")
             finally:
                 if hasattr(session.model, "set_deadline"):
@@ -325,13 +307,11 @@ def run_turn(session: Session, question: str) -> TurnResult:
                             {"id": call.id, "name": call.name, "arguments": call.arguments}
                             for call in decision.tool_calls])
             submissions = [call for call in decision.tool_calls if call.name == REPORT_TOOL]
-            if not decision.tool_calls or submissions or report_feedback:
+            if not decision.tool_calls or submissions:
                 content = json.dumps(submissions[0].arguments, allow_nan=False) if submissions else decision.content
-                if not content.strip() and not decision.tool_calls:
+                if not content.strip():
                     return finish("failed", error="provider: empty model response")
                 try:
-                    if report_feedback and any(call.name != REPORT_TOOL for call in decision.tool_calls):
-                        raise ValueError("report correction cannot request scientific tools")
                     if submissions and len(decision.tool_calls) != 1:
                         raise ValueError("submit_report must be called alone")
                     answer = render_report(content, session.record, session.evidence,
@@ -339,17 +319,14 @@ def run_turn(session: Session, question: str) -> TurnResult:
                     released_report = parse_report(content)
                 except ValueError as error:
                     session.log("answer_rejected", turn_id=turn_id, reason=str(error))
-                    if report_feedback is None and responses < session.max_responses:
-                        report_error = str(error)
-                        report_feedback = (
-                            f"Report validation rejected the previous final response: {error}. "
-                            "Correct it once by calling submit_report using only the current schema's "
-                            "evidence IDs, finding keys and explanation codes. Include no values or prose. "
-                            "Reuse the acquired evidence; do not request any scientific tool again."
-                        )
-                        session.log("report_correction", turn_id=turn_id, reason=report_error)
-                        continue
-                    return report_failure(f"runner: unsupported final response blocked: {error}")
+                    released_report = fallback_report(session.record, session.evidence,
+                                                      tool_names=set(session._schemas))
+                    answer = render_report(json.dumps(released_report), session.record, session.evidence,
+                                           tool_names=set(session._schemas))
+                    session.log("report_released", turn_id=turn_id, report=released_report, replacement=True)
+                    session.history.append({"role": "assistant", "content": answer})
+                    errors = [*unresolved.values(), f"runner: unsupported final response blocked: {error}"]
+                    return finish("failed", answer=answer, error="; ".join(errors))
                 session.history.append({"role": "assistant", "content": answer})
                 session.log("report_released", turn_id=turn_id, report=released_report, replacement=False)
                 error = "; ".join(unresolved.values()) if unresolved else None

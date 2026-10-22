@@ -82,3 +82,19 @@ final source definitions. Automated provider tests are explicitly mocked.
 - **Required before clinical claims:** independent measurement annotations and
   diagnosis references, an appropriate evaluation population, and a documented
   validation protocol. Development AUROCs are exploratory only.
+
+
+## Reporting reliability study (22 October 2026)
+
+- Added explicit full-task checks, including nulls, requested labels, evidence
+  freshness, tool scheduling and both limits explanations.
+- Added a frozen experiment configuration and source/configuration/usage records.
+- Screened six interventions separately. Control: 4/20 tasks; aliases: 3/20;
+  native submission: 8/20; required tool decisions: 2/20; compact observations:
+  5/20; one report correction: 8/20. Preserve every result and source revision.
+- Removed alias, required-tool, compact-view and correction behavior after the
+  screens failed to establish a useful overall completion benefit. Native
+  submission is a provisional candidate; it is not a high-accuracy result.
+- Remaining: qualify a reliable model, then meet the fixed development gate in
+  three repeats without weakening evidence checks or changing the test cases.
+  Additional paid model execution is awaiting explicit authorization.

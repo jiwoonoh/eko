@@ -73,8 +73,6 @@ def summarize(reports: list[dict]) -> dict:
              for item in (turn.get("provider_attempts") or turn["model_responses_trace"])]
     totals["reported_cost_usd"] = sum(float(item.get("cost") or 0) for item in usage)
     totals["prompt_tokens"] = sum(item.get("prompt_tokens", 0) for item in usage)
-    totals["first_pass_tasks"] = sum(report["summary"].get("first_pass_tasks", report["summary"]["completed_tasks"]) for report in reports)
-    totals["corrected_tasks"] = sum(report["summary"].get("corrected_tasks", 0) for report in reports)
     totals["elapsed_seconds"] = sum(report["summary"]["total_elapsed_seconds"] for report in reports)
     totals["tasks_by_repeat"] = [report["summary"]["completed_tasks"] for report in reports]
     return totals

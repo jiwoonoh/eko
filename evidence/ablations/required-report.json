@@ -1,0 +1,4297 @@
+{
+  "schema_version": 1,
+  "kind": "live_provider_dialogue",
+  "status": "incomplete",
+  "manifest_sha256": "40b1e26138c17e886c917562894b040f745d972aa7b376174ab20e6d6fadf257",
+  "metadata": {
+    "format_version": 1,
+    "upstream_revision": "0ab07899ec0a39b087bebd560b280cad484eb0d0",
+    "python_version": "3.11.4",
+    "package_versions": {
+      "numpy": "1.26.4",
+      "scipy": "1.13.1",
+      "neurokit2": "0.2.7",
+      "torch": "2.6.0"
+    },
+    "source_sha256": {
+      "evaluation.py": "b83a2a7e4a004b47c7808f406f2b39a7939090fccaaa8d986ec63ab6318375d5",
+      "contracts.py": "90bde83c168e6a106b4cf1870b9e6fc82ef8f4155c3d51d6a454381d1ecde6d9",
+      "eko.py": "3d4b1f2ab31cb907dd2d5499f0f1aa7f8aae6c097886959ccbad3556047ad5ec",
+      "host.py": "f2c5fcb4b36e900041c547cc7c8e200b4f5324d40f738c600317484479bbfedc",
+      "records.py": "1e5b9513d0b66029b8c423b6041b63735ed4c1b4df0798afab0c3e822477ce29",
+      "measurements.py": "37fbec523cb5763de791fcf443d3986f7f2b9c1d9bc8bb363a4893e4ec16cd89",
+      "worker.py": "2c362b88b1f15acb54f2997a3ec5b2ae1d2b885e4a42c6237ca99b696ce588f2",
+      "traces.py": "e0859b7041cf3bffe5cb36ccc518438d62ed22ac56d122727ae8ef529e6dcb29",
+      "reporting.py": "4e33f0480dc34d69d70e449f17aa318e117cdc68625d6cc7e335e23d490ec13b",
+      "classifier.py": "ca806bf25be0ef5105ea6ce481993e905f8644350a748098d0684958bba3ea91",
+      "ecgfounder.py": "fcc55f63a3701836785e1fb45ee27cbcd520790a5f38f4cb6e8fcbf9067dfd32",
+      "ecgfounder_labels.py": "eb8956a88740e530454e8504735d26e15404ab67241bdb6f90c92959f10f8298",
+      "providers/openrouter.py": "220079a6fcc959dc01dfc312ac23edc5bc960ce3264c215f225045d411a96972",
+      "benchmark.py": "89b409907b0b901bfac2a9909b04b82f550389264c8854ef200355b954d1d4a4"
+    },
+    "manifest_sha256": "b0da6adba3887fab19138036a9da2580294c950415ab089b47117e86e5a19c30"
+  },
+  "summary": {
+    "expected_turns": 20,
+    "completed_answers": 8,
+    "provider_errors": 0,
+    "tool_errors": 0,
+    "runner_errors": 12,
+    "judge_errors": 0,
+    "failed_tool_observations": 0,
+    "live_observations": 12,
+    "replay_observations": 0,
+    "runner_observations": 0,
+    "reused_observations": 40,
+    "excluded_claim_turns": 12,
+    "supported": 54,
+    "contradicted": 0,
+    "unverifiable": 0,
+    "requested_available": 49,
+    "requested_supported": 43,
+    "statuses": {
+      "success": 8,
+      "failed": 12
+    },
+    "completion_rate": 0.4,
+    "task_scored_turns": 20,
+    "completed_tasks": 2,
+    "task_completion_rate": 0.1,
+    "answer_rejections": 12,
+    "answer_rejection_rate": 0.6,
+    "timed_turns": 20,
+    "total_elapsed_seconds": 205.90983133093687,
+    "mean_elapsed_seconds": 10.295491566546843,
+    "attempted_tool_calls": 12,
+    "model_responses": 31,
+    "claim_scope": "explicit_numeric_claims_only",
+    "checkable_claims": 54,
+    "claim_support_rate": 1.0,
+    "requested_available_coverage": 0.8775510204081632,
+    "clinical_accuracy": null,
+    "prose_faithfulness": null
+  },
+  "cases": [
+    {
+      "case_id": "ptbxl-00008",
+      "history": "without_gt",
+      "questions_sha256": "07f6e32fa2b36e72b01748b4fc7575167ac97cfeb5fee46e01e63a2141ce8a02",
+      "requested_findings": [],
+      "requested_findings_by_turn": [
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003"
+        ],
+        [
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        []
+      ],
+      "expected_tools_by_turn": [
+        [
+          "call_classification_tool",
+          "call_measurement_tool"
+        ],
+        [],
+        [
+          "call_classification_tool"
+        ],
+        [],
+        []
+      ],
+      "required_explanations_by_turn": [
+        [],
+        [],
+        [],
+        [],
+        [
+          "measurement_limits",
+          "classifier_limits"
+        ]
+      ],
+      "record": {
+        "record_id": "ptbxl:8",
+        "sha256": "75b7bd107cef3f3657129b35a6d495d971037e6789004a53dff8d86e97c11cc1",
+        "sampling_rate_hz": 500.0,
+        "lead_names": [
+          "I",
+          "II",
+          "III",
+          "aVR",
+          "aVL",
+          "aVF",
+          "V1",
+          "V2",
+          "V3",
+          "V4",
+          "V5",
+          "V6"
+        ],
+        "waveform_units": [
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV"
+        ]
+      },
+      "configuration": {
+        "provider": "providers.openrouter.OpenRouter",
+        "model": "cohere/north-mini-code:free",
+        "provider_settings": {
+          "max_tokens": 4096,
+          "timeout": 60,
+          "tool_choice": "required"
+        },
+        "limits": {
+          "max_responses": 8,
+          "max_tool_calls": 4,
+          "tool_timeout": 30,
+          "request_timeout": 60
+        },
+        "prompt_sha256": "5ec46cc14d1cfcea39a00ae58f108e24287244f2612a5e88bdeebb8f2efe32ea",
+        "tools_sha256": "3e03d07c14562190e8e9860c1493db942d6270a1c8001db50c1cbeec3dda943c",
+        "classifier": {
+          "backend": "ecgfounder",
+          "source_revision": "04edac702b61c91face519774ddcc0cd712fef23",
+          "model_revision": "d9b1793951b2342f5f7e84f1ac03cd37f8a08724",
+          "checkpoint_sha256": "ee199f3781f4ae1f732973267f003da0a759ea12bddb0dd28a77faa60aca7997",
+          "label_map_sha256": "7c087a0d383c7ea9ae9b818ad00a551b029334edfa5f1fbb5036bfbaa0df0c39",
+          "preprocessing_version": "ecgfounder-ptbxl-global-zscore-v1",
+          "device": "cpu",
+          "task_count": 150,
+          "output_transform": "sigmoid"
+        },
+        "provider_source_sha256": "220079a6fcc959dc01dfc312ac23edc5bc960ce3264c215f225045d411a96972"
+      }
+    },
+    {
+      "case_id": "ptbxl-00010",
+      "history": "without_gt",
+      "questions_sha256": "07f6e32fa2b36e72b01748b4fc7575167ac97cfeb5fee46e01e63a2141ce8a02",
+      "requested_findings": [],
+      "requested_findings_by_turn": [
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003"
+        ],
+        [
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        []
+      ],
+      "expected_tools_by_turn": [
+        [
+          "call_classification_tool",
+          "call_measurement_tool"
+        ],
+        [],
+        [
+          "call_classification_tool"
+        ],
+        [],
+        []
+      ],
+      "required_explanations_by_turn": [
+        [],
+        [],
+        [],
+        [],
+        [
+          "measurement_limits",
+          "classifier_limits"
+        ]
+      ],
+      "record": {
+        "record_id": "ptbxl:10",
+        "sha256": "2e71501382d1f53e4f7ea435b262a55f717476d642f3849608bbaff6cc2b5c9b",
+        "sampling_rate_hz": 500.0,
+        "lead_names": [
+          "I",
+          "II",
+          "III",
+          "aVR",
+          "aVL",
+          "aVF",
+          "V1",
+          "V2",
+          "V3",
+          "V4",
+          "V5",
+          "V6"
+        ],
+        "waveform_units": [
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV"
+        ]
+      },
+      "configuration": {
+        "provider": "providers.openrouter.OpenRouter",
+        "model": "cohere/north-mini-code:free",
+        "provider_settings": {
+          "max_tokens": 4096,
+          "timeout": 60,
+          "tool_choice": "required"
+        },
+        "limits": {
+          "max_responses": 8,
+          "max_tool_calls": 4,
+          "tool_timeout": 30,
+          "request_timeout": 60
+        },
+        "prompt_sha256": "24af26d50f358747fd1fb95e55211273ea8e17819732fc205954d5db18af4709",
+        "tools_sha256": "050e4c00995cd74c366e7d48bbca638e7d71772c7857be0eea20ccb0e1f0b2b5",
+        "classifier": {
+          "backend": "ecgfounder",
+          "source_revision": "04edac702b61c91face519774ddcc0cd712fef23",
+          "model_revision": "d9b1793951b2342f5f7e84f1ac03cd37f8a08724",
+          "checkpoint_sha256": "ee199f3781f4ae1f732973267f003da0a759ea12bddb0dd28a77faa60aca7997",
+          "label_map_sha256": "7c087a0d383c7ea9ae9b818ad00a551b029334edfa5f1fbb5036bfbaa0df0c39",
+          "preprocessing_version": "ecgfounder-ptbxl-global-zscore-v1",
+          "device": "cpu",
+          "task_count": 150,
+          "output_transform": "sigmoid"
+        },
+        "provider_source_sha256": "220079a6fcc959dc01dfc312ac23edc5bc960ce3264c215f225045d411a96972"
+      }
+    },
+    {
+      "case_id": "ptbxl-00017",
+      "history": "without_gt",
+      "questions_sha256": "07f6e32fa2b36e72b01748b4fc7575167ac97cfeb5fee46e01e63a2141ce8a02",
+      "requested_findings": [],
+      "requested_findings_by_turn": [
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003"
+        ],
+        [
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        []
+      ],
+      "expected_tools_by_turn": [
+        [
+          "call_classification_tool",
+          "call_measurement_tool"
+        ],
+        [],
+        [
+          "call_classification_tool"
+        ],
+        [],
+        []
+      ],
+      "required_explanations_by_turn": [
+        [],
+        [],
+        [],
+        [],
+        [
+          "measurement_limits",
+          "classifier_limits"
+        ]
+      ],
+      "record": {
+        "record_id": "ptbxl:17",
+        "sha256": "e12710400e97e81685d24516bb99d99cf9a9915e3fe7b7ce19d67692c1cb99a9",
+        "sampling_rate_hz": 500.0,
+        "lead_names": [
+          "I",
+          "II",
+          "III",
+          "aVR",
+          "aVL",
+          "aVF",
+          "V1",
+          "V2",
+          "V3",
+          "V4",
+          "V5",
+          "V6"
+        ],
+        "waveform_units": [
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV"
+        ]
+      },
+      "configuration": {
+        "provider": "providers.openrouter.OpenRouter",
+        "model": "cohere/north-mini-code:free",
+        "provider_settings": {
+          "max_tokens": 4096,
+          "timeout": 60,
+          "tool_choice": "required"
+        },
+        "limits": {
+          "max_responses": 8,
+          "max_tool_calls": 4,
+          "tool_timeout": 30,
+          "request_timeout": 60
+        },
+        "prompt_sha256": "0c1b85bf2dc24c246bfed11c40021ce1d0259bf5777293ead8dfde8a47a0892e",
+        "tools_sha256": "f567e7b140a0c864428b257e5a6293f1d3d2d4573302dbe341d009c035659f9e",
+        "classifier": {
+          "backend": "ecgfounder",
+          "source_revision": "04edac702b61c91face519774ddcc0cd712fef23",
+          "model_revision": "d9b1793951b2342f5f7e84f1ac03cd37f8a08724",
+          "checkpoint_sha256": "ee199f3781f4ae1f732973267f003da0a759ea12bddb0dd28a77faa60aca7997",
+          "label_map_sha256": "7c087a0d383c7ea9ae9b818ad00a551b029334edfa5f1fbb5036bfbaa0df0c39",
+          "preprocessing_version": "ecgfounder-ptbxl-global-zscore-v1",
+          "device": "cpu",
+          "task_count": 150,
+          "output_transform": "sigmoid"
+        },
+        "provider_source_sha256": "220079a6fcc959dc01dfc312ac23edc5bc960ce3264c215f225045d411a96972"
+      }
+    },
+    {
+      "case_id": "ptbxl-00144",
+      "history": "without_gt",
+      "questions_sha256": "07f6e32fa2b36e72b01748b4fc7575167ac97cfeb5fee46e01e63a2141ce8a02",
+      "requested_findings": [],
+      "requested_findings_by_turn": [
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003"
+        ],
+        [
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        []
+      ],
+      "expected_tools_by_turn": [
+        [
+          "call_classification_tool",
+          "call_measurement_tool"
+        ],
+        [],
+        [
+          "call_classification_tool"
+        ],
+        [],
+        []
+      ],
+      "required_explanations_by_turn": [
+        [],
+        [],
+        [],
+        [],
+        [
+          "measurement_limits",
+          "classifier_limits"
+        ]
+      ],
+      "record": {
+        "record_id": "ptbxl:144",
+        "sha256": "a95fe5417174476d4c5fdf1b0bb25406c8904be71fd7efbf1b426fe4f9340d99",
+        "sampling_rate_hz": 500.0,
+        "lead_names": [
+          "I",
+          "II",
+          "III",
+          "aVR",
+          "aVL",
+          "aVF",
+          "V1",
+          "V2",
+          "V3",
+          "V4",
+          "V5",
+          "V6"
+        ],
+        "waveform_units": [
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV"
+        ]
+      },
+      "configuration": {
+        "provider": "providers.openrouter.OpenRouter",
+        "model": "cohere/north-mini-code:free",
+        "provider_settings": {
+          "max_tokens": 4096,
+          "timeout": 60,
+          "tool_choice": "required"
+        },
+        "limits": {
+          "max_responses": 8,
+          "max_tool_calls": 4,
+          "tool_timeout": 30,
+          "request_timeout": 60
+        },
+        "prompt_sha256": "cfca0bd905c3a3b261a3375037b35af7d4089c70a8137f9baa8d67c8862b2d3c",
+        "tools_sha256": "057b2a4a49a1d16e52d7b8f7eebec06348b01d8ec5eaa6d49a8772746b5ca7e1",
+        "classifier": {
+          "backend": "ecgfounder",
+          "source_revision": "04edac702b61c91face519774ddcc0cd712fef23",
+          "model_revision": "d9b1793951b2342f5f7e84f1ac03cd37f8a08724",
+          "checkpoint_sha256": "ee199f3781f4ae1f732973267f003da0a759ea12bddb0dd28a77faa60aca7997",
+          "label_map_sha256": "7c087a0d383c7ea9ae9b818ad00a551b029334edfa5f1fbb5036bfbaa0df0c39",
+          "preprocessing_version": "ecgfounder-ptbxl-global-zscore-v1",
+          "device": "cpu",
+          "task_count": 150,
+          "output_transform": "sigmoid"
+        },
+        "provider_source_sha256": "220079a6fcc959dc01dfc312ac23edc5bc960ce3264c215f225045d411a96972"
+      }
+    }
+  ],
+  "turns": [
+    {
+      "case_id": "ptbxl-00008",
+      "turn_id": "ptbxl-00008/user:1",
+      "status": "success",
+      "tool_calls": 2,
+      "model_responses": 2,
+      "elapsed": 8.792454915994313,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "e4e9aaf446464ed9a9b8e889ca3dd7fa",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "e4e9aaf446464ed9a9b8e889ca3dd7fa",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "e4e9aaf446464ed9a9b8e889ca3dd7fa",
+            "finding": "ecgfounder_001",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 8,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 8,
+        "support_rate": 1.0,
+        "requested_available": 8,
+        "requested_supported": 7,
+        "coverage": 0.875
+      },
+      "task_checks": {
+        "complete": false,
+        "requested_findings": [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        "reported_findings": [
+          "ecgfounder_001",
+          "ecgfounder_002",
+          "ecgfounder_005",
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [
+          "ecgfounder_003"
+        ],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [
+          "call_classification_tool",
+          "call_measurement_tool"
+        ],
+        "observed_tools": [
+          "call_classification_tool",
+          "call_measurement_tool"
+        ],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "e4e9aaf446464ed9a9b8e889ca3dd7fa",
+            "finding": "ecgfounder_005"
+          },
+          {
+            "evidence_id": "e4e9aaf446464ed9a9b8e889ca3dd7fa",
+            "finding": "ecgfounder_002"
+          },
+          {
+            "evidence_id": "e4e9aaf446464ed9a9b8e889ca3dd7fa",
+            "finding": "ecgfounder_001"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "qtc_bazett_ms"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "rr_interval_ms"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 3305,
+            "completion_tokens": 196,
+            "total_tokens": 3501,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 194,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        },
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 12591,
+            "completion_tokens": 645,
+            "total_tokens": 13236,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 352,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        }
+      ],
+      "answer_rejections": 0
+    },
+    {
+      "case_id": "ptbxl-00008",
+      "turn_id": "ptbxl-00008/user:2",
+      "status": "success",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 6.340168665978126,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "e4e9aaf446464ed9a9b8e889ca3dd7fa",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "e4e9aaf446464ed9a9b8e889ca3dd7fa",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "e4e9aaf446464ed9a9b8e889ca3dd7fa",
+            "finding": "ecgfounder_001",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 8,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 8,
+        "support_rate": 1.0,
+        "requested_available": 8,
+        "requested_supported": 7,
+        "coverage": 0.875
+      },
+      "task_checks": {
+        "complete": false,
+        "requested_findings": [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        "reported_findings": [
+          "ecgfounder_001",
+          "ecgfounder_002",
+          "ecgfounder_005",
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [
+          "ecgfounder_003"
+        ],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [],
+        "observed_tools": [],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "e4e9aaf446464ed9a9b8e889ca3dd7fa",
+            "finding": "ecgfounder_005"
+          },
+          {
+            "evidence_id": "e4e9aaf446464ed9a9b8e889ca3dd7fa",
+            "finding": "ecgfounder_002"
+          },
+          {
+            "evidence_id": "e4e9aaf446464ed9a9b8e889ca3dd7fa",
+            "finding": "ecgfounder_001"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "qtc_bazett_ms"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "rr_interval_ms"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 12963,
+            "completion_tokens": 565,
+            "total_tokens": 13528,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 258,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        }
+      ],
+      "answer_rejections": 0
+    },
+    {
+      "case_id": "ptbxl-00008",
+      "turn_id": "ptbxl-00008/user:3",
+      "status": "failed",
+      "tool_calls": 1,
+      "model_responses": 2,
+      "elapsed": 4.532492916972842,
+      "error_kind": "runner",
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_001",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_000",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_013",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 10,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 10,
+        "support_rate": 1.0,
+        "requested_available": 3,
+        "requested_supported": 2,
+        "coverage": 0.6666666666666666
+      },
+      "task_checks": {
+        "complete": false,
+        "requested_findings": [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003"
+        ],
+        "reported_findings": [
+          "ecgfounder_000",
+          "ecgfounder_001",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "ecgfounder_013",
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [
+          "ecgfounder_005"
+        ],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [
+          "call_classification_tool"
+        ],
+        "observed_tools": [
+          "call_classification_tool"
+        ],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "rr_interval_ms"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "qtc_bazett_ms"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_001"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_003"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_002"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_000"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_013"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 13342,
+            "completion_tokens": 93,
+            "total_tokens": 13435,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 89,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        },
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 20107,
+            "completion_tokens": 140,
+            "total_tokens": 20247,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        }
+      ],
+      "answer_rejections": 1
+    },
+    {
+      "case_id": "ptbxl-00008",
+      "turn_id": "ptbxl-00008/user:4",
+      "status": "failed",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 3.0895695419749245,
+      "error_kind": "runner",
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_001",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_000",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_013",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 10,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 10,
+        "support_rate": 1.0,
+        "requested_available": 5,
+        "requested_supported": 5,
+        "coverage": 1.0
+      },
+      "task_checks": {
+        "complete": false,
+        "requested_findings": [
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        "reported_findings": [
+          "ecgfounder_000",
+          "ecgfounder_001",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "ecgfounder_013",
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [],
+        "observed_tools": [],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "rr_interval_ms"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "qtc_bazett_ms"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_001"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_003"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_002"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_000"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_013"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 20564,
+            "completion_tokens": 345,
+            "total_tokens": 20909,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 148,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        }
+      ],
+      "answer_rejections": 1
+    },
+    {
+      "case_id": "ptbxl-00008",
+      "turn_id": "ptbxl-00008/user:5",
+      "status": "failed",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 11.069146124995314,
+      "error_kind": "runner",
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_001",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_000",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_013",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 10,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 10,
+        "support_rate": 1.0,
+        "requested_available": 0,
+        "requested_supported": 0,
+        "coverage": null
+      },
+      "task_checks": {
+        "complete": false,
+        "requested_findings": [],
+        "reported_findings": [
+          "ecgfounder_000",
+          "ecgfounder_001",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "ecgfounder_013",
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [
+          "classifier_limits",
+          "measurement_limits"
+        ],
+        "expected_tools": [],
+        "observed_tools": [],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "rr_interval_ms"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "af6f7c629e2b466eaaf782a781a588fe",
+            "finding": "qtc_bazett_ms"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_001"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_003"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_002"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_000"
+          },
+          {
+            "evidence_id": "66d9d3b7dc9c403587f63eab1505de92",
+            "finding": "ecgfounder_013"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 21030,
+            "completion_tokens": 580,
+            "total_tokens": 21610,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 423,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        }
+      ],
+      "answer_rejections": 1
+    },
+    {
+      "case_id": "ptbxl-00010",
+      "turn_id": "ptbxl-00010/user:1",
+      "status": "success",
+      "tool_calls": 2,
+      "model_responses": 3,
+      "elapsed": 24.221506333968136,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "afe3fa2e653a43d6929f97f227408045",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "afe3fa2e653a43d6929f97f227408045",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "afe3fa2e653a43d6929f97f227408045",
+            "finding": "ecgfounder_001",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 8,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 8,
+        "support_rate": 1.0,
+        "requested_available": 8,
+        "requested_supported": 7,
+        "coverage": 0.875
+      },
+      "task_checks": {
+        "complete": false,
+        "requested_findings": [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        "reported_findings": [
+          "ecgfounder_001",
+          "ecgfounder_002",
+          "ecgfounder_005",
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [
+          "ecgfounder_003"
+        ],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [
+          "call_classification_tool",
+          "call_measurement_tool"
+        ],
+        "observed_tools": [
+          "call_measurement_tool",
+          "call_classification_tool"
+        ],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "afe3fa2e653a43d6929f97f227408045",
+            "finding": "ecgfounder_005"
+          },
+          {
+            "evidence_id": "afe3fa2e653a43d6929f97f227408045",
+            "finding": "ecgfounder_002"
+          },
+          {
+            "evidence_id": "afe3fa2e653a43d6929f97f227408045",
+            "finding": "ecgfounder_001"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "qtc_bazett_ms"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "rr_interval_ms"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 3307,
+            "completion_tokens": 318,
+            "total_tokens": 3625,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 327,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        },
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 4776,
+            "completion_tokens": 54,
+            "total_tokens": 4830,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 49,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        },
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 12454,
+            "completion_tokens": 1176,
+            "total_tokens": 13630,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 782,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        }
+      ],
+      "answer_rejections": 0
+    },
+    {
+      "case_id": "ptbxl-00010",
+      "turn_id": "ptbxl-00010/user:2",
+      "status": "success",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 8.197790250007529,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "afe3fa2e653a43d6929f97f227408045",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "afe3fa2e653a43d6929f97f227408045",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "afe3fa2e653a43d6929f97f227408045",
+            "finding": "ecgfounder_001",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 8,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 8,
+        "support_rate": 1.0,
+        "requested_available": 8,
+        "requested_supported": 7,
+        "coverage": 0.875
+      },
+      "task_checks": {
+        "complete": false,
+        "requested_findings": [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        "reported_findings": [
+          "ecgfounder_001",
+          "ecgfounder_002",
+          "ecgfounder_005",
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [
+          "ecgfounder_003"
+        ],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [],
+        "observed_tools": [],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "afe3fa2e653a43d6929f97f227408045",
+            "finding": "ecgfounder_005"
+          },
+          {
+            "evidence_id": "afe3fa2e653a43d6929f97f227408045",
+            "finding": "ecgfounder_002"
+          },
+          {
+            "evidence_id": "afe3fa2e653a43d6929f97f227408045",
+            "finding": "ecgfounder_001"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "qtc_bazett_ms"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "rr_interval_ms"
+          }
+        ],
+        "explanations": [
+          "capabilities"
+        ],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 12837,
+            "completion_tokens": 583,
+            "total_tokens": 13420,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 271,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        }
+      ],
+      "answer_rejections": 0
+    },
+    {
+      "case_id": "ptbxl-00010",
+      "turn_id": "ptbxl-00010/user:3",
+      "status": "success",
+      "tool_calls": 1,
+      "model_responses": 2,
+      "elapsed": 9.221089708036743,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "c590907d898045bea5f6d0f54227ddc2",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "c590907d898045bea5f6d0f54227ddc2",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "c590907d898045bea5f6d0f54227ddc2",
+            "finding": "ecgfounder_001",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 8,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 8,
+        "support_rate": 1.0,
+        "requested_available": 3,
+        "requested_supported": 2,
+        "coverage": 0.6666666666666666
+      },
+      "task_checks": {
+        "complete": false,
+        "requested_findings": [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003"
+        ],
+        "reported_findings": [
+          "ecgfounder_001",
+          "ecgfounder_002",
+          "ecgfounder_005",
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [
+          "ecgfounder_003"
+        ],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [
+          "call_classification_tool"
+        ],
+        "observed_tools": [
+          "call_classification_tool"
+        ],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "c590907d898045bea5f6d0f54227ddc2",
+            "finding": "ecgfounder_005"
+          },
+          {
+            "evidence_id": "c590907d898045bea5f6d0f54227ddc2",
+            "finding": "ecgfounder_002"
+          },
+          {
+            "evidence_id": "c590907d898045bea5f6d0f54227ddc2",
+            "finding": "ecgfounder_001"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "qtc_bazett_ms"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "rr_interval_ms"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 13255,
+            "completion_tokens": 137,
+            "total_tokens": 13392,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 129,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        },
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 20032,
+            "completion_tokens": 491,
+            "total_tokens": 20523,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 214,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        }
+      ],
+      "answer_rejections": 0
+    },
+    {
+      "case_id": "ptbxl-00010",
+      "turn_id": "ptbxl-00010/user:4",
+      "status": "failed",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 7.4009759170003235,
+      "error_kind": "runner",
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "c590907d898045bea5f6d0f54227ddc2",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "c590907d898045bea5f6d0f54227ddc2",
+            "finding": "ecgfounder_001",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "c590907d898045bea5f6d0f54227ddc2",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "c590907d898045bea5f6d0f54227ddc2",
+            "finding": "ecgfounder_034",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "c590907d898045bea5f6d0f54227ddc2",
+            "finding": "ecgfounder_007",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 10,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 10,
+        "support_rate": 1.0,
+        "requested_available": 5,
+        "requested_supported": 5,
+        "coverage": 1.0
+      },
+      "task_checks": {
+        "complete": false,
+        "requested_findings": [
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        "reported_findings": [
+          "ecgfounder_001",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "ecgfounder_007",
+          "ecgfounder_034",
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [],
+        "observed_tools": [],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "rr_interval_ms"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "qtc_bazett_ms"
+          },
+          {
+            "evidence_id": "c590907d898045bea5f6d0f54227ddc2",
+            "finding": "ecgfounder_003"
+          },
+          {
+            "evidence_id": "c590907d898045bea5f6d0f54227ddc2",
+            "finding": "ecgfounder_001"
+          },
+          {
+            "evidence_id": "c590907d898045bea5f6d0f54227ddc2",
+            "finding": "ecgfounder_002"
+          },
+          {
+            "evidence_id": "c590907d898045bea5f6d0f54227ddc2",
+            "finding": "ecgfounder_034"
+          },
+          {
+            "evidence_id": "c590907d898045bea5f6d0f54227ddc2",
+            "finding": "ecgfounder_007"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 20415,
+            "completion_tokens": 366,
+            "total_tokens": 20781,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 187,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        }
+      ],
+      "answer_rejections": 1
+    },
+    {
+      "case_id": "ptbxl-00010",
+      "turn_id": "ptbxl-00010/user:5",
+      "status": "failed",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 20.82772604096681,
+      "error_kind": "runner",
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "c590907d898045bea5f6d0f54227ddc2",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "c590907d898045bea5f6d0f54227ddc2",
+            "finding": "ecgfounder_001",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "c590907d898045bea5f6d0f54227ddc2",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "c590907d898045bea5f6d0f54227ddc2",
+            "finding": "ecgfounder_034",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "c590907d898045bea5f6d0f54227ddc2",
+            "finding": "ecgfounder_007",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 10,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 10,
+        "support_rate": 1.0,
+        "requested_available": 0,
+        "requested_supported": 0,
+        "coverage": null
+      },
+      "task_checks": {
+        "complete": false,
+        "requested_findings": [],
+        "reported_findings": [
+          "ecgfounder_001",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "ecgfounder_007",
+          "ecgfounder_034",
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [
+          "classifier_limits",
+          "measurement_limits"
+        ],
+        "expected_tools": [],
+        "observed_tools": [],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "rr_interval_ms"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "75d0cbee80cc46f1a0b3918a5234e8ad",
+            "finding": "qtc_bazett_ms"
+          },
+          {
+            "evidence_id": "c590907d898045bea5f6d0f54227ddc2",
+            "finding": "ecgfounder_003"
+          },
+          {
+            "evidence_id": "c590907d898045bea5f6d0f54227ddc2",
+            "finding": "ecgfounder_001"
+          },
+          {
+            "evidence_id": "c590907d898045bea5f6d0f54227ddc2",
+            "finding": "ecgfounder_002"
+          },
+          {
+            "evidence_id": "c590907d898045bea5f6d0f54227ddc2",
+            "finding": "ecgfounder_034"
+          },
+          {
+            "evidence_id": "c590907d898045bea5f6d0f54227ddc2",
+            "finding": "ecgfounder_007"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 20887,
+            "completion_tokens": 693,
+            "total_tokens": 21580,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 390,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        }
+      ],
+      "answer_rejections": 1
+    },
+    {
+      "case_id": "ptbxl-00017",
+      "turn_id": "ptbxl-00017/user:1",
+      "status": "success",
+      "tool_calls": 2,
+      "model_responses": 3,
+      "elapsed": 14.266479499987327,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "8db4297c30254f6888ed01c35203b738",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "8db4297c30254f6888ed01c35203b738",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "8db4297c30254f6888ed01c35203b738",
+            "finding": "ecgfounder_001",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 8,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 8,
+        "support_rate": 1.0,
+        "requested_available": 8,
+        "requested_supported": 7,
+        "coverage": 0.875
+      },
+      "task_checks": {
+        "complete": false,
+        "requested_findings": [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        "reported_findings": [
+          "ecgfounder_001",
+          "ecgfounder_002",
+          "ecgfounder_005",
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [
+          "ecgfounder_003"
+        ],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [
+          "call_classification_tool",
+          "call_measurement_tool"
+        ],
+        "observed_tools": [
+          "call_classification_tool",
+          "call_measurement_tool"
+        ],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "8db4297c30254f6888ed01c35203b738",
+            "finding": "ecgfounder_005"
+          },
+          {
+            "evidence_id": "8db4297c30254f6888ed01c35203b738",
+            "finding": "ecgfounder_002"
+          },
+          {
+            "evidence_id": "8db4297c30254f6888ed01c35203b738",
+            "finding": "ecgfounder_001"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "qtc_bazett_ms"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "rr_interval_ms"
+          }
+        ],
+        "explanations": [
+          "classifier_scores",
+          "measurement_limits"
+        ],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 3307,
+            "completion_tokens": 773,
+            "total_tokens": 4080,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 704,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        },
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 10942,
+            "completion_tokens": 122,
+            "total_tokens": 11064,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 92,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        },
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 13625,
+            "completion_tokens": 873,
+            "total_tokens": 14498,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 525,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        }
+      ],
+      "answer_rejections": 0
+    },
+    {
+      "case_id": "ptbxl-00017",
+      "turn_id": "ptbxl-00017/user:2",
+      "status": "failed",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 6.461393415986095,
+      "error_kind": "runner",
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "8db4297c30254f6888ed01c35203b738",
+            "finding": "ecgfounder_000",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "8db4297c30254f6888ed01c35203b738",
+            "finding": "ecgfounder_032",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "8db4297c30254f6888ed01c35203b738",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "8db4297c30254f6888ed01c35203b738",
+            "finding": "ecgfounder_042",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "8db4297c30254f6888ed01c35203b738",
+            "finding": "ecgfounder_006",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 10,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 10,
+        "support_rate": 1.0,
+        "requested_available": 8,
+        "requested_supported": 6,
+        "coverage": 0.75
+      },
+      "task_checks": {
+        "complete": false,
+        "requested_findings": [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        "reported_findings": [
+          "ecgfounder_000",
+          "ecgfounder_003",
+          "ecgfounder_006",
+          "ecgfounder_032",
+          "ecgfounder_042",
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [
+          "ecgfounder_002",
+          "ecgfounder_005"
+        ],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [],
+        "observed_tools": [],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "rr_interval_ms"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "qtc_bazett_ms"
+          },
+          {
+            "evidence_id": "8db4297c30254f6888ed01c35203b738",
+            "finding": "ecgfounder_000"
+          },
+          {
+            "evidence_id": "8db4297c30254f6888ed01c35203b738",
+            "finding": "ecgfounder_032"
+          },
+          {
+            "evidence_id": "8db4297c30254f6888ed01c35203b738",
+            "finding": "ecgfounder_003"
+          },
+          {
+            "evidence_id": "8db4297c30254f6888ed01c35203b738",
+            "finding": "ecgfounder_042"
+          },
+          {
+            "evidence_id": "8db4297c30254f6888ed01c35203b738",
+            "finding": "ecgfounder_006"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 14023,
+            "completion_tokens": 534,
+            "total_tokens": 14557,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 239,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        }
+      ],
+      "answer_rejections": 1
+    },
+    {
+      "case_id": "ptbxl-00017",
+      "turn_id": "ptbxl-00017/user:3",
+      "status": "failed",
+      "tool_calls": 1,
+      "model_responses": 2,
+      "elapsed": 10.610106834035832,
+      "error_kind": "runner",
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_000",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_032",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_042",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_006",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 10,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 10,
+        "support_rate": 1.0,
+        "requested_available": 3,
+        "requested_supported": 1,
+        "coverage": 0.3333333333333333
+      },
+      "task_checks": {
+        "complete": false,
+        "requested_findings": [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003"
+        ],
+        "reported_findings": [
+          "ecgfounder_000",
+          "ecgfounder_003",
+          "ecgfounder_006",
+          "ecgfounder_032",
+          "ecgfounder_042",
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [
+          "ecgfounder_002",
+          "ecgfounder_005"
+        ],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [
+          "call_classification_tool"
+        ],
+        "observed_tools": [
+          "call_classification_tool"
+        ],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "rr_interval_ms"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "qtc_bazett_ms"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_000"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_032"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_003"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_042"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_006"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 14467,
+            "completion_tokens": 310,
+            "total_tokens": 14777,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 263,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        },
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 21201,
+            "completion_tokens": 338,
+            "total_tokens": 21539,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 117,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        }
+      ],
+      "answer_rejections": 1
+    },
+    {
+      "case_id": "ptbxl-00017",
+      "turn_id": "ptbxl-00017/user:4",
+      "status": "failed",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 3.9855277910246514,
+      "error_kind": "runner",
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_000",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_032",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_042",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_006",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 10,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 10,
+        "support_rate": 1.0,
+        "requested_available": 5,
+        "requested_supported": 5,
+        "coverage": 1.0
+      },
+      "task_checks": {
+        "complete": false,
+        "requested_findings": [
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        "reported_findings": [
+          "ecgfounder_000",
+          "ecgfounder_003",
+          "ecgfounder_006",
+          "ecgfounder_032",
+          "ecgfounder_042",
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [],
+        "observed_tools": [],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "rr_interval_ms"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "qtc_bazett_ms"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_000"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_032"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_003"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_042"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_006"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 21638,
+            "completion_tokens": 333,
+            "total_tokens": 21971,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 153,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        }
+      ],
+      "answer_rejections": 1
+    },
+    {
+      "case_id": "ptbxl-00017",
+      "turn_id": "ptbxl-00017/user:5",
+      "status": "failed",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 9.32590416597668,
+      "error_kind": "runner",
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_000",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_032",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_042",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_006",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 10,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 10,
+        "support_rate": 1.0,
+        "requested_available": 0,
+        "requested_supported": 0,
+        "coverage": null
+      },
+      "task_checks": {
+        "complete": false,
+        "requested_findings": [],
+        "reported_findings": [
+          "ecgfounder_000",
+          "ecgfounder_003",
+          "ecgfounder_006",
+          "ecgfounder_032",
+          "ecgfounder_042",
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [
+          "classifier_limits",
+          "measurement_limits"
+        ],
+        "expected_tools": [],
+        "observed_tools": [],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "rr_interval_ms"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "a948116c5cf94648ba31880722602d1f",
+            "finding": "qtc_bazett_ms"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_000"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_032"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_003"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_042"
+          },
+          {
+            "evidence_id": "1cd3f25f13044fa1889326acf8c26664",
+            "finding": "ecgfounder_006"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 22084,
+            "completion_tokens": 635,
+            "total_tokens": 22719,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 363,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        }
+      ],
+      "answer_rejections": 1
+    },
+    {
+      "case_id": "ptbxl-00144",
+      "turn_id": "ptbxl-00144/user:1",
+      "status": "success",
+      "tool_calls": 2,
+      "model_responses": 3,
+      "elapsed": 16.235592083015945,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "cf6ce26d5ec84dd2985eca1d797935c8",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "cf6ce26d5ec84dd2985eca1d797935c8",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "cf6ce26d5ec84dd2985eca1d797935c8",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 3,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 3,
+        "support_rate": 1.0,
+        "requested_available": 3,
+        "requested_supported": 3,
+        "coverage": 1.0
+      },
+      "task_checks": {
+        "complete": true,
+        "requested_findings": [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        "reported_findings": [
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "ecgfounder_005",
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [
+          "call_classification_tool",
+          "call_measurement_tool"
+        ],
+        "observed_tools": [
+          "call_measurement_tool",
+          "call_classification_tool"
+        ],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "cf6ce26d5ec84dd2985eca1d797935c8",
+            "finding": "ecgfounder_005"
+          },
+          {
+            "evidence_id": "cf6ce26d5ec84dd2985eca1d797935c8",
+            "finding": "ecgfounder_002"
+          },
+          {
+            "evidence_id": "cf6ce26d5ec84dd2985eca1d797935c8",
+            "finding": "ecgfounder_003"
+          },
+          {
+            "evidence_id": "477776b0400c41a29e63f8c8641879fa",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "477776b0400c41a29e63f8c8641879fa",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "477776b0400c41a29e63f8c8641879fa",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "477776b0400c41a29e63f8c8641879fa",
+            "finding": "qtc_bazett_ms"
+          },
+          {
+            "evidence_id": "477776b0400c41a29e63f8c8641879fa",
+            "finding": "rr_interval_ms"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 3306,
+            "completion_tokens": 140,
+            "total_tokens": 3446,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 143,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        },
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 3805,
+            "completion_tokens": 52,
+            "total_tokens": 3857,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 44,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        },
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 11431,
+            "completion_tokens": 1819,
+            "total_tokens": 13250,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 1498,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        }
+      ],
+      "answer_rejections": 0
+    },
+    {
+      "case_id": "ptbxl-00144",
+      "turn_id": "ptbxl-00144/user:2",
+      "status": "failed",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 14.286372083995957,
+      "error_kind": "runner",
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "cf6ce26d5ec84dd2985eca1d797935c8",
+            "finding": "ecgfounder_000",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "cf6ce26d5ec84dd2985eca1d797935c8",
+            "finding": "ecgfounder_052",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "cf6ce26d5ec84dd2985eca1d797935c8",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "cf6ce26d5ec84dd2985eca1d797935c8",
+            "finding": "ecgfounder_008",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "cf6ce26d5ec84dd2985eca1d797935c8",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 5,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 5,
+        "support_rate": 1.0,
+        "requested_available": 3,
+        "requested_supported": 2,
+        "coverage": 0.6666666666666666
+      },
+      "task_checks": {
+        "complete": false,
+        "requested_findings": [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        "reported_findings": [
+          "ecgfounder_000",
+          "ecgfounder_003",
+          "ecgfounder_005",
+          "ecgfounder_008",
+          "ecgfounder_052",
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [
+          "ecgfounder_002"
+        ],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [],
+        "observed_tools": [],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "477776b0400c41a29e63f8c8641879fa",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "477776b0400c41a29e63f8c8641879fa",
+            "finding": "rr_interval_ms"
+          },
+          {
+            "evidence_id": "477776b0400c41a29e63f8c8641879fa",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "477776b0400c41a29e63f8c8641879fa",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "477776b0400c41a29e63f8c8641879fa",
+            "finding": "qtc_bazett_ms"
+          },
+          {
+            "evidence_id": "cf6ce26d5ec84dd2985eca1d797935c8",
+            "finding": "ecgfounder_000"
+          },
+          {
+            "evidence_id": "cf6ce26d5ec84dd2985eca1d797935c8",
+            "finding": "ecgfounder_052"
+          },
+          {
+            "evidence_id": "cf6ce26d5ec84dd2985eca1d797935c8",
+            "finding": "ecgfounder_003"
+          },
+          {
+            "evidence_id": "cf6ce26d5ec84dd2985eca1d797935c8",
+            "finding": "ecgfounder_008"
+          },
+          {
+            "evidence_id": "cf6ce26d5ec84dd2985eca1d797935c8",
+            "finding": "ecgfounder_005"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 11826,
+            "completion_tokens": 776,
+            "total_tokens": 12602,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 335,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        }
+      ],
+      "answer_rejections": 1
+    },
+    {
+      "case_id": "ptbxl-00144",
+      "turn_id": "ptbxl-00144/user:3",
+      "status": "success",
+      "tool_calls": 1,
+      "model_responses": 2,
+      "elapsed": 8.059975208016112,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "1ed5f83637db47589df8ff5ced26ae3b",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "1ed5f83637db47589df8ff5ced26ae3b",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "1ed5f83637db47589df8ff5ced26ae3b",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 3,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 3,
+        "support_rate": 1.0,
+        "requested_available": 3,
+        "requested_supported": 3,
+        "coverage": 1.0
+      },
+      "task_checks": {
+        "complete": true,
+        "requested_findings": [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003"
+        ],
+        "reported_findings": [
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "ecgfounder_005"
+        ],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [
+          "call_classification_tool"
+        ],
+        "observed_tools": [
+          "call_classification_tool"
+        ],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "1ed5f83637db47589df8ff5ced26ae3b",
+            "finding": "ecgfounder_005"
+          },
+          {
+            "evidence_id": "1ed5f83637db47589df8ff5ced26ae3b",
+            "finding": "ecgfounder_002"
+          },
+          {
+            "evidence_id": "1ed5f83637db47589df8ff5ced26ae3b",
+            "finding": "ecgfounder_003"
+          }
+        ],
+        "explanations": [
+          "classifier_scores"
+        ],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 12312,
+            "completion_tokens": 123,
+            "total_tokens": 12435,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 113,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        },
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 19038,
+            "completion_tokens": 473,
+            "total_tokens": 19511,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 308,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        }
+      ],
+      "answer_rejections": 0
+    },
+    {
+      "case_id": "ptbxl-00144",
+      "turn_id": "ptbxl-00144/user:4",
+      "status": "failed",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 11.136739958019461,
+      "error_kind": "runner",
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "1ed5f83637db47589df8ff5ced26ae3b",
+            "finding": "ecgfounder_000",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "1ed5f83637db47589df8ff5ced26ae3b",
+            "finding": "ecgfounder_052",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "1ed5f83637db47589df8ff5ced26ae3b",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "1ed5f83637db47589df8ff5ced26ae3b",
+            "finding": "ecgfounder_008",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "1ed5f83637db47589df8ff5ced26ae3b",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 5,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 5,
+        "support_rate": 1.0,
+        "requested_available": 0,
+        "requested_supported": 0,
+        "coverage": null
+      },
+      "task_checks": {
+        "complete": false,
+        "requested_findings": [
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        "reported_findings": [
+          "ecgfounder_000",
+          "ecgfounder_003",
+          "ecgfounder_005",
+          "ecgfounder_008",
+          "ecgfounder_052",
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [],
+        "observed_tools": [],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "477776b0400c41a29e63f8c8641879fa",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "477776b0400c41a29e63f8c8641879fa",
+            "finding": "rr_interval_ms"
+          },
+          {
+            "evidence_id": "477776b0400c41a29e63f8c8641879fa",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "477776b0400c41a29e63f8c8641879fa",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "477776b0400c41a29e63f8c8641879fa",
+            "finding": "qtc_bazett_ms"
+          },
+          {
+            "evidence_id": "1ed5f83637db47589df8ff5ced26ae3b",
+            "finding": "ecgfounder_000"
+          },
+          {
+            "evidence_id": "1ed5f83637db47589df8ff5ced26ae3b",
+            "finding": "ecgfounder_052"
+          },
+          {
+            "evidence_id": "1ed5f83637db47589df8ff5ced26ae3b",
+            "finding": "ecgfounder_003"
+          },
+          {
+            "evidence_id": "1ed5f83637db47589df8ff5ced26ae3b",
+            "finding": "ecgfounder_008"
+          },
+          {
+            "evidence_id": "1ed5f83637db47589df8ff5ced26ae3b",
+            "finding": "ecgfounder_005"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 19260,
+            "completion_tokens": 458,
+            "total_tokens": 19718,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 196,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        }
+      ],
+      "answer_rejections": 1
+    },
+    {
+      "case_id": "ptbxl-00144",
+      "turn_id": "ptbxl-00144/user:5",
+      "status": "failed",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 7.848819874983747,
+      "error_kind": "runner",
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "1ed5f83637db47589df8ff5ced26ae3b",
+            "finding": "ecgfounder_000",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "1ed5f83637db47589df8ff5ced26ae3b",
+            "finding": "ecgfounder_052",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "1ed5f83637db47589df8ff5ced26ae3b",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "1ed5f83637db47589df8ff5ced26ae3b",
+            "finding": "ecgfounder_008",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "1ed5f83637db47589df8ff5ced26ae3b",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 5,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 5,
+        "support_rate": 1.0,
+        "requested_available": 0,
+        "requested_supported": 0,
+        "coverage": null
+      },
+      "task_checks": {
+        "complete": false,
+        "requested_findings": [],
+        "reported_findings": [
+          "ecgfounder_000",
+          "ecgfounder_003",
+          "ecgfounder_005",
+          "ecgfounder_008",
+          "ecgfounder_052",
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [
+          "classifier_limits",
+          "measurement_limits"
+        ],
+        "expected_tools": [],
+        "observed_tools": [],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "477776b0400c41a29e63f8c8641879fa",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "477776b0400c41a29e63f8c8641879fa",
+            "finding": "rr_interval_ms"
+          },
+          {
+            "evidence_id": "477776b0400c41a29e63f8c8641879fa",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "477776b0400c41a29e63f8c8641879fa",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "477776b0400c41a29e63f8c8641879fa",
+            "finding": "qtc_bazett_ms"
+          },
+          {
+            "evidence_id": "1ed5f83637db47589df8ff5ced26ae3b",
+            "finding": "ecgfounder_000"
+          },
+          {
+            "evidence_id": "1ed5f83637db47589df8ff5ced26ae3b",
+            "finding": "ecgfounder_052"
+          },
+          {
+            "evidence_id": "1ed5f83637db47589df8ff5ced26ae3b",
+            "finding": "ecgfounder_003"
+          },
+          {
+            "evidence_id": "1ed5f83637db47589df8ff5ced26ae3b",
+            "finding": "ecgfounder_008"
+          },
+          {
+            "evidence_id": "1ed5f83637db47589df8ff5ced26ae3b",
+            "finding": "ecgfounder_005"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "cohere/north-mini-code:free",
+          "usage": {
+            "prompt_tokens": 19753,
+            "completion_tokens": 717,
+            "total_tokens": 20470,
+            "cost": 0,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0,
+              "upstream_inference_prompt_cost": 0,
+              "upstream_inference_completions_cost": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 442,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          }
+        }
+      ],
+      "answer_rejections": 1
+    }
+  ],
+  "limitations": [
+    "Reference annotations were not passed to Session, model history, or classifier inputs.",
+    "Rendered numeric consistency is enforced by the report contract; it is not clinical validation."
+  ],
+  "experiment": {
+    "label": "required-report",
+    "repeat": 1,
+    "revision": "417f6652b9abc92e62465fad42cd2fd56c7427a7",
+    "config_sha256": "f55b3eb5111dd5411064a6fb52859a2099ff92d60cf718b42e51168a7a86be71",
+    "runner_sha256": "14e4a258c0db0d4caff9e627db7c56c83f73b122ea3124d0d0e8add004ce83cc"
+  }
+}

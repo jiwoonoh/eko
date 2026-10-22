@@ -54,6 +54,14 @@ class FakeSession:
 
 
 class EvaluationTests(unittest.TestCase):
+    def test_task_accuracy_is_unscored_without_explicit_expectations(self):
+        from eko import Session
+        from tests.test_runtime import FakeModel, FakeWorker, RECORD, report
+        result = run_manifest((EvaluationCase("unspecified", RECORD.record_id, ("Hello",)),),
+                              lambda case: Session(FakeModel([report()]), FakeWorker(), RECORD))
+        self.assertEqual(result["summary"]["task_scored_turns"], 0)
+        self.assertIsNone(result["summary"]["task_completion_rate"])
+
 
     def setUp(self):
         directory = TemporaryDirectory()

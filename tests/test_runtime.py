@@ -219,7 +219,7 @@ class RuntimeTests(unittest.TestCase):
     def test_rejected_prose_stays_out_of_followup_history_and_evidence_is_reused(self):
         diagnosis = "The ECG is normal sinus rhythm."
         session, model, worker, logs = self.session([
-            Decision(diagnosis, (call(),)), Decision(diagnosis), Decision(diagnosis), report("heart_rate"),
+            Decision(diagnosis, (call(),)), Decision(diagnosis), report("heart_rate"),
         ])
         rejected = run_turn(session, "Classify this ECG.")
         followup = run_turn(session, "What was the heart rate?")

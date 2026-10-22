@@ -310,49 +310,60 @@ real waveforms. Mocked-provider tests cannot establish live model behavior.
 
 ## Reporting reliability study
 
-The next changes follow an [ablation protocol](experiments/README.md). The first
-change adds full-task checks and a frozen experiment configuration without changing
-the agent. It scores requested nulls, label selection, evidence freshness, tool
-scheduling and explanations separately from renderer acceptance. The fresh live control completed 4/20 tasks with 11 accepted reports. An
-alias-only trial completed 3/20 tasks and was removed: correct label selection
-in its three accepted reports did not establish an overall completion benefit.
-Stage B changes report submission alone, starting from the control agent. The
-model submits a typed `submit_report` controller action; it is checked by the same
-renderer and never sent to the scientific worker. Evidence IDs and finding keys
-are constrained to current usable observations. Existing strict JSON decisions
-remain accepted through the same validator for adapter compatibility.
+The [ablation protocol](experiments/README.md) freezes the cases, questions,
+scientific tools, model and execution limits. The [saved comparison](evidence/ablations/summary.json)
+records all six screens, including rejected interventions. Task completion checks
+requested findings and explanations, explicit nulls, evidence freshness, and the
+predefined acquisition/reuse schedule. Renderer acceptance is separate.
 
-The native-action screen completed 8/20 tasks, but the model used the report
-action on only seven turns. The next isolated trial sets `tool_choice=required`
-in the CLI and live benchmark. The report schema, label descriptions and
-observation payloads remain unchanged. The required-tool trial completed
-2/20 tasks and still returned ordinary text on many turns. It was removed before
-the compact-observation trial, which starts from the native-action variant.
+| Screen | Complete tasks | Accepted reports | Reported input tokens | Decision |
+|---|---:|---:|---:|---|
+| Control | 4/20 | 11/20 | 382,680 | Reference |
+| Label aliases alone | 3/20 | 3/20 | 369,715 | Removed |
+| Native report submission | 8/20 | 11/20 | 427,511 | Provisional candidate |
+| Required tool decisions | 2/20 | 8/20 | 433,883 | Removed |
+| Compact observation view | 5/20 | 10/20 | 342,513 | Removed |
+| One bounded report correction | 8/20 | 11/20 | 648,639 | Removed |
 
-Stage C changes only model-facing observation serialization. All 150 scores and
-all measurement fields remain, with classifier labels from the same pinned
-catalog. Repeated classifier units/methods are shared once; beat arrays stay in
-the full local evidence and logs. Filtering summaries and missingness remain in
-the model view. No scientific estimator or classifier calculation changes. The screen used
-342,513 prompt tokens versus 427,511 for native submission, but task completion
-was 5/20 versus 8/20. This view was removed from the selected candidate; reduced
-payload size alone did not establish a reliability benefit.
+Each screen has one repeat; these are exploratory comparisons, not significance
+claims. Input counts include all provider attempts with reported usage. The
+control's earlier console count excluded a failed request; the table uses uniform
+attempt accounting. Provider-reported inference cost was zero for these screens.
 
-The conditional trial permits one report correction within the existing response
-cap. Feedback contains only the validation error and schema guidance. Rejected
-model prose stays out of subsequent requests/history, and the correction cannot
-execute scientific tools. First-pass and corrected tasks are counted separately.
-Reported usage now includes failed/retried provider attempts when supplied;
-unspecified task expectations are not scored as successful tasks.
+The remaining runtime addition is a controller-handled `submit_report` action.
+It offers current evidence IDs, finding keys and fixed explanation codes, then
+uses the existing validator and renderer. It executes no scientific tool.
+Existing strict JSON decisions use the same validation path. Failed alias,
+required-tool, compact-view and correction behavior is absent from the current
+runtime; its source revisions and results remain in the study record.
+
+The free endpoint did not reliably honor required tool decisions. The best
+screened candidate still substitutes the sinus-rhythm label on three accepted
+reports and does not meet the proposed eighteen-of-twenty development gate.
+High live-task accuracy has not been established. A separate model comparison
+and three-repeat confirmation remain outstanding.
+
+Run the frozen experiment from the repository root:
+
+```bash
+./.venv/bin/python -m experiment experiments/reporting.json --label candidate --repeats 1
+./.venv/bin/python scripts/check_reference.py
+```
+
+The experiment reads `OPENROUTER_API_KEY` from the environment or an ignored local
+`.env` file as data. Configuration contains no secrets. Each run gets a unique
+ignored directory. Full tool observations stay local; committed reports contain
+validated references, metrics, configuration and source hashes. Task accuracy is
+unscored when no explicit expectations were supplied.
 
 ## Remaining work
 
 The implementation, CPU checks, and development benchmark are complete. Live
 OpenRouter requests and native tool execution were verified; reliable final
-reporting remains unfinished. The tested free Cohere model produced accepted
-reports on nine of twenty turns. Improve report-contract adherence and requested
-field coverage, then rerun the frozen benchmark while retaining these baseline
-failures. Do not relax evidence validation to raise completion counts. No clinical
+reporting remains unfinished. The original free Cohere run produced nine accepted reports; the controlled
+study above measures full tasks and remains below its development gate. Qualify
+a more reliable model before adding further runtime behavior, then repeat the
+frozen benchmark while retaining all failed screens. Do not relax evidence validation to raise completion counts. No clinical
 validation has been performed. Independent waveform annotations are needed to evaluate
 measurement validity. Threshold calibration and an independent evaluation design
 must precede diagnostic performance claims. Exact ECG-Agent reproduction remains
@@ -366,7 +377,7 @@ remain deferred.
 
 ## Function reference
 
-This inventory covers **156 explicitly defined production functions and methods**, including private and nested named helpers. It excludes tests, lambdas, generated dataclass methods, and external-library APIs. `ecgfounder_labels.py` contains verified label bytes and defines no functions.
+This inventory covers **155 explicitly defined production functions and methods**, including private and nested named helpers. It excludes tests, developer scripts, lambdas, generated dataclass methods, and external-library APIs. `ecgfounder_labels.py` contains verified label bytes and defines no functions.
 
 **Evidence:** “Direct test” targets the callable; “Indirect test” exercises it through a caller. Neither means complete branch coverage. “Actual” links a saved local CPU/public-record run. “Source only” claims no dedicated execution check. Mocked OpenRouter tests do not establish live-provider behavior or clinical accuracy. Source/test links are relative to the repository root.
 
@@ -374,10 +385,10 @@ This inventory covers **156 explicitly defined production functions and methods*
 
 | Function | Purpose | Inputs, outputs, and failures | Evidence |
 |---|---|---|---|
-| [`canonical_record_id`](contracts.py#L14) | Normalize supported PTB-XL file names and aliases. | ID/path and dataset -> ptbxl:<integer>. Rejects foreign dataset, malformed name, or ID below one. | [Indirect test](tests/test_evaluation.py#L80) |
+| [`canonical_record_id`](contracts.py#L14) | Normalize supported PTB-XL file names and aliases. | ID/path and dataset -> ptbxl:<integer>. Rejects foreign dataset, malformed name, or ID below one. | [Indirect test](tests/test_evaluation.py#L88) |
 | [`Record.public`](contracts.py#L37) | Expose record metadata without its local path. | Record -> dictionary excluding path. Does not validate or read waveform bytes. | [Indirect test](tests/test_runtime.py#L102) |
 | [`ToolObservation.to_dict`](contracts.py#L73) | Serialize all observation fields, including evidence identity. | Observation -> recursive dataclass dictionary. Does not itself authenticate the evidence. | [Indirect test](tests/test_classification_runtime.py#L59) |
-| [`TurnResult.to_dict`](contracts.py#L89) | Serialize the answer, observations, counters, and released report. | Turn result -> recursive dictionary. Preserves failures and null report; no clinical scoring. | [Direct test](tests/test_evaluation.py#L321) |
+| [`TurnResult.to_dict`](contracts.py#L89) | Serialize the answer, observations, counters, and released report. | Turn result -> recursive dictionary. Preserves failures and null report; no clinical scoring. | [Direct test](tests/test_evaluation.py#L329) |
 
 ### `eko.py`
 
@@ -395,9 +406,8 @@ This inventory covers **156 explicitly defined production functions and methods*
 | [`_observation`](eko.py#L169) | Authenticate raw output and assign controller evidence identity. | Call and raw result -> ToolObservation. Rejects wrong record/hash, invalid classifier metadata, nonnumeric findings, unexplained nulls, or malformed timing. | [Indirect test](tests/test_classification_runtime.py#L101) |
 | [`_assistant`](eko.py#L223) | Encode native tool calls for provider history. | Decision -> assistant message with JSON arguments. Nonfinite or nonserializable arguments fail serialization. | [Indirect test](tests/test_runtime.py#L124) |
 | [`run_turn`](eko.py#L233) | Run repeated model/tool steps and release a validated report. | Session and question -> TurnResult. Reports provider/tool/runner failure, timeout, interrupt, and caps; blocks unsupported final prose. | [Direct test](tests/test_classification_runtime.py#L59) |
-| [`run_turn.finish`](eko.py#L245) | Build and log the turn's final result. | Status, answer, error -> TurnResult with released references. Includes failed attempts separately from reusable evidence. | [Indirect test](tests/test_classification_runtime.py#L59) |
-| [`run_turn.reject`](eko.py#L252) | Pair a rejected native call with an auditable failure. | Call and reason -> history, failure list, and log updates. Rejected results use source=runner and never become reusable evidence. | [Indirect test](tests/test_runtime.py#L147) |
-| [`run_turn.report_failure`](eko.py#L262) | Release a safe evidence summary after a final-report failure. | Error and status -> failed/timeout turn with auditable replacement references. Retains partial scientific results if the correction provider fails. | [Direct test](tests/test_report_correction.py#L59) |
+| [`run_turn.finish`](eko.py#L243) | Build and log the turn's final result. | Status, answer, error -> TurnResult with released references. Includes failed attempts separately from reusable evidence. | [Indirect test](tests/test_classification_runtime.py#L59) |
+| [`run_turn.reject`](eko.py#L250) | Pair a rejected native call with an auditable failure. | Call and reason -> history, failure list, and log updates. Rejected results use source=runner and never become reusable evidence. | [Indirect test](tests/test_runtime.py#L147) |
 
 ### `host.py`
 
@@ -461,26 +471,26 @@ This inventory covers **156 explicitly defined production functions and methods*
 
 | Function | Purpose | Inputs, outputs, and failures | Evidence |
 |---|---|---|---|
-| [`file_sha256`](evaluation.py#L44) | Stream a file's SHA256 for recorded evidence provenance. | Path -> digest. Filesystem errors propagate; this is not automatically a waveform hash. | [Indirect test](tests/test_evaluation.py#L63) |
-| [`_number`](evaluation.py#L52) | Normalize an explicit measurement or missing marker. | Number/text/null -> finite float or None. Rejects booleans, invalid numeric text, and nonfinite numeric values. | [Indirect test](tests/test_evaluation.py#L95) |
-| [`_decode`](evaluation.py#L66) | Read JSON or a literal-only published Python representation. | Value -> decoded value, or unchanged text. Uses ast.literal_eval, never eval; undecodable text remains text. | [Indirect test](tests/test_evaluation.py#L170) |
-| [`ReplayOutput.as_observation`](evaluation.py#L92) | Mark stored output explicitly as replay evidence. | Call ID and optional waveform hash -> ToolObservation. Source file/line identify replay; absent waveform hash is not invented. | [Direct test](tests/test_evaluation.py#L63) |
-| [`_replay_output`](evaluation.py#L116) | Adapt recorded numeric fields or formatted class selections. | Record/tool/value/source location -> ReplayOutput. Rejects unknown fields, aliases, labels/probabilities; preserves empty-selection ambiguity. | [Indirect test](tests/test_evaluation.py#L103) |
-| [`load_tool_csv`](evaluation.py#L188) | Load strict recorded measurement/classification CSV schemas. | CSV path and kind -> normalized record-to-replay mapping. Rejects schema errors, malformed rows, and colliding record aliases. | [Direct test](tests/test_evaluation.py#L80) |
-| [`_dialogue_groups`](evaluation.py#L235) | Group recorded assistant steps under their preceding user question. | Dialogue list -> ordered question/assistant groups. Rejects unknown roles, empty questions, missing actions, and orphan assistants. | [Indirect test](tests/test_evaluation.py#L156) |
-| [`_record_alias`](evaluation.py#L256) | Unwrap a recorded single-ECG selection. | Scalar/encoded list -> one identifier. Rejects selection lists containing zero or multiple records. | [Indirect test](tests/test_evaluation.py#L178) |
-| [`iter_transcripts`](evaluation.py#L265) | Stream both supported without_gt transcript schemas. | JSONL path -> RecordedCase iterator with stable per-line/turn identity. Rejects teacher forcing, ambiguous schemas, mismatched questions, and malformed rows. | [Direct test](tests/test_evaluation.py#L113) |
-| [`legacy_nap`](evaluation.py#L332) | Compute positional action agreement only from saved labels. | RecordedCase -> counts/accuracy or explicit unavailable result. Does not infer missing references or judge answer quality. | [Direct test](tests/test_evaluation.py#L156) |
-| [`evaluate_claims`](evaluation.py#L354) | Compare explicit released numbers against named observations. | Claims, evidence, optional record/requested fields -> verdicts and coverage. Rejects duplicate IDs/bad precision; wrong values/units contradict, unavailable evidence is unverifiable. | [Direct test](tests/test_evaluation.py#L195) |
+| [`file_sha256`](evaluation.py#L44) | Stream a file's SHA256 for recorded evidence provenance. | Path -> digest. Filesystem errors propagate; this is not automatically a waveform hash. | [Indirect test](tests/test_evaluation.py#L71) |
+| [`_number`](evaluation.py#L52) | Normalize an explicit measurement or missing marker. | Number/text/null -> finite float or None. Rejects booleans, invalid numeric text, and nonfinite numeric values. | [Indirect test](tests/test_evaluation.py#L103) |
+| [`_decode`](evaluation.py#L66) | Read JSON or a literal-only published Python representation. | Value -> decoded value, or unchanged text. Uses ast.literal_eval, never eval; undecodable text remains text. | [Indirect test](tests/test_evaluation.py#L178) |
+| [`ReplayOutput.as_observation`](evaluation.py#L92) | Mark stored output explicitly as replay evidence. | Call ID and optional waveform hash -> ToolObservation. Source file/line identify replay; absent waveform hash is not invented. | [Direct test](tests/test_evaluation.py#L71) |
+| [`_replay_output`](evaluation.py#L116) | Adapt recorded numeric fields or formatted class selections. | Record/tool/value/source location -> ReplayOutput. Rejects unknown fields, aliases, labels/probabilities; preserves empty-selection ambiguity. | [Indirect test](tests/test_evaluation.py#L111) |
+| [`load_tool_csv`](evaluation.py#L188) | Load strict recorded measurement/classification CSV schemas. | CSV path and kind -> normalized record-to-replay mapping. Rejects schema errors, malformed rows, and colliding record aliases. | [Direct test](tests/test_evaluation.py#L88) |
+| [`_dialogue_groups`](evaluation.py#L235) | Group recorded assistant steps under their preceding user question. | Dialogue list -> ordered question/assistant groups. Rejects unknown roles, empty questions, missing actions, and orphan assistants. | [Indirect test](tests/test_evaluation.py#L164) |
+| [`_record_alias`](evaluation.py#L256) | Unwrap a recorded single-ECG selection. | Scalar/encoded list -> one identifier. Rejects selection lists containing zero or multiple records. | [Indirect test](tests/test_evaluation.py#L186) |
+| [`iter_transcripts`](evaluation.py#L265) | Stream both supported without_gt transcript schemas. | JSONL path -> RecordedCase iterator with stable per-line/turn identity. Rejects teacher forcing, ambiguous schemas, mismatched questions, and malformed rows. | [Direct test](tests/test_evaluation.py#L121) |
+| [`legacy_nap`](evaluation.py#L332) | Compute positional action agreement only from saved labels. | RecordedCase -> counts/accuracy or explicit unavailable result. Does not infer missing references or judge answer quality. | [Direct test](tests/test_evaluation.py#L164) |
+| [`evaluate_claims`](evaluation.py#L354) | Compare explicit released numbers against named observations. | Claims, evidence, optional record/requested fields -> verdicts and coverage. Rejects duplicate IDs/bad precision; wrong values/units contradict, unavailable evidence is unverifiable. | [Direct test](tests/test_evaluation.py#L203) |
 | [`evaluate_task`](evaluation.py#L421) | Check complete requests independently of valid report formatting. | Result, record, requested fields, tool schedule, explanations and previous IDs -> completion details. Includes explained nulls; rejects stale/wrong-record or failed replacement reports. | [Direct test](tests/test_benchmark.py#L108) |
-| [`_json_sha256`](evaluation.py#L459) | Hash canonical finite JSON for reproducibility. | JSON-compatible value -> SHA256. Nonfinite or unserializable data raises. | [Indirect test](tests/test_evaluation.py#L224) |
-| [`_session_configuration`](evaluation.py#L464) | Capture provider settings, limits, prompt/schema/source hashes. | Session -> JSON-compatible configuration. Collects explicit fields, not credentials; source-file read errors propagate. | [Indirect test](tests/test_evaluation.py#L224) |
-| [`_error_kind`](evaluation.py#L488) | Classify a turn error as provider/tool/runner/judge. | Turn dictionary -> category or None. Rejects unknown explicit kind/nontext error; unknown prefix becomes runner. | [Indirect test](tests/test_evaluation.py#L312) |
-| [`_package_versions`](evaluation.py#L504) | Read installed measurement dependency versions. | Distribution metadata -> version mapping. Missing numpy/scipy/neurokit2 is represented as None. | [Indirect test](tests/test_evaluation.py#L224) |
-| [`run_manifest`](evaluation.py#L514) | Execute sorted fixed cases through the interactive run_turn loop. | Cases, session factory, optional claim extractor -> manifest/turns/summary. Rejects duplicate IDs, invalid history/questions, or wrong records; always closes created sessions. | [Direct test](tests/test_evaluation.py#L224) |
-| [`run_manifest.collect_models`](evaluation.py#L559) | Capture actual model/usage metadata while forwarding session events. | Event type and fields -> response trace/log updates. Only model_response events enter the trace. | [Indirect test](tests/test_evaluation.py#L224) |
-| [`summarize`](evaluation.py#L623) | Aggregate completion, failure kinds, elapsed time, reuse, and numeric support. | Evaluated-turn iterable -> summary. Rejects invalid IDs/counts/timing; excludes failed/provider/judge turns from claim scores; clinical accuracy stays null. | [Direct test](tests/test_evaluation.py#L321) |
-| [`main`](evaluation.py#L723) | Inspect replay CSV/transcripts or summarize evaluated-turn JSONL. | Subcommand/path -> printed JSON and exit code. Bad files/schema exit 2; makes no model requests. | [Direct test](tests/test_evaluation.py#L345) |
+| [`_json_sha256`](evaluation.py#L459) | Hash canonical finite JSON for reproducibility. | JSON-compatible value -> SHA256. Nonfinite or unserializable data raises. | [Indirect test](tests/test_evaluation.py#L232) |
+| [`_session_configuration`](evaluation.py#L464) | Capture provider settings, limits, prompt/schema/source hashes. | Session -> JSON-compatible configuration. Collects explicit fields, not credentials; source-file read errors propagate. | [Indirect test](tests/test_evaluation.py#L232) |
+| [`_error_kind`](evaluation.py#L488) | Classify a turn error as provider/tool/runner/judge. | Turn dictionary -> category or None. Rejects unknown explicit kind/nontext error; unknown prefix becomes runner. | [Indirect test](tests/test_evaluation.py#L320) |
+| [`_package_versions`](evaluation.py#L504) | Read installed measurement dependency versions. | Distribution metadata -> version mapping. Missing numpy/scipy/neurokit2 is represented as None. | [Indirect test](tests/test_evaluation.py#L232) |
+| [`run_manifest`](evaluation.py#L514) | Execute sorted fixed cases through the interactive run_turn loop. | Cases, session factory, optional claim extractor -> manifest/turns/summary. Rejects duplicate IDs, invalid history/questions, or wrong records; always closes created sessions. | [Direct test](tests/test_evaluation.py#L232) |
+| [`run_manifest.collect_models`](evaluation.py#L558) | Capture actual model/usage metadata while forwarding session events. | Event type and fields -> response trace/log updates. Only model_response events enter the trace. | [Indirect test](tests/test_evaluation.py#L232) |
+| [`summarize`](evaluation.py#L619) | Aggregate completion, failure kinds, elapsed time, reuse, and numeric support. | Evaluated-turn iterable -> summary. Rejects invalid IDs/counts/timing; excludes failed/provider/judge turns from claim scores; clinical accuracy stays null. | [Direct test](tests/test_evaluation.py#L329) |
+| [`main`](evaluation.py#L712) | Inspect replay CSV/transcripts or summarize evaluated-turn JSONL. | Subcommand/path -> printed JSON and exit code. Bad files/schema exit 2; makes no model requests. | [Direct test](tests/test_evaluation.py#L353) |
 
 ### `demo.py`
 
@@ -581,8 +591,8 @@ This inventory covers **156 explicitly defined production functions and methods*
 | [`load_config`](experiment.py#L19) | Validate explicit frozen experimental controls. | JSON config path -> checked configuration. Rejects unknown keys, nonpositive limits, noninteger caps and invalid repeat counts. | [Direct test](tests/test_experiment.py#L25) |
 | [`load_key`](experiment.py#L42) | Load only the API key from a local file as data. | Key-file path -> controller environment. Existing environment wins; never evaluates shell text; rejects absent or oversized key files. | [Direct test](tests/test_experiment.py#L36) |
 | [`summarize`](experiment.py#L66) | Aggregate task completion and resource use across repeats. | Executed reports -> counts, per-repeat tasks, prompt tokens, reported cost and latency. API stochasticity and missing failed-request usage remain limitations. | [Direct test](tests/test_experiment.py#L46) |
-| [`run`](experiment.py#L83) | Execute repeated frozen dialogues and preserve every result. | Configuration, label and output directory -> unique run directory. Records source/config hashes; tools and reference annotations remain separated. | [Direct test](tests/test_experiment.py#L46) |
-| [`main`](experiment.py#L119) | Run a named experiment with explicit configuration and local credentials. | CLI arguments -> process status. Supports recorded repeat override; errors redact the loaded key. | Source only |
+| [`run`](experiment.py#L81) | Execute repeated frozen dialogues and preserve every result. | Configuration, label and output directory -> unique run directory. Records source/config hashes; tools and reference annotations remain separated. | [Direct test](tests/test_experiment.py#L46) |
+| [`main`](experiment.py#L117) | Run a named experiment with explicit configuration and local credentials. | CLI arguments -> process status. Supports recorded repeat override; errors redact the loaded key. | Source only |
 
 ### `providers/openrouter.py`
 

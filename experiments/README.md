@@ -54,3 +54,15 @@ Omit `--repeats 1` for the configuration's three-repeat confirmation. Each run
 creates a new directory under ignored `runs/ablations/`. Commit only sanitized
 reports and a concise comparison after verifying that no credentials or raw
 interaction logs are included.
+
+The correction screen completed 8/20 tasks, matching native submission alone,
+with higher token use. It was removed. The best screened candidate remains native
+submission at 8/20; the eighteen-of-twenty development gate has not been achieved.
+A different paid model comparison is pending explicit authorization.
+
+Results are saved in [the ablation summary](../evidence/ablations/summary.json).
+Native report submission is provisional at 8/20 tasks. The required-tool,
+compact-view and correction trials were removed. The correction trial recovered
+two tasks after a first rejection but matched the native trial overall and used
+more tokens. Screening results are not statistically conclusive; the live
+accuracy gate and three-repeat confirmation remain outstanding.
