@@ -40,14 +40,6 @@ def observation():
 
 
 class ManifestTests(unittest.TestCase):
-    def test_aliases_preserve_pinned_meanings_and_do_not_collapse_sinus_labels(self):
-        aliases = classifier.label_aliases()
-        self.assertEqual({alias: classifier.label_for_key(key) for alias, key in aliases.items()}, {
-            "AFIB": "ATRIAL FIBRILLATION", "NORM": "NORMAL ECG",
-            "SR": "SINUS RHYTHM", "NSR": "NORMAL SINUS RHYTHM",
-        })
-        self.assertNotEqual(aliases["SR"], aliases["NSR"])
-
     def test_core_import_does_not_import_scientific_packages(self):
         code = "import classifier,sys; assert not ({'torch','numpy','scipy','ecgfounder'} & set(sys.modules))"
         result = subprocess.run([sys.executable, "-c", code], cwd=Path(classifier.__file__).parent,

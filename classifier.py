@@ -60,15 +60,6 @@ def label_for_key(key: str) -> str:
     return load_labels()[index]
 
 
-def label_aliases() -> dict[str, str]:
-    """Resolve ECG abbreviations through the pinned label order, without inference."""
-    labels = {label: score_key(index) for index, label in enumerate(load_labels())}
-    return {alias: labels[label] for alias, label in {
-        "AFIB": "ATRIAL FIBRILLATION", "NORM": "NORMAL ECG",
-        "SR": "SINUS RHYTHM", "NSR": "NORMAL SINUS RHYTHM",
-    }.items()}
-
-
 def provenance() -> dict:
     return {
         "backend": "ecgfounder",

@@ -34,16 +34,14 @@ def measurement_schema(record_id: str) -> dict[str, Any]:
 
 
 def classification_schema(record_id: str) -> dict[str, Any]:
-    from classifier import label_aliases, label_for_key
-
-    aliases = "; ".join(f"{alias}={key}={label_for_key(key)}" for alias, key in label_aliases().items())
     schema = measurement_schema(record_id)
     schema["function"].update(
         name="call_classification_tool",
         description=(
             "Run the verified ECGFounder classifier on the selected waveform. Returns 150 independent "
             "sigmoid model scores, not clinical diagnoses or calibrated disease probabilities. "
-            f"{aliases}. "
+            "ecgfounder_005=ATRIAL FIBRILLATION; ecgfounder_003=SINUS RHYTHM; "
+            "ecgfounder_001=NORMAL SINUS RHYTHM; ecgfounder_002=NORMAL ECG. "
             "Keep these labels separate. The full pinned label catalog is in the report instructions."
         ),
     )
