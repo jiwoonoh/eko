@@ -325,6 +325,7 @@ predefined acquisition/reuse schedule. Renderer acceptance is separate.
 | Compact observation view | 5/20 | 10/20 | 342,513 | Removed |
 | One bounded report correction | 8/20 | 11/20 | 648,639 | Removed |
 | Structured report history | 7/20 | 17/20 | 429,560 | Provisional format improvement |
+| Exact aliases with structured history | 16/20 | 18/20 | 414,226 | Candidate; limits question incomplete |
 
 Each screen has one repeat; these are exploratory comparisons, not significance
 claims. Input counts include all provider attempts with reported usage. The
@@ -338,8 +339,10 @@ validation path. Required-tool, compact-view and correction behavior was removed
 source revisions and results remain in the study record.
 
 Structured report history reduced format failures but did not improve full task
-completion. It remains provisional while a follow-up tests exact abbreviation
-guidance resolved through the pinned label catalog. No values, reference labels,
+completion. With exact abbreviation guidance resolved through the pinned label catalog,
+completion reached 16/20 with no accepted SR/NSR substitutions. All four remaining
+failures occurred on the limits question. A follow-up exposes existing explanation
+meanings in the report schema; the validator and expected results are unchanged. No values, reference labels,
 or requested answers are supplied by this guidance. The earlier alias-only
 intervention was removed; this screen changes reporting instructions alone with
 structured history held fixed.
@@ -516,16 +519,16 @@ This inventory covers **155 explicitly defined production functions and methods*
 | Function | Purpose | Inputs, outputs, and failures | Evidence |
 |---|---|---|---|
 | [`report_schema`](reporting.py#L52) | Describe terminal report arguments from current usable evidence. | Record, evidence and scientific tool names -> native controller-action schema. Only known evidence/finding keys are offered; no scientific execution or numeric values accepted. | [Direct test](tests/test_submission.py#L35) |
-| [`report_instructions`](reporting.py#L77) | Give the model an exact reference-only final-report contract. | Registered tool names -> prompt including enabled label catalog. Classifier instructions are omitted when its tool is absent. | [Direct test](tests/test_reporting.py#L331) |
-| [`_unique_object`](reporting.py#L124) | Reject duplicate keys while parsing report JSON. | JSON key/value pairs -> dictionary. Repeated keys raise ValueError rather than overwriting. | [Indirect test](tests/test_reporting.py#L115) |
-| [`_usable`](reporting.py#L133) | Check record/hash/status/source/tool eligibility for report evidence. | Observation, current record, allowed tools -> boolean. Replay, runner, failed, foreign, or unregistered evidence is ineligible. | [Indirect test](tests/test_reporting.py#L105) |
-| [`_codes`](reporting.py#L141) | Validate fixed explanation/unavailability code lists. | Value and allowed set -> same list. Rejects unknown codes, wrong containers, and duplicates. | [Indirect test](tests/test_reporting.py#L137) |
-| [`parse_report`](reporting.py#L149) | Parse only the three permitted final-report fields. | JSON text -> normalized reference/code dictionary. Rejects prose, extra keys, duplicate references, invalid types, or empty reports. | [Direct test](tests/test_reporting.py#L202) |
-| [`_latest_classifier`](reporting.py#L179) | Find the latest eligible complete pinned classifier result. | Record, evidence, tools -> observation or None. Malformed/incomplete classifier results are skipped. | [Indirect test](tests/test_reporting.py#L367) |
-| [`_explanation`](reporting.py#L191) | Select fixed capability/measurement-limit text for enabled tools. | Explanation code and classifier flag -> text. Only validated codes reach it; no generated medical prose. | [Indirect test](tests/test_reporting.py#L315) |
-| [`render_report`](reporting.py#L202) | Resolve references into trusted numbers, units, missingness, and labels. | Report JSON, record, evidence, allowed tools -> answer text. Rejects unusable/ambiguous evidence or score/provenance mismatch; appends fixed limits. | [Direct test](tests/test_reporting.py#L248) |
-| [`fallback_report`](reporting.py#L274) | Choose latest measurements and top five valid classifier scores. | Record/evidence/tools -> exact replacement report references. Ignores unusable evidence; stable ties; reports classifier unavailable when absent. | [Direct test](tests/test_reporting.py#L345) |
-| [`safe_report`](reporting.py#L293) | Render the deterministic replacement for an invalid final answer. | Record/evidence/tools -> safe answer text. Shares render_report validation; does not rehabilitate generated prose. | [Direct test](tests/test_reporting.py#L163) |
+| [`report_instructions`](reporting.py#L80) | Give the model an exact reference-only final-report contract. | Registered tool names -> prompt including enabled label catalog. Classifier instructions are omitted when its tool is absent. | [Direct test](tests/test_reporting.py#L331) |
+| [`_unique_object`](reporting.py#L127) | Reject duplicate keys while parsing report JSON. | JSON key/value pairs -> dictionary. Repeated keys raise ValueError rather than overwriting. | [Indirect test](tests/test_reporting.py#L115) |
+| [`_usable`](reporting.py#L136) | Check record/hash/status/source/tool eligibility for report evidence. | Observation, current record, allowed tools -> boolean. Replay, runner, failed, foreign, or unregistered evidence is ineligible. | [Indirect test](tests/test_reporting.py#L105) |
+| [`_codes`](reporting.py#L144) | Validate fixed explanation/unavailability code lists. | Value and allowed set -> same list. Rejects unknown codes, wrong containers, and duplicates. | [Indirect test](tests/test_reporting.py#L137) |
+| [`parse_report`](reporting.py#L152) | Parse only the three permitted final-report fields. | JSON text -> normalized reference/code dictionary. Rejects prose, extra keys, duplicate references, invalid types, or empty reports. | [Direct test](tests/test_reporting.py#L202) |
+| [`_latest_classifier`](reporting.py#L182) | Find the latest eligible complete pinned classifier result. | Record, evidence, tools -> observation or None. Malformed/incomplete classifier results are skipped. | [Indirect test](tests/test_reporting.py#L367) |
+| [`_explanation`](reporting.py#L194) | Select fixed capability/measurement-limit text for enabled tools. | Explanation code and classifier flag -> text. Only validated codes reach it; no generated medical prose. | [Indirect test](tests/test_reporting.py#L315) |
+| [`render_report`](reporting.py#L205) | Resolve references into trusted numbers, units, missingness, and labels. | Report JSON, record, evidence, allowed tools -> answer text. Rejects unusable/ambiguous evidence or score/provenance mismatch; appends fixed limits. | [Direct test](tests/test_reporting.py#L248) |
+| [`fallback_report`](reporting.py#L277) | Choose latest measurements and top five valid classifier scores. | Record/evidence/tools -> exact replacement report references. Ignores unusable evidence; stable ties; reports classifier unavailable when absent. | [Direct test](tests/test_reporting.py#L345) |
+| [`safe_report`](reporting.py#L296) | Render the deterministic replacement for an invalid final answer. | Record/evidence/tools -> safe answer text. Shares render_report validation; does not rehabilitate generated prose. | [Direct test](tests/test_reporting.py#L163) |
 
 ### `classifier.py`
 

@@ -63,13 +63,16 @@ def report_schema(record: Record, evidence, tool_names: set[str]) -> dict:
         findings["maxItems"] = 0
     explanations = ["record"] + [key for key in EXPLANATIONS
                                   if CLASSIFIER_TOOL in tool_names or not key.startswith("classifier_")]
+    meanings = "; ".join(f"{code}: " + (
+        "Selected record metadata and measurement lead." if code == "record"
+        else _explanation(code, CLASSIFIER_TOOL in tool_names)) for code in explanations)
     return {"type": "function", "function": {
         "name": REPORT_TOOL,
         "description": "Finish this turn with evidence references and fixed explanations. Use after required scientific calls. The controller supplies values and label names; this action executes no scientific tool.",
         "parameters": {"type": "object", "properties": {
             "findings": {**findings, "description": "References for every requested finding, including null measurements. Use each requested finding's latest relevant evidence."},
             "explanations": {"type": "array", "items": {"type": "string", "enum": explanations},
-                             "description": "Fixed explanations requested by the user; choose the relevant measurement and classifier limits for questions about what results establish."},
+                             "description": "Select the fixed explanations requested by the user. " + meanings},
             "unavailable": {"type": "array", "items": {"type": "string", "enum": list(UNAVAILABLE)}},
         }, "required": ["findings", "explanations", "unavailable"], "additionalProperties": False}}}
 

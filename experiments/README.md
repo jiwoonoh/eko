@@ -77,3 +77,10 @@ The structured-history screen accepted 17/20 reports but completed 7/20 tasks
 selection with structured history; it has not established an overall benefit.
 The next screen changes only abbreviation guidance, resolved through the pinned
 label catalog. It introduces no response correction or request-specific rules.
+
+With structured history held fixed, exact aliases completed 16/20 tasks and
+accepted 18/20 reports, with no accepted SR/NSR substitutions. All four failures
+were on the limits question: two rejected formats and two incomplete selections.
+The next screen gives each explanation code its existing rendered meaning in the
+report schema. The allowed codes, renderer, task predicates and limits do not
+change. No request matching, additional call, or retry is introduced.
