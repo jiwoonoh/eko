@@ -456,7 +456,7 @@ def run_dialogue(manifest: dict, paths: dict[int, Path], checkpoint: str, *, mod
             if model:
                 from providers import OpenRouter
                 provider = OpenRouter(model, max_tokens=settings.get("max_tokens", 4096),
-                                      timeout=settings.get("request_timeout", 60))
+                                      timeout=settings.get("request_timeout", 60), tool_choice="required")
             else:
                 provider = MockBoundaryModel()
             log = EventLog(log_dir, record, {"model": model or provider.model, "history": "without_gt", "benchmark": True})

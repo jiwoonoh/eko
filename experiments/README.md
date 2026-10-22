@@ -18,6 +18,7 @@ as completed tasks. Renderer acceptance is reported separately.
 | Control | Existing agent; task metrics and experiment recorder only | Reproduce current format and label-selection failures. |
 | A | Explicit canonical label aliases | Remove SR/NSR selection substitutions. |
 | B | Controller-handled report submission schema | Reduce malformed reports without weakening evidence checks. |
+| B2 | Require native tool decisions with a terminal report action | Prevent plain-text completions that ignore the report schema. |
 | C | Compact model observation messages | Reduce prompt tokens while preserving all scores, findings and missingness. |
 | Conditional | One bounded report correction | Consider only if residual schema failures prevent the development gate. |
 

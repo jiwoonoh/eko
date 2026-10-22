@@ -26,7 +26,8 @@ class OpenRouter:
     """Stateless message adapter with one bounded transient/empty retry."""
 
     def __init__(self, model: str, api_key: str | None = None, *,
-                 max_tokens: int = 4096, timeout: float = 60.0) -> None:
+                 max_tokens: int = 4096, timeout: float = 60.0,
+                 tool_choice: str = "auto") -> None:
         if not isinstance(model, str) or not model.strip():
             raise ValueError("an OpenRouter model ID is required")
         key = api_key or os.environ.get("OPENROUTER_API_KEY")
@@ -34,10 +35,13 @@ class OpenRouter:
             raise ValueError("Set OPENROUTER_API_KEY for OpenRouter")
         if max_tokens < 1 or not math.isfinite(timeout) or timeout <= 0:
             raise ValueError("max_tokens and timeout must be positive")
+        if tool_choice not in {"auto", "required"}:
+            raise ValueError("tool_choice must be auto or required")
         self.model = model.strip()
         self.api_key = key
         self.max_tokens = max_tokens
         self.timeout = timeout
+        self.tool_choice = tool_choice
         self._deadline: float | None = None
         self._connection: http.client.HTTPSConnection | None = None
         self._interrupted = threading.Event()
@@ -59,7 +63,7 @@ class OpenRouter:
             "model": self.model, "messages": messages, "tools": tools,
             # Tools execute sequentially in the runner. Free endpoints do not
             # advertise the optional parallel_tool_calls routing parameter.
-            "tool_choice": "auto",
+            "tool_choice": self.tool_choice,
             "provider": {"require_parameters": True},
             "max_tokens": self.max_tokens, "stream": False,
         }
