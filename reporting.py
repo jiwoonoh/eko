@@ -49,6 +49,20 @@ UNAVAILABLE = {
 REPORT_TOOL = "submit_report"
 
 
+def model_observation(observation: ToolObservation) -> dict:
+    """Compact a model message while retaining the full observation locally."""
+    view = observation.to_dict()
+    view["view_version"] = "compact-v1"
+    view["details"] = {key: value for key, value in view["details"].items() if key in {
+        "reason", "message", "error", "sampling_rate_hz", "lead_used", "waveform_units",
+        "r_peak_count", "filtering", "upstream_revision", "neurokit_version"}}
+    if observation.tool == CLASSIFIER_TOOL and observation.status == "success":
+        view["labels"] = {key: label_for_key(key) for key in observation.findings}
+        view["units"] = {"all_findings": next(iter(observation.units.values()))}
+        view["methods"] = {"all_findings": next(iter(observation.methods.values()))}
+    return view
+
+
 def report_schema(record: Record, evidence, tool_names: set[str]) -> dict:
     """Describe terminal report arguments using only current usable evidence."""
     usable = [item for item in evidence if _usable(item, record, tool_names)]
