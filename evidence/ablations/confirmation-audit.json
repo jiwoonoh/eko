@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "purpose": "Audit the frozen live reporting gate, not clinical correctness.",
+  "revision": "f5b7581d0c087e58d4133507e7e064c50f5e5b7a",
+  "model": "cohere/north-mini-code:free",
+  "config_sha256": "1361d50cc99bf65998ea73f2977b936b6c26f3fa7b194e2897df69d388c7e487",
+  "repeats": [
+    {
+      "repeat": 1,
+      "completed_tasks": 18,
+      "accepted_reports": 18,
+      "rendered_reports_rechecked": 20,
+      "requested_nulls": 15,
+      "requested_nulls_explained": 15,
+      "accepted_sinus_label_substitutions": 0
+    },
+    {
+      "repeat": 2,
+      "completed_tasks": 15,
+      "accepted_reports": 16,
+      "rendered_reports_rechecked": 20,
+      "requested_nulls": 15,
+      "requested_nulls_explained": 15,
+      "accepted_sinus_label_substitutions": 0
+    },
+    {
+      "repeat": 3,
+      "completed_tasks": 15,
+      "accepted_reports": 15,
+      "rendered_reports_rechecked": 20,
+      "requested_nulls": 15,
+      "requested_nulls_explained": 15,
+      "accepted_sinus_label_substitutions": 0
+    }
+  ],
+  "conditions": {
+    "three_prespecified_repeats": true,
+    "at_least_18_tasks_each": false,
+    "no_accepted_sinus_substitutions": true,
+    "all_requested_nulls_explained": true,
+    "current_source_matches_every_repeat": true
+  },
+  "live_gate_met": false,
+  "negative_guard_tests": "See ../verification.json for the separately executed automated checks.",
+  "audit_script_sha256": "2c9fd5a6020c6274ab50ecbfbd661aa2b0ce12ed5f328a399d93b2eb2e4c0521",
+  "limitations": [
+    "Four development records, five fixed turns each; no held-out dialogue or clinical validation.",
+    "Raw local events were read to re-render actual released reports and verify null explanations; raw events are not committed."
+  ]
+}

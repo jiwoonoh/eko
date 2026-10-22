@@ -23,7 +23,13 @@ validation in this release.
 | [`1f96d8f`](https://github.com/jiwoonoh/eko/commit/1f96d8f) | Added and verified the ECGFounder CPU backend. |
 | [`8bc21d9`](https://github.com/jiwoonoh/eko/commit/8bc21d9) | Connected classification to named calls and bounded reports. |
 | [`895f4fa`](https://github.com/jiwoonoh/eko/commit/895f4fa) | Added the frozen development benchmark, saved execution evidence, and this function reference. |
-| This revision | Recorded live OpenRouter execution and reporting failures with the existing guard unchanged. |
+| [`39ea351`](https://github.com/jiwoonoh/eko/commit/39ea351) | Recorded the first live OpenRouter reporting failures. |
+| [`04568cf`](https://github.com/jiwoonoh/eko/commit/04568cf) | Added full-task scoring and frozen reporting experiments. |
+| [`e007696`](https://github.com/jiwoonoh/eko/commit/e007696) | Added controller-handled report submission using the existing validator. |
+| [`52a20f0`](https://github.com/jiwoonoh/eko/commit/52a20f0) | Stored validated report JSON in follow-up history. |
+| [`6a30d52`](https://github.com/jiwoonoh/eko/commit/6a30d52) | Tested exact label aliases with structured history. |
+| [`108c914`](https://github.com/jiwoonoh/eko/commit/108c914) | Exposed fixed explanation meanings in the report schema. |
+| [`f5b7581`](https://github.com/jiwoonoh/eko/commit/f5b7581) | Froze the 18/20 candidate for three-repeat confirmation. |
 
 Removed: generated Python execution, child agents, model/inbox/world sockets,
 Linux sandbox machinery, terminal rendering, Claude and Hugging Face dialogue
@@ -133,6 +139,9 @@ free-form conclusions are rejected. A rejected report returns `failed` with a sa
 summary and an `answer_rejected` event. Raw model text remains in the local audit
 log and is excluded from displayed answers and follow-up history.
 `TurnResult.report` contains the validated references released in the answer.
+Assistant history stores this report as JSON; the user sees its rendered answer.
+The [history check](tests/test_submission.py#L20) verifies that accepted reports
+and safe replacement reports both follow this rule.
 The CLI also prints an evidence appendix: measurements and the five highest
 classifier scores; complete scores remain in JSON and logs.
 
@@ -344,13 +353,20 @@ completion. With exact abbreviation guidance resolved through the pinned label c
 completion reached 16/20 with no accepted SR/NSR substitutions. All four remaining
 failures occurred on the limits question. Exposing existing explanation meanings in the report schema then completed
 18/20 tasks with no accepted SR/NSR substitutions. This candidate is frozen for
-three-repeat confirmation; the validator and expected results are unchanged. No values, reference labels,
-or requested answers are supplied by this guidance. The earlier alias-only
+three-repeat confirmation; the validator and expected results are unchanged.
+Guidance supplies label definitions and fixed explanations. Record-specific
+values still come from tool evidence; dataset reference annotations remain
+outside model history. The earlier alias-only
 intervention was removed; this screen changes reporting instructions alone with
 structured history held fixed.
 
-High live-task accuracy has not been established. The eighteen-of-twenty gate and
-three-repeat confirmation remain outstanding. The user selected the current free
+Three confirmation repeats completed 18/20, 15/20 and 15/20 tasks. This fails the
+at-least-eighteen-in-each-repeat gate. No accepted SR/NSR substitutions occurred;
+all 45 requested nulls had displayed reasons. The [confirmation audit](evidence/ablations/confirmation-audit.json)
+re-rendered all 60 reports from local observations. Raw events stay outside Git.
+A role-description screen now tests whether describing the model as a tool/report
+selector reduces prose completions. It changes no renderer, limit or scoring rule.
+High live-task accuracy has not been established. The user selected the current free
 model only; paid model comparisons will not run.
 
 Run the frozen experiment from the repository root:
@@ -368,22 +384,22 @@ unscored when no explicit expectations were supplied.
 
 ## Remaining work
 
-The implementation, CPU checks, and development benchmark are complete. Live
-OpenRouter requests and native tool execution were verified; reliable final
-reporting remains unfinished. The original free Cohere run produced nine accepted reports; the controlled
-study above measures full tasks and remains below its development gate. Qualify
-a more reliable model before adding further runtime behavior, then repeat the
-frozen benchmark while retaining all failed screens. Do not relax evidence validation to raise completion counts. No clinical
-validation has been performed. Independent waveform annotations are needed to evaluate
-measurement validity. Threshold calibration and an independent evaluation design
-must precede diagnostic performance claims. Exact ECG-Agent reproduction remains
-blocked by its unavailable 71-label checkpoint and unverified fairseq revision;
-this release uses the explicitly different ECGFounder model.
+The scientific backend executes real records, and the reporting candidate reached
+18/20 full tasks in its screen, followed by confirmation results of 18/20,
+15/20 and 15/20 on the current free model. A role-description screen is next. The gate also requires no accepted SR/NSR substitutions,
+explained requested nulls, and passing negative evidence tests. All unsuccessful
+screens remain in the evidence directory. These are development results from
+four records and fixed questions, with no held-out dialogue check.
+
+Independent waveform annotations are needed to evaluate measurement validity.
+Threshold calibration and an independent evaluation design must precede
+diagnostic performance claims. Exact ECG-Agent reproduction remains blocked by
+its unavailable 71-label checkpoint and unverified fairseq revision; this branch
+uses the explicitly different ECGFounder model. Fold 10 remains reserved.
 
 Later work: a local dialogue adapter, structured claim verification beyond numeric
 references, structured ECG interpretation with independent references, and SFT/RL.
-Training, threshold calibration, treatment guidance, and unrestricted medical prose
-remain deferred.
+Training, treatment guidance, and unrestricted medical prose remain deferred.
 
 ## Function reference
 
@@ -409,15 +425,15 @@ This inventory covers **155 explicitly defined production functions and methods*
 | [`_record_key`](eko.py#L51) | Fingerprint public record descriptors for session identity. | Record -> sorted JSON string. Includes hash/layout/units but excludes local path. | [Indirect test](tests/test_runtime.py#L374) |
 | [`Session.__init__`](eko.py#L58) | Configure one record's bounded model/tool session. | Model, worker, record, limits -> initialized session. Rejects nonpositive response/tool caps or nonfinite timeouts. | [Indirect test](tests/test_runtime.py#L160) |
 | [`Session._reset`](eko.py#L82) | Rebuild schemas and instructions and clear record evidence. | Session state -> fresh system history and empty evidence. Rejects duplicate registered tool names; classifier requires ready worker. | [Indirect test](tests/test_classification_runtime.py#L46) |
-| [`Session.set_record`](eko.py#L112) | Select a different record with an explicit history reset. | Record -> changed session or no-op for same identity. Cannot change the record during an active turn. | [Direct test](tests/test_runtime.py#L374) |
-| [`Session.close`](eko.py#L121) | Close the provider and always close its worker. | Session -> cleanup side effects. Worker close runs even if provider cleanup raises. | [Indirect test](tests/test_integration.py#L20) |
-| [`_finite`](eko.py#L128) | Walk nested values and reject nonfinite floats. | Nested value -> None on success. Raises ValueError for NaN or infinity. | [Indirect test](tests/test_runtime.py#L276) |
-| [`_arguments`](eko.py#L139) | Validate a model tool call against registered arguments. | Session and call -> copied argument object. Rejects unknown tool, wrong record, paths, extra/missing fields, type/enum errors. | [Indirect test](tests/test_runtime.py#L235) |
-| [`_observation`](eko.py#L169) | Authenticate raw output and assign controller evidence identity. | Call and raw result -> ToolObservation. Rejects wrong record/hash, invalid classifier metadata, nonnumeric findings, unexplained nulls, or malformed timing. | [Indirect test](tests/test_classification_runtime.py#L101) |
-| [`_assistant`](eko.py#L223) | Encode native tool calls for provider history. | Decision -> assistant message with JSON arguments. Nonfinite or nonserializable arguments fail serialization. | [Indirect test](tests/test_runtime.py#L124) |
-| [`run_turn`](eko.py#L233) | Run repeated model/tool steps and release a validated report. | Session and question -> TurnResult. Reports provider/tool/runner failure, timeout, interrupt, and caps; blocks unsupported final prose. | [Direct test](tests/test_classification_runtime.py#L59) |
-| [`run_turn.finish`](eko.py#L243) | Build and log the turn's final result. | Status, answer, error -> TurnResult with released references. Includes failed attempts separately from reusable evidence. | [Indirect test](tests/test_classification_runtime.py#L59) |
-| [`run_turn.reject`](eko.py#L250) | Pair a rejected native call with an auditable failure. | Call and reason -> history, failure list, and log updates. Rejected results use source=runner and never become reusable evidence. | [Indirect test](tests/test_runtime.py#L147) |
+| [`Session.set_record`](eko.py#L114) | Select a different record with an explicit history reset. | Record -> changed session or no-op for same identity. Cannot change the record during an active turn. | [Direct test](tests/test_runtime.py#L374) |
+| [`Session.close`](eko.py#L123) | Close the provider and always close its worker. | Session -> cleanup side effects. Worker close runs even if provider cleanup raises. | [Indirect test](tests/test_integration.py#L20) |
+| [`_finite`](eko.py#L130) | Walk nested values and reject nonfinite floats. | Nested value -> None on success. Raises ValueError for NaN or infinity. | [Indirect test](tests/test_runtime.py#L276) |
+| [`_arguments`](eko.py#L141) | Validate a model tool call against registered arguments. | Session and call -> copied argument object. Rejects unknown tool, wrong record, paths, extra/missing fields, type/enum errors. | [Indirect test](tests/test_runtime.py#L235) |
+| [`_observation`](eko.py#L171) | Authenticate raw output and assign controller evidence identity. | Call and raw result -> ToolObservation. Rejects wrong record/hash, invalid classifier metadata, nonnumeric findings, unexplained nulls, or malformed timing. | [Indirect test](tests/test_classification_runtime.py#L101) |
+| [`_assistant`](eko.py#L225) | Encode native tool calls for provider history. | Decision -> assistant message with JSON arguments. Nonfinite or nonserializable arguments fail serialization. | [Indirect test](tests/test_runtime.py#L124) |
+| [`run_turn`](eko.py#L235) | Run repeated model/tool steps and release a validated report. | Session and question -> TurnResult. Reports provider/tool/runner failure, timeout, interrupt, and caps; blocks unsupported final prose. | [Direct test](tests/test_classification_runtime.py#L59) |
+| [`run_turn.finish`](eko.py#L245) | Build and log the turn's final result. | Status, answer, error -> TurnResult with released references. Includes failed attempts separately from reusable evidence. | [Indirect test](tests/test_classification_runtime.py#L59) |
+| [`run_turn.reject`](eko.py#L252) | Pair a rejected native call with an auditable failure. | Call and reason -> history, failure list, and log updates. Rejected results use source=runner and never become reusable evidence. | [Indirect test](tests/test_runtime.py#L147) |
 
 ### `host.py`
 
@@ -520,7 +536,7 @@ This inventory covers **155 explicitly defined production functions and methods*
 
 | Function | Purpose | Inputs, outputs, and failures | Evidence |
 |---|---|---|---|
-| [`report_schema`](reporting.py#L52) | Describe terminal report arguments from current usable evidence. | Record, evidence and scientific tool names -> native controller-action schema. Only known evidence/finding keys are offered; no scientific execution or numeric values accepted. | [Direct test](tests/test_submission.py#L35) |
+| [`report_schema`](reporting.py#L52) | Describe terminal report arguments and fixed explanation meanings. | Record, evidence and scientific tool names -> native controller-action schema. Only known evidence/finding keys are offered; explanation meanings reuse rendered templates. No scientific execution or numeric values accepted. The native-submission test covers binding; explanation guidance is checked by live screens. | [Direct test](tests/test_submission.py#L35) |
 | [`report_instructions`](reporting.py#L80) | Give the model an exact reference-only final-report contract. | Registered tool names -> prompt including enabled label catalog. Classifier instructions are omitted when its tool is absent. | [Direct test](tests/test_reporting.py#L331) |
 | [`_unique_object`](reporting.py#L127) | Reject duplicate keys while parsing report JSON. | JSON key/value pairs -> dictionary. Repeated keys raise ValueError rather than overwriting. | [Indirect test](tests/test_reporting.py#L115) |
 | [`_usable`](reporting.py#L136) | Check record/hash/status/source/tool eligibility for report evidence. | Observation, current record, allowed tools -> boolean. Replay, runner, failed, foreign, or unregistered evidence is ineligible. | [Indirect test](tests/test_reporting.py#L105) |

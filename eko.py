@@ -93,7 +93,9 @@ class Session:
         self._schemas = {tool["function"]["name"]: tool["function"]["parameters"]
                          for tool in self.tools}
         prompt = (
-            "You are an ECG measurement assistant. Use only the registered tools. "
+            "You select registered tools and report references for an ECG research runtime. "
+            "The controller writes the user-facing answer from your selection, including explanations. "
+            "Use only the registered tools. "
             "The selected record is fixed; pass its record_id, never file paths. "
             "Tool messages contain observations from the runner; never invent Tool_Output. "
             "Base numeric findings on those observations, preserve units and missingness, "

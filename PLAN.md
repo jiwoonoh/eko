@@ -61,19 +61,16 @@ final source definitions. Automated provider tests are explicitly mocked.
 
 ## Pending, blocked, and deferred
 
-- **Executed, reporting incomplete:** live OpenRouter classification dialogue.
-  The free Cohere model completed all twelve scientific calls across four cases;
-  nine of twenty turns produced accepted reports. Eleven replies were rejected
-  for unknown finding names or invalid report format. Numeric coverage was 49/56
-  available requested fields among accepted turns. The initial free Gemma endpoint
-  returned HTTP 429 before any model response. Evidence and raw logs are separate;
-  only sanitized results are committed.
-- **Next:** improve report-contract adherence and requested-field coverage, then
-  rerun the frozen benchmark. All seven accepted classifier reports substituted
-  NORMAL SINUS RHYTHM for requested SINUS RHYTHM; add explicit abbreviation/key
-  guidance and verify requested-label selection. Keep the guard and failed
-  baseline intact. Any bounded report-repair experiment must retain rejection
-  events and be evaluated separately from this baseline.
+- **Historical live baseline:** the original free Cohere run accepted nine of
+  twenty reports and completed all twelve scientific calls. The later controlled
+  baseline completed four full tasks. These are different metrics; all baseline
+  artifacts remain available.
+- **Current candidate:** native report submission, validated JSON in assistant
+  history, exact classifier abbreviations, and explanation meanings in the schema.
+  The screen completed 18/20 tasks without accepted SR/NSR substitutions. Confirmation
+  completed 18/20, 15/20 and 15/20; the gate failed. All 45 requested nulls had
+  displayed explanations and no accepted SR/NSR substitutions occurred. A
+  role-description screen changes only the model responsibility wording.
 - **Blocked:** exact ECG-Agent 71-label reproduction without its checkpoint,
   verified ordering/input dimensions, preprocessing, and fairseq revision.
 - **Deferred:** diagnostic thresholds/calibration, clinical validation, local
@@ -86,15 +83,20 @@ final source definitions. Automated provider tests are explicitly mocked.
 
 ## Reporting reliability study (22 October 2026)
 
-- Added explicit full-task checks, including nulls, requested labels, evidence
-  freshness, tool scheduling and both limits explanations.
-- Added a frozen experiment configuration and source/configuration/usage records.
-- Screened six interventions separately. Control: 4/20 tasks; aliases: 3/20;
-  native submission: 8/20; required tool decisions: 2/20; compact observations:
-  5/20; one report correction: 8/20. Preserve every result and source revision.
-- Removed alias, required-tool, compact-view and correction behavior after the
-  screens failed to establish a useful overall completion benefit. Native
-  submission is a provisional candidate; it is not a high-accuracy result.
-- Remaining: qualify a reliable model, then meet the fixed development gate in
-  three repeats without weakening evidence checks or changing the test cases.
-  The user selected the existing free model only. Paid comparisons will not run.
+Full-task checks include nulls, requested labels, evidence freshness, the frozen
+tool schedule and both limits explanations. The configuration fixes the model,
+cases, questions and execution limits. Every screen records source/configuration
+hashes and all reported provider-attempt usage.
+
+Each screen changes one factor relative to its stated parent. Native submission
+completed 8/20 tasks; structured history completed 7/20 but reduced rejected
+formats. Exact aliases with that history reached 16/20. Exposing the existing
+explanation meanings reached 18/20. The README and sanitized comparison preserve
+all screens, including failures and removed interventions. No report correction,
+required-tool option or compact observation view remains in the runtime.
+
+The development gate requires at least 18/20 full tasks in each of three repeats,
+no accepted SR/NSR substitutions, explained requested nulls, and passing negative
+evidence tests. The first confirmation failed at 18/20, 15/20 and 15/20. A role-description screen is next. The user selected the existing free
+model only; paid comparisons will not run. These checks do not establish clinical
+accuracy or performance on unseen dialogue.
