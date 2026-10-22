@@ -552,6 +552,8 @@ def run_manifest(
             evidence_steps = {}
             response_trace = []
             answer_rejections = []
+            corrections = []
+            provider_attempts = []
             original_log = session.log
 
             def collect_models(event_type: str, **fields: Any) -> None:
@@ -559,12 +561,19 @@ def run_manifest(
                     response_trace.append({"model": fields.get("model"), "usage": fields.get("usage", {})})
                 if event_type == "answer_rejected":
                     answer_rejections.append(fields.get("reason"))
+                if event_type == "report_correction":
+                    corrections.append(fields.get("reason"))
+                if event_type in {"model_response", "model_error"}:
+                    provider_attempts.extend({key: item[key] for key in ("attempt", "model", "status", "usage", "usage_invalid")
+                                              if key in item} for item in fields.get("provider_attempts", []))
                 original_log(event_type, **fields)
 
             session.log = collect_models
             for index, question in enumerate(case.questions, 1):
                 response_trace.clear()
                 answer_rejections.clear()
+                corrections.clear()
+                provider_attempts.clear()
                 previous_ids = set(evidence_steps)
                 result = run_turn(session, question)
                 row = result.to_dict()
@@ -574,6 +583,7 @@ def run_manifest(
                     user_turn=index, question=question, runtime_turn_id=result.turn_id,
                     turn_id=f"{case.case_id}/user:{index}",
                     answer_rejections=len(answer_rejections),
+                    report_corrections=len(corrections), provider_attempts=list(provider_attempts),
                 )
                 new_steps = 0
                 for observation in row["evidence"]:
@@ -587,11 +597,13 @@ def run_manifest(
                 claims = tuple(claims_for_result(case, index, result)) if claims_for_result else ()
                 requested = case.requested_findings_by_turn[index - 1] if case.requested_findings_by_turn else case.requested_findings
                 row["claim_checks"] = evaluate_claims(claims, result.evidence, record_id=case.record_id, requested_findings=requested)
-                row["task_checks"] = evaluate_task(
-                    result, session.record, requested_findings=requested,
-                    expected_tools=case.expected_tools_by_turn[index - 1] if case.expected_tools_by_turn else None,
-                    required_explanations=case.required_explanations_by_turn[index - 1] if case.required_explanations_by_turn else (),
-                    previous_evidence_ids=previous_ids)
+                if (case.requested_findings or case.requested_findings_by_turn or
+                        case.expected_tools_by_turn or case.required_explanations_by_turn):
+                    row["task_checks"] = evaluate_task(
+                        result, session.record, requested_findings=requested,
+                        expected_tools=case.expected_tools_by_turn[index - 1] if case.expected_tools_by_turn else None,
+                        required_explanations=case.required_explanations_by_turn[index - 1] if case.required_explanations_by_turn else (),
+                        previous_evidence_ids=previous_ids)
                 row["error_kind"] = _error_kind(row)
                 turns.append(row)
         finally:
@@ -625,9 +637,16 @@ def summarize(turns: Iterable[dict[str, Any]]) -> dict[str, Any]:
         counts["expected_turns"] += 1
         counts["completed_answers"] += status == "success"
         counts[f"status_{status}"] += 1
+        corrections = turn.get("report_corrections", 0)
+        if type(corrections) is not int or corrections < 0:
+            raise ValueError("report corrections must be a nonnegative integer")
+        counts["report_corrections"] += corrections
+        counts["provider_attempt_failures"] += sum(item.get("status") == "failed" for item in turn.get("provider_attempts", []))
         if "task_checks" in turn:
             counts["task_scored_turns"] += 1
-            counts["completed_tasks"] += status == "success" and turn["task_checks"].get("complete") is True
+            complete = status == "success" and turn["task_checks"].get("complete") is True
+            counts["completed_tasks"] += complete
+            counts["corrected_tasks" if corrections else "first_pass_tasks"] += complete
         rejected = turn.get("answer_rejections", 0)
         if isinstance(rejected, bool) or not isinstance(rejected, int) or rejected < 0:
             raise ValueError("answer rejections must be a nonnegative integer")
@@ -685,6 +704,9 @@ def summarize(turns: Iterable[dict[str, Any]]) -> dict[str, Any]:
         "statuses": {name.removeprefix("status_"): count for name, count in counts.items() if name.startswith("status_")},
         "completion_rate": counts["completed_answers"] / counts["expected_turns"] if counts["expected_turns"] else None,
         "task_scored_turns": counts["task_scored_turns"], "completed_tasks": counts["completed_tasks"],
+        "first_pass_tasks": counts["first_pass_tasks"], "corrected_tasks": counts["corrected_tasks"],
+        "report_corrections": counts["report_corrections"],
+        "provider_attempt_failures": counts["provider_attempt_failures"],
         "task_completion_rate": counts["completed_tasks"] / counts["task_scored_turns"] if counts["task_scored_turns"] else None,
         "answer_rejections": counts["answer_rejections"],
         "answer_rejection_rate": counts["answer_rejections"] / counts["expected_turns"] if counts["expected_turns"] else None,

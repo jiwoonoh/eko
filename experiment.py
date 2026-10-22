@@ -69,12 +69,12 @@ def summarize(reports: list[dict]) -> dict:
         "expected_turns", "completed_answers", "completed_tasks", "answer_rejections",
         "provider_errors", "tool_errors", "attempted_tool_calls", "model_responses")}
     totals["task_completion_rate"] = totals["completed_tasks"] / totals["expected_turns"]
-    totals["reported_cost_usd"] = sum(
-        float(item.get("usage", {}).get("cost") or 0) for report in reports
-        for turn in report["turns"] for item in turn["model_responses_trace"])
-    totals["prompt_tokens"] = sum(
-        item.get("usage", {}).get("prompt_tokens", 0) for report in reports
-        for turn in report["turns"] for item in turn["model_responses_trace"])
+    usage = [item.get("usage", {}) for report in reports for turn in report["turns"]
+             for item in (turn.get("provider_attempts") or turn["model_responses_trace"])]
+    totals["reported_cost_usd"] = sum(float(item.get("cost") or 0) for item in usage)
+    totals["prompt_tokens"] = sum(item.get("prompt_tokens", 0) for item in usage)
+    totals["first_pass_tasks"] = sum(report["summary"].get("first_pass_tasks", report["summary"]["completed_tasks"]) for report in reports)
+    totals["corrected_tasks"] = sum(report["summary"].get("corrected_tasks", 0) for report in reports)
     totals["elapsed_seconds"] = sum(report["summary"]["total_elapsed_seconds"] for report in reports)
     totals["tasks_by_repeat"] = [report["summary"]["completed_tasks"] for report in reports]
     return totals

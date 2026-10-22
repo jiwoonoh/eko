@@ -338,6 +338,13 @@ the model view. No scientific estimator or classifier calculation changes. The s
 was 5/20 versus 8/20. This view was removed from the selected candidate; reduced
 payload size alone did not establish a reliability benefit.
 
+The conditional trial permits one report correction within the existing response
+cap. Feedback contains only the validation error and schema guidance. Rejected
+model prose stays out of subsequent requests/history, and the correction cannot
+execute scientific tools. First-pass and corrected tasks are counted separately.
+Reported usage now includes failed/retried provider attempts when supplied;
+unspecified task expectations are not scored as successful tasks.
+
 ## Remaining work
 
 The implementation, CPU checks, and development benchmark are complete. Live
@@ -359,7 +366,7 @@ remain deferred.
 
 ## Function reference
 
-This inventory covers **155 explicitly defined production functions and methods**, including private and nested named helpers. It excludes tests, lambdas, generated dataclass methods, and external-library APIs. `ecgfounder_labels.py` contains verified label bytes and defines no functions.
+This inventory covers **156 explicitly defined production functions and methods**, including private and nested named helpers. It excludes tests, lambdas, generated dataclass methods, and external-library APIs. `ecgfounder_labels.py` contains verified label bytes and defines no functions.
 
 **Evidence:** “Direct test” targets the callable; “Indirect test” exercises it through a caller. Neither means complete branch coverage. “Actual” links a saved local CPU/public-record run. “Source only” claims no dedicated execution check. Mocked OpenRouter tests do not establish live-provider behavior or clinical accuracy. Source/test links are relative to the repository root.
 
@@ -388,8 +395,9 @@ This inventory covers **155 explicitly defined production functions and methods*
 | [`_observation`](eko.py#L169) | Authenticate raw output and assign controller evidence identity. | Call and raw result -> ToolObservation. Rejects wrong record/hash, invalid classifier metadata, nonnumeric findings, unexplained nulls, or malformed timing. | [Indirect test](tests/test_classification_runtime.py#L101) |
 | [`_assistant`](eko.py#L223) | Encode native tool calls for provider history. | Decision -> assistant message with JSON arguments. Nonfinite or nonserializable arguments fail serialization. | [Indirect test](tests/test_runtime.py#L124) |
 | [`run_turn`](eko.py#L233) | Run repeated model/tool steps and release a validated report. | Session and question -> TurnResult. Reports provider/tool/runner failure, timeout, interrupt, and caps; blocks unsupported final prose. | [Direct test](tests/test_classification_runtime.py#L59) |
-| [`run_turn.finish`](eko.py#L243) | Build and log the turn's final result. | Status, answer, error -> TurnResult with released references. Includes failed attempts separately from reusable evidence. | [Indirect test](tests/test_classification_runtime.py#L59) |
-| [`run_turn.reject`](eko.py#L250) | Pair a rejected native call with an auditable failure. | Call and reason -> history, failure list, and log updates. Rejected results use source=runner and never become reusable evidence. | [Indirect test](tests/test_runtime.py#L147) |
+| [`run_turn.finish`](eko.py#L245) | Build and log the turn's final result. | Status, answer, error -> TurnResult with released references. Includes failed attempts separately from reusable evidence. | [Indirect test](tests/test_classification_runtime.py#L59) |
+| [`run_turn.reject`](eko.py#L252) | Pair a rejected native call with an auditable failure. | Call and reason -> history, failure list, and log updates. Rejected results use source=runner and never become reusable evidence. | [Indirect test](tests/test_runtime.py#L147) |
+| [`run_turn.report_failure`](eko.py#L262) | Release a safe evidence summary after a final-report failure. | Error and status -> failed/timeout turn with auditable replacement references. Retains partial scientific results if the correction provider fails. | [Direct test](tests/test_report_correction.py#L59) |
 
 ### `host.py`
 
@@ -470,9 +478,9 @@ This inventory covers **155 explicitly defined production functions and methods*
 | [`_error_kind`](evaluation.py#L488) | Classify a turn error as provider/tool/runner/judge. | Turn dictionary -> category or None. Rejects unknown explicit kind/nontext error; unknown prefix becomes runner. | [Indirect test](tests/test_evaluation.py#L312) |
 | [`_package_versions`](evaluation.py#L504) | Read installed measurement dependency versions. | Distribution metadata -> version mapping. Missing numpy/scipy/neurokit2 is represented as None. | [Indirect test](tests/test_evaluation.py#L224) |
 | [`run_manifest`](evaluation.py#L514) | Execute sorted fixed cases through the interactive run_turn loop. | Cases, session factory, optional claim extractor -> manifest/turns/summary. Rejects duplicate IDs, invalid history/questions, or wrong records; always closes created sessions. | [Direct test](tests/test_evaluation.py#L224) |
-| [`run_manifest.collect_models`](evaluation.py#L557) | Capture actual model/usage metadata while forwarding session events. | Event type and fields -> response trace/log updates. Only model_response events enter the trace. | [Indirect test](tests/test_evaluation.py#L224) |
-| [`summarize`](evaluation.py#L611) | Aggregate completion, failure kinds, elapsed time, reuse, and numeric support. | Evaluated-turn iterable -> summary. Rejects invalid IDs/counts/timing; excludes failed/provider/judge turns from claim scores; clinical accuracy stays null. | [Direct test](tests/test_evaluation.py#L321) |
-| [`main`](evaluation.py#L701) | Inspect replay CSV/transcripts or summarize evaluated-turn JSONL. | Subcommand/path -> printed JSON and exit code. Bad files/schema exit 2; makes no model requests. | [Direct test](tests/test_evaluation.py#L345) |
+| [`run_manifest.collect_models`](evaluation.py#L559) | Capture actual model/usage metadata while forwarding session events. | Event type and fields -> response trace/log updates. Only model_response events enter the trace. | [Indirect test](tests/test_evaluation.py#L224) |
+| [`summarize`](evaluation.py#L623) | Aggregate completion, failure kinds, elapsed time, reuse, and numeric support. | Evaluated-turn iterable -> summary. Rejects invalid IDs/counts/timing; excludes failed/provider/judge turns from claim scores; clinical accuracy stays null. | [Direct test](tests/test_evaluation.py#L321) |
+| [`main`](evaluation.py#L723) | Inspect replay CSV/transcripts or summarize evaluated-turn JSONL. | Subcommand/path -> printed JSON and exit code. Bad files/schema exit 2; makes no model requests. | [Direct test](tests/test_evaluation.py#L345) |
 
 ### `demo.py`
 
@@ -570,10 +578,10 @@ This inventory covers **155 explicitly defined production functions and methods*
 
 | Function | Purpose | Inputs, outputs, and failures | Evidence |
 |---|---|---|---|
-| [`load_config`](experiment.py#L19) | Validate explicit frozen experimental controls. | JSON config path -> checked configuration. Rejects unknown keys, nonpositive limits, noninteger caps and invalid repeat counts. | [Direct test](tests/test_experiment.py#L14) |
-| [`load_key`](experiment.py#L42) | Load only the API key from a local file as data. | Key-file path -> controller environment. Existing environment wins; never evaluates shell text; rejects absent or oversized key files. | [Direct test](tests/test_experiment.py#L25) |
-| [`summarize`](experiment.py#L66) | Aggregate task completion and resource use across repeats. | Executed reports -> counts, per-repeat tasks, prompt tokens, reported cost and latency. API stochasticity and missing failed-request usage remain limitations. | [Direct test](tests/test_experiment.py#L35) |
-| [`run`](experiment.py#L83) | Execute repeated frozen dialogues and preserve every result. | Configuration, label and output directory -> unique run directory. Records source/config hashes; tools and reference annotations remain separated. | [Direct test](tests/test_experiment.py#L35) |
+| [`load_config`](experiment.py#L19) | Validate explicit frozen experimental controls. | JSON config path -> checked configuration. Rejects unknown keys, nonpositive limits, noninteger caps and invalid repeat counts. | [Direct test](tests/test_experiment.py#L25) |
+| [`load_key`](experiment.py#L42) | Load only the API key from a local file as data. | Key-file path -> controller environment. Existing environment wins; never evaluates shell text; rejects absent or oversized key files. | [Direct test](tests/test_experiment.py#L36) |
+| [`summarize`](experiment.py#L66) | Aggregate task completion and resource use across repeats. | Executed reports -> counts, per-repeat tasks, prompt tokens, reported cost and latency. API stochasticity and missing failed-request usage remain limitations. | [Direct test](tests/test_experiment.py#L46) |
+| [`run`](experiment.py#L83) | Execute repeated frozen dialogues and preserve every result. | Configuration, label and output directory -> unique run directory. Records source/config hashes; tools and reference annotations remain separated. | [Direct test](tests/test_experiment.py#L46) |
 | [`main`](experiment.py#L119) | Run a named experiment with explicit configuration and local credentials. | CLI arguments -> process status. Supports recorded repeat override; errors redact the loaded key. | Source only |
 
 ### `providers/openrouter.py`

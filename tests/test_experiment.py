@@ -11,6 +11,17 @@ from experiment import load_config, load_key, run, summarize
 
 
 class ExperimentTests(unittest.TestCase):
+    def test_resource_accounting_includes_failed_and_retried_provider_attempts(self):
+        summary = dict.fromkeys(("expected_turns", "completed_answers", "completed_tasks", "answer_rejections",
+                                 "provider_errors", "tool_errors", "attempted_tool_calls", "model_responses"), 1)
+        summary["total_elapsed_seconds"] = 2
+        turn = {"model_responses_trace": [{"usage": {"cost": .2, "prompt_tokens": 20}}],
+                "provider_attempts": [{"status": "failed", "usage": {"cost": .1, "prompt_tokens": 10}},
+                                      {"status": "success", "usage": {"cost": .2, "prompt_tokens": 20}}]}
+        result = summarize([{"summary": summary, "turns": [turn]}])
+        self.assertAlmostEqual(result["reported_cost_usd"], .3)
+        self.assertEqual(result["prompt_tokens"], 30)
+
     def test_config_requires_all_explicit_controls_and_no_secrets(self):
         config = load_config(Path("experiments/reporting.json"))
         with tempfile.TemporaryDirectory() as directory:
