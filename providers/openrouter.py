@@ -61,6 +61,8 @@ class OpenRouter:
             # advertise the optional parallel_tool_calls routing parameter.
             "tool_choice": "auto",
             "provider": {"require_parameters": True},
+            # Report selection needs low sampling variance, not prose diversity.
+            "temperature": 0.0,
             "max_tokens": self.max_tokens, "stream": False,
         }
         body = json.dumps(payload, allow_nan=False).encode()

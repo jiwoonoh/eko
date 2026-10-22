@@ -70,6 +70,7 @@ class OpenRouterTests(unittest.TestCase):
         self.assertNotIn("parallel_tool_calls", payload)
         self.assertFalse(payload["stream"])
         self.assertEqual(payload["max_tokens"], 4096)
+        self.assertEqual(payload["temperature"], 0.0)
         self.assertEqual(headers["Authorization"], "Bearer test-secret")
         self.assertTrue(connection.closed)
 
