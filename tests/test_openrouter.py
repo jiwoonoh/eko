@@ -50,16 +50,6 @@ class FakeConnection:
 
 
 class OpenRouterTests(unittest.TestCase):
-    def test_required_decisions_are_an_explicit_provider_setting(self):
-        model = OpenRouter("test/model", api_key="test-key", tool_choice="required")
-        connection = FakeConnection(response(content=None, calls=[native_call()]))
-        with mock.patch("providers.openrouter.http.client.HTTPSConnection", return_value=connection):
-            decision = model.complete([{"role": "user", "content": "Measure."}], [measurement_schema("ptbxl:1")])
-        self.assertEqual(connection.requests[0][2]["tool_choice"], "required")
-        self.assertEqual(decision.tool_calls[0].name, "call_measurement_tool")
-        with self.assertRaises(ValueError):
-            OpenRouter("test/model", api_key="test-key", tool_choice="unknown")
-
     def complete(self, connections, messages=None, tools=None):
         model = OpenRouter("requested/model", "test-secret")
         factory = mock.Mock(side_effect=connections)

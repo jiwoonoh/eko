@@ -325,7 +325,9 @@ remain accepted through the same validator for adapter compatibility.
 The native-action screen completed 8/20 tasks, but the model used the report
 action on only seven turns. The next isolated trial sets `tool_choice=required`
 in the CLI and live benchmark. The report schema, label descriptions and
-observation payloads remain unchanged.
+observation payloads remain unchanged. The required-tool trial completed
+2/20 tasks and still returned ordinary text on many turns. It was removed before
+the compact-observation trial, which starts from the native-action variant.
 
 ## Remaining work
 
@@ -569,15 +571,15 @@ This inventory covers **155 explicitly defined production functions and methods*
 
 | Function | Purpose | Inputs, outputs, and failures | Evidence |
 |---|---|---|---|
-| [`_reject_constant`](providers/openrouter.py#L21) | Reject nonfinite constants while decoding tool-argument JSON. | NaN/Infinity token -> exception. Always raises ValueError. | [Indirect test](tests/test_openrouter.py#L194) |
-| [`OpenRouter.__init__`](providers/openrouter.py#L28) | Configure the stdlib native-tool adapter and cancellation state. | Explicit model/key, token cap, timeout -> adapter. Requires nonempty model/key and positive token/timeout settings. | [Direct test](tests/test_openrouter.py#L233) |
-| [`OpenRouter.set_deadline`](providers/openrouter.py#L51) | Assign or clear the next request's monotonic deadline. | Deadline or None -> adapter state. The runner resets this per model request. | [Direct test](tests/test_openrouter.py#L211) |
-| [`OpenRouter._safe`](providers/openrouter.py#L54) | Redact the configured API key from error text. | Error/object -> sanitized string. Only exact configured-key occurrences are replaced. | [Indirect test](tests/test_openrouter.py#L176) |
-| [`OpenRouter.complete`](providers/openrouter.py#L57) | Send native schemas/messages and parse a bounded-retry decision. | Messages and tools -> Decision with actual model/usage. One retry for transient/empty responses within one watchdog deadline; records attempts and redacts errors. | [Direct test](tests/test_openrouter.py#L130) |
-| [`OpenRouter._request`](providers/openrouter.py#L113) | Make one HTTPS chat-completions request and read its JSON. | Encoded body and deadline -> response dictionary. 408/429/5xx retryable; authentication/API/JSON errors fail; always closes connection. | [Indirect test](tests/test_openrouter.py#L170) |
-| [`OpenRouter._set_socket_timeout`](providers/openrouter.py#L159) | Apply remaining request time to the active socket. | Connection and monotonic deadline -> updated timeout. Raises when the request deadline has elapsed. | [Indirect test](tests/test_openrouter.py#L71) |
-| [`OpenRouter._decision`](providers/openrouter.py#L166) | Validate a provider response and preserve native tool-call identities. | Response dictionary -> Decision. Rejects truncation, invalid roles/content/calls/IDs/argument JSON/usage; empty choices can retry. | [Indirect test](tests/test_openrouter.py#L194) |
-| [`OpenRouter._expire`](providers/openrouter.py#L221) | Mark watchdog expiry and abort the request socket. | Timer callback -> expired flag and socket shutdown. Late success cannot bypass expired state. | [Direct test](tests/test_openrouter.py#L136) |
-| [`OpenRouter._abort_socket`](providers/openrouter.py#L225) | Shut down an active HTTPS socket to unblock I/O. | Adapter connection -> socket shutdown. Absent sockets are harmless; shutdown OSError is ignored. | [Indirect test](tests/test_openrouter.py#L219) |
-| [`OpenRouter.interrupt`](providers/openrouter.py#L233) | Mark cancellation and abort the active request. | Adapter -> interrupted flag and socket shutdown. Interrupted requests do not retry. | [Direct test](tests/test_openrouter.py#L219) |
-| [`OpenRouter.close`](providers/openrouter.py#L237) | Cancel outstanding provider work. | Adapter -> interrupt side effects. Delegates to interrupt; has no message-history store. | [Indirect test](tests/test_integration.py#L20) |
+| [`_reject_constant`](providers/openrouter.py#L21) | Reject nonfinite constants while decoding tool-argument JSON. | NaN/Infinity token -> exception. Always raises ValueError. | [Indirect test](tests/test_openrouter.py#L184) |
+| [`OpenRouter.__init__`](providers/openrouter.py#L28) | Configure the stdlib native-tool adapter and cancellation state. | Explicit model/key, token cap, timeout -> adapter. Requires nonempty model/key and positive token/timeout settings. | [Direct test](tests/test_openrouter.py#L223) |
+| [`OpenRouter.set_deadline`](providers/openrouter.py#L47) | Assign or clear the next request's monotonic deadline. | Deadline or None -> adapter state. The runner resets this per model request. | [Direct test](tests/test_openrouter.py#L201) |
+| [`OpenRouter._safe`](providers/openrouter.py#L50) | Redact the configured API key from error text. | Error/object -> sanitized string. Only exact configured-key occurrences are replaced. | [Indirect test](tests/test_openrouter.py#L166) |
+| [`OpenRouter.complete`](providers/openrouter.py#L53) | Send native schemas/messages and parse a bounded-retry decision. | Messages and tools -> Decision with actual model/usage. One retry for transient/empty responses within one watchdog deadline; records attempts and redacts errors. | [Direct test](tests/test_openrouter.py#L120) |
+| [`OpenRouter._request`](providers/openrouter.py#L109) | Make one HTTPS chat-completions request and read its JSON. | Encoded body and deadline -> response dictionary. 408/429/5xx retryable; authentication/API/JSON errors fail; always closes connection. | [Indirect test](tests/test_openrouter.py#L160) |
+| [`OpenRouter._set_socket_timeout`](providers/openrouter.py#L155) | Apply remaining request time to the active socket. | Connection and monotonic deadline -> updated timeout. Raises when the request deadline has elapsed. | [Indirect test](tests/test_openrouter.py#L61) |
+| [`OpenRouter._decision`](providers/openrouter.py#L162) | Validate a provider response and preserve native tool-call identities. | Response dictionary -> Decision. Rejects truncation, invalid roles/content/calls/IDs/argument JSON/usage; empty choices can retry. | [Indirect test](tests/test_openrouter.py#L184) |
+| [`OpenRouter._expire`](providers/openrouter.py#L217) | Mark watchdog expiry and abort the request socket. | Timer callback -> expired flag and socket shutdown. Late success cannot bypass expired state. | [Direct test](tests/test_openrouter.py#L126) |
+| [`OpenRouter._abort_socket`](providers/openrouter.py#L221) | Shut down an active HTTPS socket to unblock I/O. | Adapter connection -> socket shutdown. Absent sockets are harmless; shutdown OSError is ignored. | [Indirect test](tests/test_openrouter.py#L209) |
+| [`OpenRouter.interrupt`](providers/openrouter.py#L229) | Mark cancellation and abort the active request. | Adapter -> interrupted flag and socket shutdown. Interrupted requests do not retry. | [Direct test](tests/test_openrouter.py#L209) |
+| [`OpenRouter.close`](providers/openrouter.py#L233) | Cancel outstanding provider work. | Adapter -> interrupt side effects. Delegates to interrupt; has no message-history store. | [Indirect test](tests/test_integration.py#L20) |

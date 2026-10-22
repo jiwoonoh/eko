@@ -468,7 +468,7 @@ def _session_configuration(session: Any) -> dict[str, Any]:
         "provider": f"{type(model).__module__}.{type(model).__qualname__}",
         "model": getattr(model, "model", None),
         "provider_settings": {
-            name: getattr(model, name) for name in ("max_tokens", "timeout", "tool_choice") if hasattr(model, name)
+            name: getattr(model, name) for name in ("max_tokens", "timeout") if hasattr(model, name)
         },
         "limits": {
             name: getattr(session, name)

@@ -25,7 +25,9 @@ as completed tasks. Renderer acceptance is reported separately.
 Screen each intervention on one fixed twenty-turn run. The alias-only screen
 completed 3/20 tasks versus 4/20 in the fresh control and was removed before
 stage B. Stage B therefore compares native report submission with the control
-agent. A label-guidance follow-up is warranted only if its accepted reports still
+agent. The subsequent required-tool trial completed 2/20 tasks and did not
+reliably produce native report calls; it was removed before testing compact
+observations. A label-guidance follow-up is warranted only if its accepted reports still
 select incorrect labels. Preserve failed and
 nonimproving runs. Keep a change only for a stated measured benefit; do not add
 runtime switches for rejected combinations. Confirm the selected implementation

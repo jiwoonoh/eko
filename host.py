@@ -116,7 +116,7 @@ def main(argv: list[str] | None = None) -> int:
             if not ready:
                 print(f"Classification unavailable: {worker.classifier_error}", file=sys.stderr)
         model = OpenRouter(args.model, api_key=api_key, max_tokens=args.max_tokens,
-                           timeout=args.request_timeout, tool_choice="required")
+                           timeout=args.request_timeout)
         session = Session(model, worker, record, log=log,
                           max_responses=args.max_responses,
                           max_tool_calls=args.max_tool_calls,
