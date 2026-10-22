@@ -46,6 +46,32 @@ UNAVAILABLE = {
     "treatment": "Treatment recommendations are unavailable in this measurement runtime.",
     "unregistered_tool": "That operation is unavailable through the registered tools.",
 }
+REPORT_TOOL = "submit_report"
+
+
+def report_schema(record: Record, evidence, tool_names: set[str]) -> dict:
+    """Describe terminal report arguments using only current usable evidence."""
+    usable = [item for item in evidence if _usable(item, record, tool_names)]
+    properties = {"evidence_id": {"type": "string"}, "finding": {"type": "string"}}
+    findings = {"type": "array", "items": {
+        "type": "object", "properties": properties,
+        "required": ["evidence_id", "finding"], "additionalProperties": False}}
+    if usable:
+        properties["evidence_id"]["enum"] = [item.evidence_id for item in usable]
+        properties["finding"]["enum"] = sorted({key for item in usable for key in item.findings})
+    else:
+        findings["maxItems"] = 0
+    explanations = ["record"] + [key for key in EXPLANATIONS
+                                  if CLASSIFIER_TOOL in tool_names or not key.startswith("classifier_")]
+    return {"type": "function", "function": {
+        "name": REPORT_TOOL,
+        "description": "Finish this turn with evidence references and fixed explanations. Use after required scientific calls. The controller supplies values and label names; this action executes no scientific tool.",
+        "parameters": {"type": "object", "properties": {
+            "findings": {**findings, "description": "References for every requested finding, including null measurements. Use each requested finding's latest relevant evidence."},
+            "explanations": {"type": "array", "items": {"type": "string", "enum": explanations},
+                             "description": "Fixed explanations requested by the user; choose the relevant measurement and classifier limits for questions about what results establish."},
+            "unavailable": {"type": "array", "items": {"type": "string", "enum": list(UNAVAILABLE)}},
+        }, "required": ["findings", "explanations", "unavailable"], "additionalProperties": False}}}
 
 
 def report_instructions(tool_names: set[str] | None = None) -> str:
@@ -53,7 +79,7 @@ def report_instructions(tool_names: set[str] | None = None) -> str:
     enabled = CLASSIFIER_TOOL in (tool_names or set())
     codes = [key for key in EXPLANATIONS if enabled or not key.startswith("classifier_")]
     instructions = (
-        "Final answers must be a JSON object with exactly three keys: "
+        "Finish by calling submit_report alone with exactly three argument keys: "
         '{"findings": [{"evidence_id": "actual observation ID", "finding": "actual finding key"}], '
         '"explanations": [], "unavailable": []}. '
         "Do not include prose, Markdown fences, numeric values, units, labels, diagnoses, or extra keys. "
@@ -65,7 +91,7 @@ def report_instructions(tool_names: set[str] | None = None) -> str:
         'For greetings, use explanations=["capabilities"]. '
         "Never infer normality, rhythm regularity, sinus rhythm, AF absence, P-wave morphology, "
         "or clinical reference ranges from measurement summaries. "
-        "Earlier assistant messages are controller-rendered; your final output must follow this JSON contract. "
+        "Earlier assistant messages are controller-rendered; finish using submit_report rather than writing text. "
     )
     if not enabled:
         return instructions + (

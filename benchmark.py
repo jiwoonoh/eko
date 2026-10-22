@@ -377,7 +377,9 @@ class MockBoundaryModel:
 
         questions = sum(message["role"] == "user" for message in messages)
         if questions == 5:
-            return Decision(json.dumps({"findings": [], "explanations": ["measurement_limits", "classifier_limits"], "unavailable": ["diagnosis"]}), model=self.model)
+            return Decision(tool_calls=(ToolCall("benchmark-final", "submit_report", {
+                "findings": [], "explanations": ["measurement_limits", "classifier_limits"],
+                "unavailable": ["diagnosis"]}),), model=self.model)
         observations = [json.loads(message["content"]) for message in messages if message["role"] == "tool"]
         if questions == 3 and messages[-1]["role"] == "user":
             function = next(tool["function"] for tool in tools if tool["function"]["name"] == "call_classification_tool")
@@ -387,6 +389,8 @@ class MockBoundaryModel:
             calls = []
             for tool in tools:
                 function = tool["function"]
+                if function["name"] == "submit_report":
+                    continue
                 record_id = function["parameters"]["properties"]["record_id"]["enum"][0]
                 calls.append(ToolCall("benchmark-" + function["name"], function["name"], {"record_id": record_id}))
             return Decision(tool_calls=tuple(calls), model=self.model)
@@ -395,7 +399,7 @@ class MockBoundaryModel:
                   for name in requested if name in observation.get("findings", {})}
         references = [{"evidence_id": observation["evidence_id"], "finding": name} for name, observation in latest.items()]
         report = {"findings": references, "explanations": [] if references else ["capabilities"], "unavailable": []}
-        return Decision(json.dumps(report), model=self.model)
+        return Decision(tool_calls=(ToolCall(f"benchmark-report-{questions}", "submit_report", report),), model=self.model)
 
     def close(self):
         """Match the provider cleanup interface; this fixture has no resources."""

@@ -174,7 +174,7 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(result.status, "failed")
         self.assertIn("unavailable tool", result.error)
         self.assertEqual([item["function"]["name"] for item in model.requests[0][1]],
-                         ["call_measurement_tool"])
+                             ["call_measurement_tool", "submit_report"])
         self.assertEqual(session.evidence, [])
 
     def test_diagnostic_prose_cannot_bypass_unavailable_classifier(self):

@@ -10,7 +10,7 @@ import uuid
 from typing import Any, Callable
 
 from contracts import Decision, Record, ToolCall, ToolObservation, TurnResult
-from reporting import fallback_report, parse_report, render_report, report_instructions
+from reporting import REPORT_TOOL, fallback_report, parse_report, render_report, report_instructions, report_schema
 
 
 def measurement_schema(record_id: str) -> dict[str, Any]:
@@ -88,6 +88,8 @@ class Session:
         names = [tool["function"]["name"] for tool in self.tools]
         if len(names) != len(set(names)):
             raise ValueError("tool names must be unique")
+        if REPORT_TOOL in names:
+            raise ValueError("submit_report is reserved for controller report submission")
         self._schemas = {tool["function"]["name"]: tool["function"]["parameters"]
                          for tool in self.tools}
         prompt = (
@@ -105,6 +107,7 @@ class Session:
         )
         self.history = [{"role": "system", "content": prompt}]
         self.evidence.clear()
+        self.tools.append(report_schema(self.record, self.evidence, set(names)))
 
     def set_record(self, record: Record) -> None:
         if self._active:
@@ -228,7 +231,7 @@ def _assistant(decision: Decision) -> dict[str, Any]:
 
 
 def run_turn(session: Session, question: str) -> TurnResult:
-    """Complete one user turn; every native tool call receives a matching result."""
+    """Execute scientific calls and render a validated terminal report."""
     started = time.monotonic()
     turn_id = uuid.uuid4().hex
     responses = calls = 0
@@ -265,6 +268,7 @@ def run_turn(session: Session, question: str) -> TurnResult:
     session.log("turn_start", turn_id=turn_id, question=question)
     try:
         while responses < session.max_responses:
+            session.tools[-1] = report_schema(session.record, session.evidence, set(session._schemas))
             session.log("model_request", turn_id=turn_id,
                         requested_model=getattr(session.model, "model", None),
                         messages=deepcopy(session.history), tools=session.tools)
@@ -302,13 +306,17 @@ def run_turn(session: Session, question: str) -> TurnResult:
                         content=decision.content, tool_calls=[
                             {"id": call.id, "name": call.name, "arguments": call.arguments}
                             for call in decision.tool_calls])
-            if not decision.tool_calls:
-                if not decision.content.strip():
+            submissions = [call for call in decision.tool_calls if call.name == REPORT_TOOL]
+            if not decision.tool_calls or submissions:
+                content = json.dumps(submissions[0].arguments, allow_nan=False) if submissions else decision.content
+                if not content.strip():
                     return finish("failed", error="provider: empty model response")
                 try:
-                    answer = render_report(decision.content, session.record, session.evidence,
+                    if submissions and len(decision.tool_calls) != 1:
+                        raise ValueError("submit_report must be called alone")
+                    answer = render_report(content, session.record, session.evidence,
                                            tool_names=set(session._schemas))
-                    released_report = parse_report(decision.content)
+                    released_report = parse_report(content)
                 except ValueError as error:
                     session.log("answer_rejected", turn_id=turn_id, reason=str(error))
                     released_report = fallback_report(session.record, session.evidence,

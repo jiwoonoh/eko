@@ -316,7 +316,11 @@ the agent. It scores requested nulls, label selection, evidence freshness, tool
 scheduling and explanations separately from renderer acceptance. The fresh live control completed 4/20 tasks with 11 accepted reports. An
 alias-only trial completed 3/20 tasks and was removed: correct label selection
 in its three accepted reports did not establish an overall completion benefit.
-The next trial changes report submission alone, starting from the control agent.
+Stage B changes report submission alone, starting from the control agent. The
+model submits a typed `submit_report` controller action; it is checked by the same
+renderer and never sent to the scientific worker. Evidence IDs and finding keys
+are constrained to current usable observations. Existing strict JSON decisions
+remain accepted through the same validator for adapter compatibility.
 
 ## Remaining work
 
@@ -339,7 +343,7 @@ remain deferred.
 
 ## Function reference
 
-This inventory covers **154 explicitly defined production functions and methods**, including private and nested named helpers. It excludes tests, lambdas, generated dataclass methods, and external-library APIs. `ecgfounder_labels.py` contains verified label bytes and defines no functions.
+This inventory covers **155 explicitly defined production functions and methods**, including private and nested named helpers. It excludes tests, lambdas, generated dataclass methods, and external-library APIs. `ecgfounder_labels.py` contains verified label bytes and defines no functions.
 
 **Evidence:** “Direct test” targets the callable; “Indirect test” exercises it through a caller. Neither means complete branch coverage. “Actual” links a saved local CPU/public-record run. “Source only” claims no dedicated execution check. Mocked OpenRouter tests do not establish live-provider behavior or clinical accuracy. Source/test links are relative to the repository root.
 
@@ -361,15 +365,15 @@ This inventory covers **154 explicitly defined production functions and methods*
 | [`_record_key`](eko.py#L51) | Fingerprint public record descriptors for session identity. | Record -> sorted JSON string. Includes hash/layout/units but excludes local path. | [Indirect test](tests/test_runtime.py#L374) |
 | [`Session.__init__`](eko.py#L58) | Configure one record's bounded model/tool session. | Model, worker, record, limits -> initialized session. Rejects nonpositive response/tool caps or nonfinite timeouts. | [Indirect test](tests/test_runtime.py#L160) |
 | [`Session._reset`](eko.py#L82) | Rebuild schemas and instructions and clear record evidence. | Session state -> fresh system history and empty evidence. Rejects duplicate registered tool names; classifier requires ready worker. | [Indirect test](tests/test_classification_runtime.py#L46) |
-| [`Session.set_record`](eko.py#L109) | Select a different record with an explicit history reset. | Record -> changed session or no-op for same identity. Cannot change the record during an active turn. | [Direct test](tests/test_runtime.py#L374) |
-| [`Session.close`](eko.py#L118) | Close the provider and always close its worker. | Session -> cleanup side effects. Worker close runs even if provider cleanup raises. | [Indirect test](tests/test_integration.py#L20) |
-| [`_finite`](eko.py#L125) | Walk nested values and reject nonfinite floats. | Nested value -> None on success. Raises ValueError for NaN or infinity. | [Indirect test](tests/test_runtime.py#L276) |
-| [`_arguments`](eko.py#L136) | Validate a model tool call against registered arguments. | Session and call -> copied argument object. Rejects unknown tool, wrong record, paths, extra/missing fields, type/enum errors. | [Indirect test](tests/test_runtime.py#L235) |
-| [`_observation`](eko.py#L166) | Authenticate raw output and assign controller evidence identity. | Call and raw result -> ToolObservation. Rejects wrong record/hash, invalid classifier metadata, nonnumeric findings, unexplained nulls, or malformed timing. | [Indirect test](tests/test_classification_runtime.py#L101) |
-| [`_assistant`](eko.py#L220) | Encode native tool calls for provider history. | Decision -> assistant message with JSON arguments. Nonfinite or nonserializable arguments fail serialization. | [Indirect test](tests/test_runtime.py#L124) |
-| [`run_turn`](eko.py#L230) | Run repeated model/tool steps and release a validated report. | Session and question -> TurnResult. Reports provider/tool/runner failure, timeout, interrupt, and caps; blocks unsupported final prose. | [Direct test](tests/test_classification_runtime.py#L59) |
-| [`run_turn.finish`](eko.py#L240) | Build and log the turn's final result. | Status, answer, error -> TurnResult with released references. Includes failed attempts separately from reusable evidence. | [Indirect test](tests/test_classification_runtime.py#L59) |
-| [`run_turn.reject`](eko.py#L247) | Pair a rejected native call with an auditable failure. | Call and reason -> history, failure list, and log updates. Rejected results use source=runner and never become reusable evidence. | [Indirect test](tests/test_runtime.py#L147) |
+| [`Session.set_record`](eko.py#L112) | Select a different record with an explicit history reset. | Record -> changed session or no-op for same identity. Cannot change the record during an active turn. | [Direct test](tests/test_runtime.py#L374) |
+| [`Session.close`](eko.py#L121) | Close the provider and always close its worker. | Session -> cleanup side effects. Worker close runs even if provider cleanup raises. | [Indirect test](tests/test_integration.py#L20) |
+| [`_finite`](eko.py#L128) | Walk nested values and reject nonfinite floats. | Nested value -> None on success. Raises ValueError for NaN or infinity. | [Indirect test](tests/test_runtime.py#L276) |
+| [`_arguments`](eko.py#L139) | Validate a model tool call against registered arguments. | Session and call -> copied argument object. Rejects unknown tool, wrong record, paths, extra/missing fields, type/enum errors. | [Indirect test](tests/test_runtime.py#L235) |
+| [`_observation`](eko.py#L169) | Authenticate raw output and assign controller evidence identity. | Call and raw result -> ToolObservation. Rejects wrong record/hash, invalid classifier metadata, nonnumeric findings, unexplained nulls, or malformed timing. | [Indirect test](tests/test_classification_runtime.py#L101) |
+| [`_assistant`](eko.py#L223) | Encode native tool calls for provider history. | Decision -> assistant message with JSON arguments. Nonfinite or nonserializable arguments fail serialization. | [Indirect test](tests/test_runtime.py#L124) |
+| [`run_turn`](eko.py#L233) | Run repeated model/tool steps and release a validated report. | Session and question -> TurnResult. Reports provider/tool/runner failure, timeout, interrupt, and caps; blocks unsupported final prose. | [Direct test](tests/test_classification_runtime.py#L59) |
+| [`run_turn.finish`](eko.py#L243) | Build and log the turn's final result. | Status, answer, error -> TurnResult with released references. Includes failed attempts separately from reusable evidence. | [Indirect test](tests/test_classification_runtime.py#L59) |
+| [`run_turn.reject`](eko.py#L250) | Pair a rejected native call with an auditable failure. | Call and reason -> history, failure list, and log updates. Rejected results use source=runner and never become reusable evidence. | [Indirect test](tests/test_runtime.py#L147) |
 
 ### `host.py`
 
@@ -472,16 +476,17 @@ This inventory covers **154 explicitly defined production functions and methods*
 
 | Function | Purpose | Inputs, outputs, and failures | Evidence |
 |---|---|---|---|
-| [`report_instructions`](reporting.py#L51) | Give the model an exact reference-only final-report contract. | Registered tool names -> prompt including enabled label catalog. Classifier instructions are omitted when its tool is absent. | [Direct test](tests/test_reporting.py#L331) |
-| [`_unique_object`](reporting.py#L92) | Reject duplicate keys while parsing report JSON. | JSON key/value pairs -> dictionary. Repeated keys raise ValueError rather than overwriting. | [Indirect test](tests/test_reporting.py#L115) |
-| [`_usable`](reporting.py#L101) | Check record/hash/status/source/tool eligibility for report evidence. | Observation, current record, allowed tools -> boolean. Replay, runner, failed, foreign, or unregistered evidence is ineligible. | [Indirect test](tests/test_reporting.py#L105) |
-| [`_codes`](reporting.py#L109) | Validate fixed explanation/unavailability code lists. | Value and allowed set -> same list. Rejects unknown codes, wrong containers, and duplicates. | [Indirect test](tests/test_reporting.py#L137) |
-| [`parse_report`](reporting.py#L117) | Parse only the three permitted final-report fields. | JSON text -> normalized reference/code dictionary. Rejects prose, extra keys, duplicate references, invalid types, or empty reports. | [Direct test](tests/test_reporting.py#L202) |
-| [`_latest_classifier`](reporting.py#L147) | Find the latest eligible complete pinned classifier result. | Record, evidence, tools -> observation or None. Malformed/incomplete classifier results are skipped. | [Indirect test](tests/test_reporting.py#L367) |
-| [`_explanation`](reporting.py#L159) | Select fixed capability/measurement-limit text for enabled tools. | Explanation code and classifier flag -> text. Only validated codes reach it; no generated medical prose. | [Indirect test](tests/test_reporting.py#L315) |
-| [`render_report`](reporting.py#L170) | Resolve references into trusted numbers, units, missingness, and labels. | Report JSON, record, evidence, allowed tools -> answer text. Rejects unusable/ambiguous evidence or score/provenance mismatch; appends fixed limits. | [Direct test](tests/test_reporting.py#L248) |
-| [`fallback_report`](reporting.py#L242) | Choose latest measurements and top five valid classifier scores. | Record/evidence/tools -> exact replacement report references. Ignores unusable evidence; stable ties; reports classifier unavailable when absent. | [Direct test](tests/test_reporting.py#L345) |
-| [`safe_report`](reporting.py#L261) | Render the deterministic replacement for an invalid final answer. | Record/evidence/tools -> safe answer text. Shares render_report validation; does not rehabilitate generated prose. | [Direct test](tests/test_reporting.py#L163) |
+| [`report_schema`](reporting.py#L52) | Describe terminal report arguments from current usable evidence. | Record, evidence and scientific tool names -> native controller-action schema. Only known evidence/finding keys are offered; no scientific execution or numeric values accepted. | [Direct test](tests/test_submission.py#L20) |
+| [`report_instructions`](reporting.py#L77) | Give the model an exact reference-only final-report contract. | Registered tool names -> prompt including enabled label catalog. Classifier instructions are omitted when its tool is absent. | [Direct test](tests/test_reporting.py#L331) |
+| [`_unique_object`](reporting.py#L118) | Reject duplicate keys while parsing report JSON. | JSON key/value pairs -> dictionary. Repeated keys raise ValueError rather than overwriting. | [Indirect test](tests/test_reporting.py#L115) |
+| [`_usable`](reporting.py#L127) | Check record/hash/status/source/tool eligibility for report evidence. | Observation, current record, allowed tools -> boolean. Replay, runner, failed, foreign, or unregistered evidence is ineligible. | [Indirect test](tests/test_reporting.py#L105) |
+| [`_codes`](reporting.py#L135) | Validate fixed explanation/unavailability code lists. | Value and allowed set -> same list. Rejects unknown codes, wrong containers, and duplicates. | [Indirect test](tests/test_reporting.py#L137) |
+| [`parse_report`](reporting.py#L143) | Parse only the three permitted final-report fields. | JSON text -> normalized reference/code dictionary. Rejects prose, extra keys, duplicate references, invalid types, or empty reports. | [Direct test](tests/test_reporting.py#L202) |
+| [`_latest_classifier`](reporting.py#L173) | Find the latest eligible complete pinned classifier result. | Record, evidence, tools -> observation or None. Malformed/incomplete classifier results are skipped. | [Indirect test](tests/test_reporting.py#L367) |
+| [`_explanation`](reporting.py#L185) | Select fixed capability/measurement-limit text for enabled tools. | Explanation code and classifier flag -> text. Only validated codes reach it; no generated medical prose. | [Indirect test](tests/test_reporting.py#L315) |
+| [`render_report`](reporting.py#L196) | Resolve references into trusted numbers, units, missingness, and labels. | Report JSON, record, evidence, allowed tools -> answer text. Rejects unusable/ambiguous evidence or score/provenance mismatch; appends fixed limits. | [Direct test](tests/test_reporting.py#L248) |
+| [`fallback_report`](reporting.py#L268) | Choose latest measurements and top five valid classifier scores. | Record/evidence/tools -> exact replacement report references. Ignores unusable evidence; stable ties; reports classifier unavailable when absent. | [Direct test](tests/test_reporting.py#L345) |
+| [`safe_report`](reporting.py#L287) | Render the deterministic replacement for an invalid final answer. | Record/evidence/tools -> safe answer text. Shares render_report validation; does not rehabilitate generated prose. | [Direct test](tests/test_reporting.py#L163) |
 
 ### `classifier.py`
 
@@ -538,12 +543,12 @@ This inventory covers **154 explicitly defined production functions and methods*
 | [`_validate_result`](benchmark.py#L276) | Authenticate direct-tool record identity and full scientific output contracts. | Raw result, selected record, tool -> validated raw dictionary. Rejects wrong record/hash, malformed150score output, invalid measurement fields/units/methods/missingness, and nonfinite JSON. | [Indirect test](tests/test_benchmark.py#L204) |
 | [`run_direct`](benchmark.py#L311) | Run both real tools for every public challenge record. | Manifest, paths, checkpoint, timeout -> completions, scores, metrics, failures. Keeps annotation references outside model inputs; partial measurements count separately from clinical accuracy. | [Actual](evidence/benchmark-direct.json) |
 | [`MockBoundaryModel.complete`](benchmark.py#L375) | Drive five fixed dialogue turns using native calls and evidence references. | History and schemas -> Decision. Mocked language-model boundary; numerical tools remain real; no reference labels enter it. | [Actual](evidence/benchmark-dialogue.json) |
-| [`MockBoundaryModel.close`](benchmark.py#L400) | Satisfy provider cleanup for the deterministic fixture. | No inputs -> None. Owns no network or worker resources. | [Actual](evidence/benchmark-dialogue.json) |
-| [`MockBoundaryModel.interrupt`](benchmark.py#L403) | Satisfy provider cancellation for the deterministic fixture. | No inputs -> None. Owns no network request to cancel. | Source only |
-| [`released_claims`](benchmark.py#L407) | Extract numbers only from the report references actually released. | Case/index/result -> explicit MeasurementClaim tuple. Rejects references to absent evidence; omitted or null findings do not become claims. | [Direct test](tests/test_benchmark.py#L157) |
-| [`run_dialogue`](benchmark.py#L423) | Evaluate five-turn sessions for one case per annotation group. | Manifest, paths, checkpoint, optional model -> canonical dialogue report. Without key, live mode is pending before worker creation; actual artifact uses a mocked model with real tools. | [Actual](evidence/benchmark-dialogue.json) |
-| [`run_dialogue.session_factory`](benchmark.py#L445) | Create one prepared worker, provider, log, and Session per case. | EvaluationCase -> shared-runtime Session. Preparation/provider setup failure closes the worker; annotations are excluded from history. | [Actual](evidence/benchmark-dialogue.json) |
-| [`main`](benchmark.py#L488) | Expose prepare, direct, and mock/live dialogue benchmark commands. | CLI arguments -> output JSON or exclusive report file and exit code. Bad files/options/dependencies exit1; pending/incomplete runs return1; refuses report overwrite. | [Direct test](tests/test_benchmark.py#L237) |
+| [`MockBoundaryModel.close`](benchmark.py#L404) | Satisfy provider cleanup for the deterministic fixture. | No inputs -> None. Owns no network or worker resources. | [Actual](evidence/benchmark-dialogue.json) |
+| [`MockBoundaryModel.interrupt`](benchmark.py#L407) | Satisfy provider cancellation for the deterministic fixture. | No inputs -> None. Owns no network request to cancel. | Source only |
+| [`released_claims`](benchmark.py#L411) | Extract numbers only from the report references actually released. | Case/index/result -> explicit MeasurementClaim tuple. Rejects references to absent evidence; omitted or null findings do not become claims. | [Direct test](tests/test_benchmark.py#L157) |
+| [`run_dialogue`](benchmark.py#L427) | Evaluate five-turn sessions for one case per annotation group. | Manifest, paths, checkpoint, optional model -> canonical dialogue report. Without key, live mode is pending before worker creation; actual artifact uses a mocked model with real tools. | [Actual](evidence/benchmark-dialogue.json) |
+| [`run_dialogue.session_factory`](benchmark.py#L449) | Create one prepared worker, provider, log, and Session per case. | EvaluationCase -> shared-runtime Session. Preparation/provider setup failure closes the worker; annotations are excluded from history. | [Actual](evidence/benchmark-dialogue.json) |
+| [`main`](benchmark.py#L492) | Expose prepare, direct, and mock/live dialogue benchmark commands. | CLI arguments -> output JSON or exclusive report file and exit code. Bad files/options/dependencies exit1; pending/incomplete runs return1; refuses report overwrite. | [Direct test](tests/test_benchmark.py#L237) |
 
 ### `experiment.py`
 

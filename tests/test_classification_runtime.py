@@ -49,8 +49,8 @@ class ClassificationRuntimeTests(unittest.TestCase):
             session, model, _, _ = self.session([report()], ready=ready)
             self.assertEqual(run_turn(session, "Which tools are available?").status, "success")
             tools = model.requests[0][1]
-            self.assertEqual([tool["function"]["name"] for tool in tools], expected)
-            for tool in tools:
+            self.assertEqual([tool["function"]["name"] for tool in tools], expected + ["submit_report"])
+            for tool in tools[:-1]:
                 arguments = tool["function"]["parameters"]
                 self.assertEqual(set(arguments["properties"]), {"record_id"})
                 self.assertEqual(arguments["properties"]["record_id"]["enum"], [ECG.record_id])
@@ -192,7 +192,7 @@ for line in sys.stdin:
                 self.assertFalse(worker.classifier_ready)
                 self.assertIsNone(worker.classifier_provenance)
                 session = Session(FakeModel([]), worker, ECG)
-                self.assertEqual([tool["function"]["name"] for tool in session.tools], ["call_measurement_tool"])
+                self.assertEqual([tool["function"]["name"] for tool in session.tools], ["call_measurement_tool", "submit_report"])
 
     def test_readiness_transport_rejects_wrong_response_id(self):
         script = "import json,sys\nfor line in sys.stdin:\n print(json.dumps({'id':'forged','result':{'status':'ready'}}),flush=True)"
