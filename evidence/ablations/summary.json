@@ -225,6 +225,33 @@
       },
       "report_file": "history-aliases.json",
       "report_sha256": "13800cf7b9de9aae01bee1e15cb8afd0f0a00925ff4ee1f49280ccc3923df0e7"
+    },
+    {
+      "label": "explanation-meanings",
+      "repeat": 1,
+      "revision": "108c914aad1ee5c7934fcb049a3e25679886e507",
+      "config_sha256": "f55b3eb5111dd5411064a6fb52859a2099ff92d60cf718b42e51168a7a86be71",
+      "model": "cohere/north-mini-code:free",
+      "expected_turns": 20,
+      "completed_tasks": 18,
+      "accepted_reports": 18,
+      "accepted_sinus_label_substitutions": 0,
+      "answer_rejections": 2,
+      "scientific_calls": 12,
+      "native_submissions": 4,
+      "report_corrections": 0,
+      "first_pass_tasks": 18,
+      "corrected_tasks": 0,
+      "provider_error_turns": 0,
+      "provider_attempt_failures": 0,
+      "all_reported_prompt_tokens": 419447,
+      "all_reported_cost_usd": 0.0,
+      "turn_elapsed_seconds": 176.65300683281384,
+      "guard_reasons": {
+        "classifier scores are already available for the selected record": 2
+      },
+      "report_file": "explanation-meanings.json",
+      "report_sha256": "64d7d5abb6016e9dcb051346f8a8f383fa0561105a6a1f41196b990dfe6c5b4a"
     }
   ],
   "development_gate_met": false,

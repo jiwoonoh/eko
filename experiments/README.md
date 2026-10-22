@@ -84,3 +84,9 @@ were on the limits question: two rejected formats and two incomplete selections.
 The next screen gives each explanation code its existing rendered meaning in the
 report schema. The allowed codes, renderer, task predicates and limits do not
 change. No request matching, additional call, or retry is introduced.
+
+The explanation-meanings screen completed 18/20 tasks, with no accepted SR/NSR
+substitutions or tool/provider failures. Two final reports were rejected. Freeze
+this implementation for three confirmation repeats on the same free model. A
+single screen does not satisfy the three-repeat gate. Preserve all three repeats
+even if an early repeat fails; do not select only favorable runs.

@@ -325,7 +325,8 @@ predefined acquisition/reuse schedule. Renderer acceptance is separate.
 | Compact observation view | 5/20 | 10/20 | 342,513 | Removed |
 | One bounded report correction | 8/20 | 11/20 | 648,639 | Removed |
 | Structured report history | 7/20 | 17/20 | 429,560 | Provisional format improvement |
-| Exact aliases with structured history | 16/20 | 18/20 | 414,226 | Candidate; limits question incomplete |
+| Exact aliases with structured history | 16/20 | 18/20 | 414,226 | Limits question incomplete |
+| Explanation meanings in schema | 18/20 | 18/20 | 419,447 | Frozen for three-repeat confirmation |
 
 Each screen has one repeat; these are exploratory comparisons, not significance
 claims. Input counts include all provider attempts with reported usage. The
@@ -341,8 +342,9 @@ source revisions and results remain in the study record.
 Structured report history reduced format failures but did not improve full task
 completion. With exact abbreviation guidance resolved through the pinned label catalog,
 completion reached 16/20 with no accepted SR/NSR substitutions. All four remaining
-failures occurred on the limits question. A follow-up exposes existing explanation
-meanings in the report schema; the validator and expected results are unchanged. No values, reference labels,
+failures occurred on the limits question. Exposing existing explanation meanings in the report schema then completed
+18/20 tasks with no accepted SR/NSR substitutions. This candidate is frozen for
+three-repeat confirmation; the validator and expected results are unchanged. No values, reference labels,
 or requested answers are supplied by this guidance. The earlier alias-only
 intervention was removed; this screen changes reporting instructions alone with
 structured history held fixed.
