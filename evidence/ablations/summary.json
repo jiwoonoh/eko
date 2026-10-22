@@ -335,6 +335,34 @@
       },
       "report_file": "confirmation-3.json",
       "report_sha256": "b7a9d46ec564ad0c2a3f75cbe69826cee96c3b6e9079de445816aec6f9aad287"
+    },
+    {
+      "label": "selector-role",
+      "repeat": 1,
+      "revision": "1b0bbde05656e1ae66b40d3b807f8dd896cdfdb8",
+      "config_sha256": "f55b3eb5111dd5411064a6fb52859a2099ff92d60cf718b42e51168a7a86be71",
+      "model": "cohere/north-mini-code:free",
+      "expected_turns": 20,
+      "completed_tasks": 18,
+      "accepted_reports": 18,
+      "accepted_sinus_label_substitutions": 0,
+      "answer_rejections": 2,
+      "scientific_calls": 12,
+      "native_submissions": 6,
+      "report_corrections": 0,
+      "first_pass_tasks": 18,
+      "corrected_tasks": 0,
+      "provider_error_turns": 0,
+      "provider_attempt_failures": 0,
+      "all_reported_prompt_tokens": 425119,
+      "all_reported_cost_usd": 0.0,
+      "turn_elapsed_seconds": 257.1441436649184,
+      "guard_reasons": {
+        "classifier scores are already available for the selected record": 1,
+        "final response must follow the report JSON contract": 1
+      },
+      "report_file": "selector-role.json",
+      "report_sha256": "bdc4f50cd84829f422eb90f71282bc10471b0f382ef8cea23b7395eefe75f3a6"
     }
   ],
   "development_gate_met": false,

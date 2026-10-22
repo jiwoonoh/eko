@@ -335,7 +335,8 @@ predefined acquisition/reuse schedule. Renderer acceptance is separate.
 | One bounded report correction | 8/20 | 11/20 | 648,639 | Removed |
 | Structured report history | 7/20 | 17/20 | 429,560 | Provisional format improvement |
 | Exact aliases with structured history | 16/20 | 18/20 | 414,226 | Limits question incomplete |
-| Explanation meanings in schema | 18/20 | 18/20 | 419,447 | Frozen for three-repeat confirmation |
+| Explanation meanings in schema | 18/20 | 18/20 | 419,447 | Confirmation failed: 18, 15, 15 |
+| Tool/report selector role | 18/20 | 18/20 | 425,119 | Removed; no screen improvement |
 
 Each screen has one repeat; these are exploratory comparisons, not significance
 claims. Input counts include all provider attempts with reported usage. The
@@ -364,8 +365,9 @@ Three confirmation repeats completed 18/20, 15/20 and 15/20 tasks. This fails th
 at-least-eighteen-in-each-repeat gate. No accepted SR/NSR substitutions occurred;
 all 45 requested nulls had displayed reasons. The [confirmation audit](evidence/ablations/confirmation-audit.json)
 re-rendered all 60 reports from local observations. Raw events stay outside Git.
-A role-description screen now tests whether describing the model as a tool/report
-selector reduces prose completions. It changes no renderer, limit or scoring rule.
+The selector-role screen matched the previous 18/20 screen and was removed.
+The next screen changes only sampling temperature to zero, using the original
+role wording. This tests variance control without changing tools or validation.
 High live-task accuracy has not been established. The user selected the current free
 model only; paid model comparisons will not run.
 
@@ -386,7 +388,7 @@ unscored when no explicit expectations were supplied.
 
 The scientific backend executes real records, and the reporting candidate reached
 18/20 full tasks in its screen, followed by confirmation results of 18/20,
-15/20 and 15/20 on the current free model. A role-description screen is next. The gate also requires no accepted SR/NSR substitutions,
+15/20 and 15/20 on the current free model. The role screen did not improve completion; a sampling-control screen is next. The gate also requires no accepted SR/NSR substitutions,
 explained requested nulls, and passing negative evidence tests. All unsuccessful
 screens remain in the evidence directory. These are development results from
 four records and fixed questions, with no held-out dialogue check.
@@ -425,15 +427,15 @@ This inventory covers **155 explicitly defined production functions and methods*
 | [`_record_key`](eko.py#L51) | Fingerprint public record descriptors for session identity. | Record -> sorted JSON string. Includes hash/layout/units but excludes local path. | [Indirect test](tests/test_runtime.py#L374) |
 | [`Session.__init__`](eko.py#L58) | Configure one record's bounded model/tool session. | Model, worker, record, limits -> initialized session. Rejects nonpositive response/tool caps or nonfinite timeouts. | [Indirect test](tests/test_runtime.py#L160) |
 | [`Session._reset`](eko.py#L82) | Rebuild schemas and instructions and clear record evidence. | Session state -> fresh system history and empty evidence. Rejects duplicate registered tool names; classifier requires ready worker. | [Indirect test](tests/test_classification_runtime.py#L46) |
-| [`Session.set_record`](eko.py#L114) | Select a different record with an explicit history reset. | Record -> changed session or no-op for same identity. Cannot change the record during an active turn. | [Direct test](tests/test_runtime.py#L374) |
-| [`Session.close`](eko.py#L123) | Close the provider and always close its worker. | Session -> cleanup side effects. Worker close runs even if provider cleanup raises. | [Indirect test](tests/test_integration.py#L20) |
-| [`_finite`](eko.py#L130) | Walk nested values and reject nonfinite floats. | Nested value -> None on success. Raises ValueError for NaN or infinity. | [Indirect test](tests/test_runtime.py#L276) |
-| [`_arguments`](eko.py#L141) | Validate a model tool call against registered arguments. | Session and call -> copied argument object. Rejects unknown tool, wrong record, paths, extra/missing fields, type/enum errors. | [Indirect test](tests/test_runtime.py#L235) |
-| [`_observation`](eko.py#L171) | Authenticate raw output and assign controller evidence identity. | Call and raw result -> ToolObservation. Rejects wrong record/hash, invalid classifier metadata, nonnumeric findings, unexplained nulls, or malformed timing. | [Indirect test](tests/test_classification_runtime.py#L101) |
-| [`_assistant`](eko.py#L225) | Encode native tool calls for provider history. | Decision -> assistant message with JSON arguments. Nonfinite or nonserializable arguments fail serialization. | [Indirect test](tests/test_runtime.py#L124) |
-| [`run_turn`](eko.py#L235) | Run repeated model/tool steps and release a validated report. | Session and question -> TurnResult. Reports provider/tool/runner failure, timeout, interrupt, and caps; blocks unsupported final prose. | [Direct test](tests/test_classification_runtime.py#L59) |
-| [`run_turn.finish`](eko.py#L245) | Build and log the turn's final result. | Status, answer, error -> TurnResult with released references. Includes failed attempts separately from reusable evidence. | [Indirect test](tests/test_classification_runtime.py#L59) |
-| [`run_turn.reject`](eko.py#L252) | Pair a rejected native call with an auditable failure. | Call and reason -> history, failure list, and log updates. Rejected results use source=runner and never become reusable evidence. | [Indirect test](tests/test_runtime.py#L147) |
+| [`Session.set_record`](eko.py#L112) | Select a different record with an explicit history reset. | Record -> changed session or no-op for same identity. Cannot change the record during an active turn. | [Direct test](tests/test_runtime.py#L374) |
+| [`Session.close`](eko.py#L121) | Close the provider and always close its worker. | Session -> cleanup side effects. Worker close runs even if provider cleanup raises. | [Indirect test](tests/test_integration.py#L20) |
+| [`_finite`](eko.py#L128) | Walk nested values and reject nonfinite floats. | Nested value -> None on success. Raises ValueError for NaN or infinity. | [Indirect test](tests/test_runtime.py#L276) |
+| [`_arguments`](eko.py#L139) | Validate a model tool call against registered arguments. | Session and call -> copied argument object. Rejects unknown tool, wrong record, paths, extra/missing fields, type/enum errors. | [Indirect test](tests/test_runtime.py#L235) |
+| [`_observation`](eko.py#L169) | Authenticate raw output and assign controller evidence identity. | Call and raw result -> ToolObservation. Rejects wrong record/hash, invalid classifier metadata, nonnumeric findings, unexplained nulls, or malformed timing. | [Indirect test](tests/test_classification_runtime.py#L101) |
+| [`_assistant`](eko.py#L223) | Encode native tool calls for provider history. | Decision -> assistant message with JSON arguments. Nonfinite or nonserializable arguments fail serialization. | [Indirect test](tests/test_runtime.py#L124) |
+| [`run_turn`](eko.py#L233) | Run repeated model/tool steps and release a validated report. | Session and question -> TurnResult. Reports provider/tool/runner failure, timeout, interrupt, and caps; blocks unsupported final prose. | [Direct test](tests/test_classification_runtime.py#L59) |
+| [`run_turn.finish`](eko.py#L243) | Build and log the turn's final result. | Status, answer, error -> TurnResult with released references. Includes failed attempts separately from reusable evidence. | [Indirect test](tests/test_classification_runtime.py#L59) |
+| [`run_turn.reject`](eko.py#L250) | Pair a rejected native call with an auditable failure. | Call and reason -> history, failure list, and log updates. Rejected results use source=runner and never become reusable evidence. | [Indirect test](tests/test_runtime.py#L147) |
 
 ### `host.py`
 

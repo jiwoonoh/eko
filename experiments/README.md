@@ -31,7 +31,8 @@ result, including nonimproving runs. The source and configuration hashes in the
 | Report correction | Native report | One bounded report correction | 8/20 | Removed |
 | Structured history | Native report | Keep validated report JSON in history | 7/20 | Provisional format benefit |
 | History and aliases | Structured history | Exact classifier abbreviations | 16/20 | Retained for next screen |
-| Explanation meanings | History and aliases | Expose existing fixed explanation text in schema | 18/20 | Freeze for confirmation |
+| Explanation meanings | History and aliases | Expose existing fixed explanation text in schema | 18/20 | Confirmation failed: 18, 15, 15 |
+| Selector role | Explanation meanings | Describe model as tool/report selector | 18/20 | Removed |
 
 Structured history accepted 17/20 reports versus 11/20 for native submission, but
 completed fewer full tasks. It remained provisional to isolate the residual label
@@ -86,3 +87,9 @@ The next one-factor screen changes only the model's role description from ECG
 assistant to tool/report selector. Residual failures are mainly prose answers to
 the limits question. The hypothesis is that role wording better matches the
 model's actual responsibility. No explanation, renderer, tool or gate changes.
+
+The selector-role screen matched the previous screen at 18/20 and was removed.
+The next screen changes only sampling temperature from the endpoint default to
+zero. All role wording, cases, limits and validation remain those of the failed
+confirmation candidate. The current free endpoint advertises temperature support.
+Zero does not guarantee deterministic inference.
