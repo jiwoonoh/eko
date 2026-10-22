@@ -308,6 +308,14 @@ fixtures. They require neither checkpoint downloads nor an API key. The saved
 public-record runs separately establish that the installed CPU backend executed
 real waveforms. Mocked-provider tests cannot establish live model behavior.
 
+## Reporting reliability study
+
+The next changes follow an [ablation protocol](experiments/README.md). The first
+change adds full-task checks and a frozen experiment configuration without changing
+the agent. It scores requested nulls, label selection, evidence freshness, tool
+scheduling and explanations separately from renderer acceptance. Subsequent
+changes will be measured individually against that control.
+
 ## Remaining work
 
 The implementation, CPU checks, and development benchmark are complete. Live
@@ -329,7 +337,7 @@ remain deferred.
 
 ## Function reference
 
-This inventory covers **148 explicitly defined production functions and methods**, including private and nested named helpers. It excludes tests, lambdas, generated dataclass methods, and external-library APIs. `ecgfounder_labels.py` contains verified label bytes and defines no functions.
+This inventory covers **154 explicitly defined production functions and methods**, including private and nested named helpers. It excludes tests, lambdas, generated dataclass methods, and external-library APIs. `ecgfounder_labels.py` contains verified label bytes and defines no functions.
 
 **Evidence:** “Direct test” targets the callable; “Indirect test” exercises it through a caller. Neither means complete branch coverage. “Actual” links a saved local CPU/public-record run. “Source only” claims no dedicated execution check. Mocked OpenRouter tests do not establish live-provider behavior or clinical accuracy. Source/test links are relative to the repository root.
 
@@ -434,14 +442,15 @@ This inventory covers **148 explicitly defined production functions and methods*
 | [`iter_transcripts`](evaluation.py#L265) | Stream both supported without_gt transcript schemas. | JSONL path -> RecordedCase iterator with stable per-line/turn identity. Rejects teacher forcing, ambiguous schemas, mismatched questions, and malformed rows. | [Direct test](tests/test_evaluation.py#L113) |
 | [`legacy_nap`](evaluation.py#L332) | Compute positional action agreement only from saved labels. | RecordedCase -> counts/accuracy or explicit unavailable result. Does not infer missing references or judge answer quality. | [Direct test](tests/test_evaluation.py#L156) |
 | [`evaluate_claims`](evaluation.py#L354) | Compare explicit released numbers against named observations. | Claims, evidence, optional record/requested fields -> verdicts and coverage. Rejects duplicate IDs/bad precision; wrong values/units contradict, unavailable evidence is unverifiable. | [Direct test](tests/test_evaluation.py#L195) |
-| [`_json_sha256`](evaluation.py#L419) | Hash canonical finite JSON for reproducibility. | JSON-compatible value -> SHA256. Nonfinite or unserializable data raises. | [Indirect test](tests/test_evaluation.py#L224) |
-| [`_session_configuration`](evaluation.py#L424) | Capture provider settings, limits, prompt/schema/source hashes. | Session -> JSON-compatible configuration. Collects explicit fields, not credentials; source-file read errors propagate. | [Indirect test](tests/test_evaluation.py#L224) |
-| [`_error_kind`](evaluation.py#L448) | Classify a turn error as provider/tool/runner/judge. | Turn dictionary -> category or None. Rejects unknown explicit kind/nontext error; unknown prefix becomes runner. | [Indirect test](tests/test_evaluation.py#L312) |
-| [`_package_versions`](evaluation.py#L464) | Read installed measurement dependency versions. | Distribution metadata -> version mapping. Missing numpy/scipy/neurokit2 is represented as None. | [Indirect test](tests/test_evaluation.py#L224) |
-| [`run_manifest`](evaluation.py#L474) | Execute sorted fixed cases through the interactive run_turn loop. | Cases, session factory, optional claim extractor -> manifest/turns/summary. Rejects duplicate IDs, invalid history/questions, or wrong records; always closes created sessions. | [Direct test](tests/test_evaluation.py#L224) |
-| [`run_manifest.collect_models`](evaluation.py#L512) | Capture actual model/usage metadata while forwarding session events. | Event type and fields -> response trace/log updates. Only model_response events enter the trace. | [Indirect test](tests/test_evaluation.py#L224) |
-| [`summarize`](evaluation.py#L560) | Aggregate completion, failure kinds, elapsed time, reuse, and numeric support. | Evaluated-turn iterable -> summary. Rejects invalid IDs/counts/timing; excludes failed/provider/judge turns from claim scores; clinical accuracy stays null. | [Direct test](tests/test_evaluation.py#L321) |
-| [`main`](evaluation.py#L645) | Inspect replay CSV/transcripts or summarize evaluated-turn JSONL. | Subcommand/path -> printed JSON and exit code. Bad files/schema exit 2; makes no model requests. | [Direct test](tests/test_evaluation.py#L345) |
+| [`evaluate_task`](evaluation.py#L421) | Check complete requests independently of valid report formatting. | Result, record, requested fields, tool schedule, explanations and previous IDs -> completion details. Includes explained nulls; rejects stale/wrong-record or failed replacement reports. | [Direct test](tests/test_benchmark.py#L108) |
+| [`_json_sha256`](evaluation.py#L459) | Hash canonical finite JSON for reproducibility. | JSON-compatible value -> SHA256. Nonfinite or unserializable data raises. | [Indirect test](tests/test_evaluation.py#L224) |
+| [`_session_configuration`](evaluation.py#L464) | Capture provider settings, limits, prompt/schema/source hashes. | Session -> JSON-compatible configuration. Collects explicit fields, not credentials; source-file read errors propagate. | [Indirect test](tests/test_evaluation.py#L224) |
+| [`_error_kind`](evaluation.py#L488) | Classify a turn error as provider/tool/runner/judge. | Turn dictionary -> category or None. Rejects unknown explicit kind/nontext error; unknown prefix becomes runner. | [Indirect test](tests/test_evaluation.py#L312) |
+| [`_package_versions`](evaluation.py#L504) | Read installed measurement dependency versions. | Distribution metadata -> version mapping. Missing numpy/scipy/neurokit2 is represented as None. | [Indirect test](tests/test_evaluation.py#L224) |
+| [`run_manifest`](evaluation.py#L514) | Execute sorted fixed cases through the interactive run_turn loop. | Cases, session factory, optional claim extractor -> manifest/turns/summary. Rejects duplicate IDs, invalid history/questions, or wrong records; always closes created sessions. | [Direct test](tests/test_evaluation.py#L224) |
+| [`run_manifest.collect_models`](evaluation.py#L557) | Capture actual model/usage metadata while forwarding session events. | Event type and fields -> response trace/log updates. Only model_response events enter the trace. | [Indirect test](tests/test_evaluation.py#L224) |
+| [`summarize`](evaluation.py#L611) | Aggregate completion, failure kinds, elapsed time, reuse, and numeric support. | Evaluated-turn iterable -> summary. Rejects invalid IDs/counts/timing; excludes failed/provider/judge turns from claim scores; clinical accuracy stays null. | [Direct test](tests/test_evaluation.py#L321) |
+| [`main`](evaluation.py#L701) | Inspect replay CSV/transcripts or summarize evaluated-turn JSONL. | Subcommand/path -> printed JSON and exit code. Bad files/schema exit 2; makes no model requests. | [Direct test](tests/test_evaluation.py#L345) |
 
 ### `demo.py`
 
@@ -513,26 +522,36 @@ This inventory covers **148 explicitly defined production functions and methods*
 
 | Function | Purpose | Inputs, outputs, and failures | Evidence |
 |---|---|---|---|
-| [`_sha`](benchmark.py#L44) | Hash exact benchmark artifacts or serialized manifests. | Bytes -> SHA256. Does not authenticate a source without a pinned comparison. | [Indirect test](tests/test_benchmark.py#L84) |
+| [`_sha`](benchmark.py#L44) | Hash exact benchmark artifacts or serialized manifests. | Bytes -> SHA256. Does not authenticate a source without a pinned comparison. | [Indirect test](tests/test_benchmark.py#L138) |
 | [`_download`](benchmark.py#L49) | Fetch a bounded public benchmark artifact with one transport retry. | URL and byte cap -> bytes. Thirty-second socket timeout; oversize fails; a second transport error propagates. | Source only |
-| [`select_cases`](benchmark.py#L68) | Select five distinct fold-9 patients per frozen annotation group. | Pinned metadata/SCP registry -> twenty-case manifest. Rejects hash changes or insufficient groups; excludes demo705 and its patient. | [Direct test](tests/test_benchmark.py#L75) |
-| [`decode_record`](benchmark.py#L121) | Convert verified-format public WFDB16 records into canonical mV. | Header, data, ECG ID -> float64 12x5000 array. Checks format, length, 500Hz, gain/baseline, lead set, initial samples, and checksums. | [Direct test](tests/test_benchmark.py#L224) |
-| [`_read`](benchmark.py#L153) | Bound a benchmark cache read. | Path and byte limit -> bytes. Oversized cached input raises. | [Indirect test](tests/test_benchmark.py#L244) |
-| [`_case_path`](benchmark.py#L162) | Constrain manifest waveforms to expected public record paths. | Case -> relative records500 path. Rejects arbitrary paths/URLs and filename/ECG-ID mismatch. | [Indirect test](tests/test_benchmark.py#L89) |
-| [`_prepare_case`](benchmark.py#L172) | Verify/fetch raw sources and exclusively create or verify their MAT. | Case, cache directory, freezing flag -> MAT path plus source hashes. Rejects source/MAT changes; preserves existing bytes rather than overwriting. | [Direct test](tests/test_benchmark.py#L244) |
+| [`select_cases`](benchmark.py#L68) | Select five distinct fold-9 patients per frozen annotation group. | Pinned metadata/SCP registry -> twenty-case manifest. Rejects hash changes or insufficient groups; excludes demo705 and its patient. | [Direct test](tests/test_benchmark.py#L129) |
+| [`decode_record`](benchmark.py#L121) | Convert verified-format public WFDB16 records into canonical mV. | Header, data, ECG ID -> float64 12x5000 array. Checks format, length, 500Hz, gain/baseline, lead set, initial samples, and checksums. | [Direct test](tests/test_benchmark.py#L278) |
+| [`_read`](benchmark.py#L153) | Bound a benchmark cache read. | Path and byte limit -> bytes. Oversized cached input raises. | [Indirect test](tests/test_benchmark.py#L298) |
+| [`_case_path`](benchmark.py#L162) | Constrain manifest waveforms to expected public record paths. | Case -> relative records500 path. Rejects arbitrary paths/URLs and filename/ECG-ID mismatch. | [Indirect test](tests/test_benchmark.py#L143) |
+| [`_prepare_case`](benchmark.py#L172) | Verify/fetch raw sources and exclusively create or verify their MAT. | Case, cache directory, freezing flag -> MAT path plus source hashes. Rejects source/MAT changes; preserves existing bytes rather than overwriting. | [Direct test](tests/test_benchmark.py#L298) |
 | [`freeze_manifest`](benchmark.py#L211) | Freeze source hashes after deterministic patient selection. | Pinned metadata/registry and cache directory -> complete manifest. Uses up to four download/conversion workers; any invalid source fails. | Source only |
-| [`load_manifest`](benchmark.py#L222) | Validate the fixed twenty-patient benchmark sidecar. | Manifest path -> dictionary. Requires pinned provenance, groups, unique patients, fold9, excluded IDs, references, and frozen URLs/hashes. | [Direct test](tests/test_benchmark.py#L89) |
+| [`load_manifest`](benchmark.py#L222) | Validate the fixed twenty-patient benchmark sidecar. | Manifest path -> dictionary. Requires pinned provenance, groups, unique patients, fold9, excluded IDs, references, and frozen URLs/hashes. | [Direct test](tests/test_benchmark.py#L143) |
 | [`prepare`](benchmark.py#L247) | Prepare or revalidate all cases against the frozen sidecar. | Manifest and cache directory -> ECG-ID/MAT-path mapping. Parallel source/converter errors propagate; reference annotations stay outside MAT inputs. | [Actual](evidence/benchmark-direct.json) |
-| [`rank_auroc`](benchmark.py#L255) | Calculate exploratory AUROC using average ranks for ties. | Boolean labels and finite scores -> AUROC or None. Rejects length/type/nonfinite errors; returns None without both classes. | [Direct test](tests/test_benchmark.py#L95) |
-| [`_validate_result`](benchmark.py#L276) | Authenticate direct-tool record identity and full scientific output contracts. | Raw result, selected record, tool -> validated raw dictionary. Rejects wrong record/hash, malformed150score output, invalid measurement fields/units/methods/missingness, and nonfinite JSON. | [Indirect test](tests/test_benchmark.py#L150) |
+| [`rank_auroc`](benchmark.py#L255) | Calculate exploratory AUROC using average ranks for ties. | Boolean labels and finite scores -> AUROC or None. Rejects length/type/nonfinite errors; returns None without both classes. | [Direct test](tests/test_benchmark.py#L149) |
+| [`_validate_result`](benchmark.py#L276) | Authenticate direct-tool record identity and full scientific output contracts. | Raw result, selected record, tool -> validated raw dictionary. Rejects wrong record/hash, malformed150score output, invalid measurement fields/units/methods/missingness, and nonfinite JSON. | [Indirect test](tests/test_benchmark.py#L204) |
 | [`run_direct`](benchmark.py#L311) | Run both real tools for every public challenge record. | Manifest, paths, checkpoint, timeout -> completions, scores, metrics, failures. Keeps annotation references outside model inputs; partial measurements count separately from clinical accuracy. | [Actual](evidence/benchmark-direct.json) |
 | [`MockBoundaryModel.complete`](benchmark.py#L375) | Drive five fixed dialogue turns using native calls and evidence references. | History and schemas -> Decision. Mocked language-model boundary; numerical tools remain real; no reference labels enter it. | [Actual](evidence/benchmark-dialogue.json) |
 | [`MockBoundaryModel.close`](benchmark.py#L400) | Satisfy provider cleanup for the deterministic fixture. | No inputs -> None. Owns no network or worker resources. | [Actual](evidence/benchmark-dialogue.json) |
 | [`MockBoundaryModel.interrupt`](benchmark.py#L403) | Satisfy provider cancellation for the deterministic fixture. | No inputs -> None. Owns no network request to cancel. | Source only |
-| [`released_claims`](benchmark.py#L407) | Extract numbers only from the report references actually released. | Case/index/result -> explicit MeasurementClaim tuple. Rejects references to absent evidence; omitted or null findings do not become claims. | [Direct test](tests/test_benchmark.py#L103) |
+| [`released_claims`](benchmark.py#L407) | Extract numbers only from the report references actually released. | Case/index/result -> explicit MeasurementClaim tuple. Rejects references to absent evidence; omitted or null findings do not become claims. | [Direct test](tests/test_benchmark.py#L157) |
 | [`run_dialogue`](benchmark.py#L423) | Evaluate five-turn sessions for one case per annotation group. | Manifest, paths, checkpoint, optional model -> canonical dialogue report. Without key, live mode is pending before worker creation; actual artifact uses a mocked model with real tools. | [Actual](evidence/benchmark-dialogue.json) |
-| [`run_dialogue.session_factory`](benchmark.py#L441) | Create one prepared worker, provider, log, and Session per case. | EvaluationCase -> shared-runtime Session. Preparation/provider setup failure closes the worker; annotations are excluded from history. | [Actual](evidence/benchmark-dialogue.json) |
-| [`main`](benchmark.py#L480) | Expose prepare, direct, and mock/live dialogue benchmark commands. | CLI arguments -> output JSON or exclusive report file and exit code. Bad files/options/dependencies exit1; pending/incomplete runs return1; refuses report overwrite. | [Direct test](tests/test_benchmark.py#L183) |
+| [`run_dialogue.session_factory`](benchmark.py#L445) | Create one prepared worker, provider, log, and Session per case. | EvaluationCase -> shared-runtime Session. Preparation/provider setup failure closes the worker; annotations are excluded from history. | [Actual](evidence/benchmark-dialogue.json) |
+| [`main`](benchmark.py#L488) | Expose prepare, direct, and mock/live dialogue benchmark commands. | CLI arguments -> output JSON or exclusive report file and exit code. Bad files/options/dependencies exit1; pending/incomplete runs return1; refuses report overwrite. | [Direct test](tests/test_benchmark.py#L237) |
+
+### `experiment.py`
+
+| Function | Purpose | Inputs, outputs, and failures | Evidence |
+|---|---|---|---|
+| [`load_config`](experiment.py#L19) | Validate explicit frozen experimental controls. | JSON config path -> checked configuration. Rejects unknown keys, nonpositive limits, noninteger caps and invalid repeat counts. | [Direct test](tests/test_experiment.py#L14) |
+| [`load_key`](experiment.py#L42) | Load only the API key from a local file as data. | Key-file path -> controller environment. Existing environment wins; never evaluates shell text; rejects absent or oversized key files. | [Direct test](tests/test_experiment.py#L25) |
+| [`summarize`](experiment.py#L66) | Aggregate task completion and resource use across repeats. | Executed reports -> counts, per-repeat tasks, prompt tokens, reported cost and latency. API stochasticity and missing failed-request usage remain limitations. | [Direct test](tests/test_experiment.py#L35) |
+| [`run`](experiment.py#L83) | Execute repeated frozen dialogues and preserve every result. | Configuration, label and output directory -> unique run directory. Records source/config hashes; tools and reference annotations remain separated. | [Direct test](tests/test_experiment.py#L35) |
+| [`main`](experiment.py#L119) | Run a named experiment with explicit configuration and local credentials. | CLI arguments -> process status. Supports recorded repeat override; errors redact the loaded key. | Source only |
 
 ### `providers/openrouter.py`
 

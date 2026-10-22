@@ -414,6 +414,46 @@ class EvaluationCase:
     requested_findings: tuple[str, ...] = ()
     history: str = "without_gt"
     requested_findings_by_turn: tuple[tuple[str, ...], ...] = ()
+    expected_tools_by_turn: tuple[tuple[str, ...], ...] = ()
+    required_explanations_by_turn: tuple[tuple[str, ...], ...] = ()
+
+
+def evaluate_task(result: TurnResult, record, *, requested_findings=(), expected_tools=None,
+                  required_explanations=(), previous_evidence_ids=()) -> dict[str, Any]:
+    """Check request fulfillment, including nulls, freshness, and tool scheduling.
+
+    Expectations belong to the evaluator and never enter the model conversation.
+    A replacement report on a failed turn cannot count as task completion.
+    """
+    evidence = {item.evidence_id: item for item in result.evidence
+                if item.record_id == record.record_id and item.record_hash == record.sha256
+                and item.status in {"success", "partial"} and item.source not in {"runner", "replay"}}
+    latest = {key: item.evidence_id for item in evidence.values() for key in item.findings}
+    report = result.report or {}
+    reported, stale = set(), set()
+    for reference in report.get("findings", []):
+        key, identity = reference["finding"], reference["evidence_id"]
+        observation = evidence.get(identity)
+        if observation is None or key not in observation.findings:
+            continue
+        if observation.findings[key] is None and not observation.missingness.get(key):
+            continue
+        reported.add(key)
+        if identity != latest[key] and key in requested_findings:
+            stale.add(key)
+    missing = sorted(set(requested_findings) - reported)
+    explanations = sorted(set(required_explanations) - set(report.get("explanations", [])))
+    observed_tools = [item.tool for item in result.evidence if item.evidence_id not in previous_evidence_ids]
+    scheduling = expected_tools is None or (
+        Counter(observed_tools) == Counter(expected_tools) and result.tool_calls == len(expected_tools))
+    return {
+        "complete": result.status == "success" and bool(report) and not missing and not stale
+                    and not explanations and scheduling,
+        "requested_findings": list(requested_findings), "reported_findings": sorted(reported),
+        "missing_findings": missing, "stale_findings": sorted(stale),
+        "missing_explanations": explanations, "expected_tools": expected_tools,
+        "observed_tools": observed_tools, "tool_schedule_met": scheduling,
+    }
 
 
 def _json_sha256(value: Any) -> str:
@@ -488,6 +528,9 @@ def run_manifest(
             raise ValueError("case needs a stable identifier and nonempty questions")
         if case.requested_findings_by_turn and len(case.requested_findings_by_turn) != len(case.questions):
             raise ValueError("per-turn requested findings must match the question count")
+        for expectations in (case.expected_tools_by_turn, case.required_explanations_by_turn):
+            if expectations and len(expectations) != len(case.questions):
+                raise ValueError("per-turn expectations must match the question count")
     turns = []
     manifest = []
     for case in ordered:
@@ -502,6 +545,8 @@ def run_manifest(
                 "questions_sha256": _json_sha256(case.questions),
                 "requested_findings": case.requested_findings,
                 "requested_findings_by_turn": case.requested_findings_by_turn,
+                "expected_tools_by_turn": case.expected_tools_by_turn,
+                "required_explanations_by_turn": case.required_explanations_by_turn,
                 "record": record, "configuration": configuration,
             })
             evidence_steps = {}
@@ -520,6 +565,7 @@ def run_manifest(
             for index, question in enumerate(case.questions, 1):
                 response_trace.clear()
                 answer_rejections.clear()
+                previous_ids = set(evidence_steps)
                 result = run_turn(session, question)
                 row = result.to_dict()
                 row.update(
@@ -541,6 +587,11 @@ def run_manifest(
                 claims = tuple(claims_for_result(case, index, result)) if claims_for_result else ()
                 requested = case.requested_findings_by_turn[index - 1] if case.requested_findings_by_turn else case.requested_findings
                 row["claim_checks"] = evaluate_claims(claims, result.evidence, record_id=case.record_id, requested_findings=requested)
+                row["task_checks"] = evaluate_task(
+                    result, session.record, requested_findings=requested,
+                    expected_tools=case.expected_tools_by_turn[index - 1] if case.expected_tools_by_turn else None,
+                    required_explanations=case.required_explanations_by_turn[index - 1] if case.required_explanations_by_turn else (),
+                    previous_evidence_ids=previous_ids)
                 row["error_kind"] = _error_kind(row)
                 turns.append(row)
         finally:
@@ -574,6 +625,9 @@ def summarize(turns: Iterable[dict[str, Any]]) -> dict[str, Any]:
         counts["expected_turns"] += 1
         counts["completed_answers"] += status == "success"
         counts[f"status_{status}"] += 1
+        if "task_checks" in turn:
+            counts["task_scored_turns"] += 1
+            counts["completed_tasks"] += status == "success" and turn["task_checks"].get("complete") is True
         rejected = turn.get("answer_rejections", 0)
         if isinstance(rejected, bool) or not isinstance(rejected, int) or rejected < 0:
             raise ValueError("answer rejections must be a nonnegative integer")
@@ -630,6 +684,8 @@ def summarize(turns: Iterable[dict[str, Any]]) -> dict[str, Any]:
         **{name: counts[name] for name in ("expected_turns", "completed_answers", "provider_errors", "tool_errors", "runner_errors", "judge_errors", "failed_tool_observations", "live_observations", "replay_observations", "runner_observations", "reused_observations", "excluded_claim_turns", "supported", "contradicted", "unverifiable", "requested_available", "requested_supported")},
         "statuses": {name.removeprefix("status_"): count for name, count in counts.items() if name.startswith("status_")},
         "completion_rate": counts["completed_answers"] / counts["expected_turns"] if counts["expected_turns"] else None,
+        "task_scored_turns": counts["task_scored_turns"], "completed_tasks": counts["completed_tasks"],
+        "task_completion_rate": counts["completed_tasks"] / counts["task_scored_turns"] if counts["task_scored_turns"] else None,
         "answer_rejections": counts["answer_rejections"],
         "answer_rejection_rate": counts["answer_rejections"] / counts["expected_turns"] if counts["expected_turns"] else None,
         "timed_turns": counts["timed_turns"], "total_elapsed_seconds": total_elapsed,

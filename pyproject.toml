@@ -17,7 +17,7 @@ classifier = ["torch==2.6.0"]
 eko = "host:main"
 
 [tool.setuptools]
-py-modules = ["contracts", "eko", "host", "records", "measurements", "worker", "traces", "evaluation", "demo", "reporting", "classifier", "ecgfounder", "ecgfounder_labels", "benchmark"]
+py-modules = ["contracts", "eko", "host", "records", "measurements", "worker", "traces", "evaluation", "demo", "reporting", "classifier", "ecgfounder", "ecgfounder_labels", "benchmark", "experiment"]
 packages = ["providers", "benchmarks"]
 
 [tool.setuptools.package-data]

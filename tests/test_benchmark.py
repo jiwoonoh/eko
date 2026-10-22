@@ -14,7 +14,7 @@ from unittest import mock
 
 import benchmark
 import classifier
-from contracts import Record, STANDARD_LEADS, ToolObservation
+from contracts import Record, STANDARD_LEADS, ToolObservation, TurnResult
 from measurements import METHODS, UNITS, VERSION as MEASUREMENT_VERSION
 
 SCIENCE_AVAILABLE = all(importlib.util.find_spec(name) for name in ("numpy", "scipy"))
@@ -72,6 +72,60 @@ def wfdb_fixture(identifier=25, names=STANDARD_LEADS):
 
 
 class BenchmarkTests(unittest.TestCase):
+    def test_task_check_rejects_supported_but_wrong_sinus_label(self):
+        from evaluation import evaluate_task
+        record = record_fixture()
+        raw = tool_fixture(classifier.TOOL_NAME, record)
+        observation = ToolObservation(record.record_id, record.sha256, "call", "ev",
+                                      classifier.TOOL_NAME, classifier.VERSION, "success",
+                                      raw["findings"], raw["units"], raw["methods"], details=raw["details"])
+        report = {"findings": [{"evidence_id": "ev", "finding": "ecgfounder_001"}],
+                  "explanations": [], "unavailable": []}
+        result = TurnResult("turn", "success", evidence=(observation,), report=report, tool_calls=1)
+        check = evaluate_task(result, record, requested_findings=("ecgfounder_003",),
+                              expected_tools=(classifier.TOOL_NAME,))
+        self.assertFalse(check["complete"])
+        self.assertEqual(check["missing_findings"], ["ecgfounder_003"])
+
+    def test_task_check_requires_explained_null_and_rejects_safe_replacement(self):
+        from evaluation import evaluate_task
+        record = record_fixture()
+        observation = ToolObservation(record.record_id, record.sha256, "call", "ev",
+                                      "call_measurement_tool", "v1", "partial",
+                                      {"pr_interval_ms": None}, {"pr_interval_ms": "ms"},
+                                      missingness={"pr_interval_ms": "missing P onset"})
+        report = {"findings": [{"evidence_id": "ev", "finding": "pr_interval_ms"}],
+                  "explanations": [], "unavailable": []}
+        result = TurnResult("turn", "success", evidence=(observation,), report=report)
+        arguments = {"requested_findings": ("pr_interval_ms",), "expected_tools": (),
+                     "previous_evidence_ids": {"ev"}}
+        self.assertTrue(evaluate_task(result, record, **arguments)["complete"])
+        self.assertFalse(evaluate_task(replace(result, report={**report, "findings": []}), record, **arguments)["complete"])
+        self.assertFalse(evaluate_task(replace(result, status="failed"), record, **arguments)["complete"])
+        unexplained = replace(observation, missingness={})
+        self.assertFalse(evaluate_task(replace(result, evidence=(unexplained,)), record, **arguments)["complete"])
+
+    def test_task_check_requires_current_record_latest_evidence_and_requested_limits(self):
+        from evaluation import evaluate_task
+        record = record_fixture()
+        first = ToolObservation(record.record_id, record.sha256, "first", "old", "call_measurement_tool",
+                                "v1", "success", {"heart_rate_bpm": 70}, {"heart_rate_bpm": "bpm"})
+        latest = replace(first, call_id="second", evidence_id="new")
+        report = {"findings": [{"evidence_id": "old", "finding": "heart_rate_bpm"}],
+                  "explanations": ["measurement_limits"], "unavailable": []}
+        result = TurnResult("turn", "success", evidence=(first, latest), report=report, tool_calls=1)
+        check = evaluate_task(result, record, requested_findings=("heart_rate_bpm",),
+                              expected_tools=("call_measurement_tool",), previous_evidence_ids={"old"})
+        self.assertFalse(check["complete"])
+        self.assertEqual(check["stale_findings"], ["heart_rate_bpm"])
+        good = replace(result, report={**report, "findings": [{"evidence_id": "new", "finding": "heart_rate_bpm"}]})
+        self.assertTrue(evaluate_task(good, record, requested_findings=("heart_rate_bpm",),
+                                     expected_tools=("call_measurement_tool",), previous_evidence_ids={"old"})["complete"])
+        wrong_record = replace(latest, record_hash="different")
+        self.assertFalse(evaluate_task(replace(good, evidence=(first, wrong_record)), record,
+                                       requested_findings=("heart_rate_bpm",))["complete"])
+        self.assertFalse(evaluate_task(good, record, required_explanations=("classifier_limits",))["complete"])
+
     def test_selection_is_frozen_balanced_and_patient_disjoint(self):
         manifest = selected_fixture()
         self.assertEqual(len(manifest["cases"]), 20)

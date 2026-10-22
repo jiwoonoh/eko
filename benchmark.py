@@ -377,7 +377,7 @@ class MockBoundaryModel:
 
         questions = sum(message["role"] == "user" for message in messages)
         if questions == 5:
-            return Decision(json.dumps({"findings": [], "explanations": ["measurement_limits"], "unavailable": ["diagnosis"]}), model=self.model)
+            return Decision(json.dumps({"findings": [], "explanations": ["measurement_limits", "classifier_limits"], "unavailable": ["diagnosis"]}), model=self.model)
         observations = [json.loads(message["content"]) for message in messages if message["role"] == "tool"]
         if questions == 3 and messages[-1]["role"] == "user":
             function = next(tool["function"] for tool in tools if tool["function"]["name"] == "call_classification_tool")
@@ -421,12 +421,14 @@ def released_claims(case, index: int, result) -> tuple[MeasurementClaim, ...]:
 
 
 def run_dialogue(manifest: dict, paths: dict[int, Path], checkpoint: str, *, model: str | None = None,
-                 timeout: float = 30, log_dir="runs/benchmark") -> dict:
+                 timeout: float = 30, log_dir="runs/benchmark", settings: dict | None = None) -> dict:
     """Run one representative per group through the shared interactive runtime."""
     from eko import Session
     from records import load_record
     from traces import EventLog
     from worker import ToolWorker
+
+    settings = settings or {}
 
     if model and not os.environ.get("OPENROUTER_API_KEY"):
         return {"schema_version": 1, "kind": "live_provider_dialogue", "status": "pending",
@@ -435,6 +437,8 @@ def run_dialogue(manifest: dict, paths: dict[int, Path], checkpoint: str, *, mod
     cases = [EvaluationCase(
         f"ptbxl-{case['ecg_id']:05d}", f"ptbxl:{case['ecg_id']}", QUESTIONS,
         requested_findings_by_turn=(REQUESTED_KEYS, REQUESTED_KEYS, tuple(SCORE_KEYS.values()), MEASUREMENT_KEYS, ()),
+        expected_tools_by_turn=(("call_classification_tool", "call_measurement_tool"), (), ("call_classification_tool",), (), ()),
+        required_explanations_by_turn=((), (), (), (), ("measurement_limits", "classifier_limits")),
     ) for case in representatives]
     logs = []
 
@@ -447,12 +451,16 @@ def run_dialogue(manifest: dict, paths: dict[int, Path], checkpoint: str, *, mod
                 raise ValueError(f"classifier unavailable: {worker.classifier_error}")
             if model:
                 from providers import OpenRouter
-                provider = OpenRouter(model)
+                provider = OpenRouter(model, max_tokens=settings.get("max_tokens", 4096),
+                                      timeout=settings.get("request_timeout", 60))
             else:
                 provider = MockBoundaryModel()
             log = EventLog(log_dir, record, {"model": model or provider.model, "history": "without_gt", "benchmark": True})
             logs.append(log)
-            return Session(provider, worker, record, log=log, tool_timeout=timeout)
+            return Session(provider, worker, record, log=log, tool_timeout=timeout,
+                           max_responses=settings.get("max_responses", 8),
+                           max_tool_calls=settings.get("max_tool_calls", 4),
+                           request_timeout=settings.get("request_timeout", 60))
         except BaseException:
             worker.close()
             raise
@@ -465,13 +473,13 @@ def run_dialogue(manifest: dict, paths: dict[int, Path], checkpoint: str, *, mod
     # Keep detailed provider messages and tool evidence in ignored local logs only.
     return {
         "schema_version": 1, "kind": "live_provider_dialogue" if model else "mock_boundary_real_tools",
-        "status": "complete" if report["summary"]["completed_answers"] == report["summary"]["expected_turns"] else "incomplete",
+        "status": "complete" if report["summary"].get("completed_tasks", report["summary"]["completed_answers"]) == report["summary"]["expected_turns"] else "incomplete",
         "manifest_sha256": _sha(json.dumps(manifest, sort_keys=True).encode()),
         "metadata": {**report["metadata"], "source_sha256": {
             **report["metadata"].get("source_sha256", {}), "benchmark.py": file_sha256(__file__)}},
         "summary": report["summary"],
         "cases": report["manifest"],
-        "turns": [{key: row[key] for key in ("case_id", "turn_id", "status", "tool_calls", "model_responses", "elapsed", "error_kind", "claim_checks", "model_responses_trace", "answer_rejections")}
+        "turns": [{key: row[key] for key in ("case_id", "turn_id", "status", "tool_calls", "model_responses", "elapsed", "error_kind", "claim_checks", "task_checks", "report", "model_responses_trace", "answer_rejections")}
                   for row in report["turns"]],
         "limitations": ["Reference annotations were not passed to Session, model history, or classifier inputs.",
                          "Rendered numeric consistency is enforced by the report contract; it is not clinical validation."]}

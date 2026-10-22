@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "model": "cohere/north-mini-code:free",
+  "checkpoint": "checkpoints/ecgfounder/12_lead_ECGFounder.pth",
+  "manifest": "benchmarks/manifest.json",
+  "repeats": 3,
+  "limits": {
+    "max_responses": 8,
+    "max_tool_calls": 4,
+    "tool_timeout": 30,
+    "request_timeout": 60,
+    "max_tokens": 4096
+  }
+}
