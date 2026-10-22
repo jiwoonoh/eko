@@ -10,7 +10,7 @@ import uuid
 from typing import Any, Callable
 
 from contracts import Decision, Record, ToolCall, ToolObservation, TurnResult
-from reporting import REPORT_TOOL, fallback_report, model_observation, parse_report, render_report, report_instructions, report_schema
+from reporting import REPORT_TOOL, fallback_report, parse_report, render_report, report_instructions, report_schema
 
 
 def measurement_schema(record_id: str) -> dict[str, Any]:
@@ -363,7 +363,7 @@ def run_turn(session: Session, question: str) -> TurnResult:
                     continue
                 session.history.append({"role": "tool", "tool_call_id": call.id,
                                         "name": call.name,
-                                        "content": json.dumps(model_observation(observation), allow_nan=False)})
+                                        "content": json.dumps(observation.to_dict(), allow_nan=False)})
                 session.log("tool_result", turn_id=turn_id, observation=observation.to_dict())
                 if observation.status in ("success", "partial"):
                     session.evidence.append(observation)
