@@ -122,7 +122,10 @@ turn, thirty seconds per tool, sixty seconds per model request, and one transien
 provider retry. A timeout kills the worker; a later call can start another worker.
 Ctrl+C interrupts a turn and Ctrl+D exits the interactive CLI. Checkpoint readiness
 runs before classification is advertised; failure leaves measurements available.
-The OpenRouter client omits `parallel_tool_calls`, whose presence caused the
+Requests use temperature zero for report selection. This reduces sampling
+variation but does not guarantee deterministic inference. The current free
+endpoint accepted this parameter. The OpenRouter client omits
+`parallel_tool_calls`, whose presence caused the
 observed parameter-routing 404 on free endpoints. Endpoint availability still
 depends on the selected provider/model.
 
@@ -337,6 +340,7 @@ predefined acquisition/reuse schedule. Renderer acceptance is separate.
 | Exact aliases with structured history | 16/20 | 18/20 | 414,226 | Limits question incomplete |
 | Explanation meanings in schema | 18/20 | 18/20 | 419,447 | Confirmation failed: 18, 15, 15 |
 | Tool/report selector role | 18/20 | 18/20 | 425,119 | Removed; no screen improvement |
+| Temperature zero | 18/20 | 20/20 | 417,863 | Freeze for confirmation |
 
 Each screen has one repeat; these are exploratory comparisons, not significance
 claims. Input counts include all provider attempts with reported usage. The
@@ -366,8 +370,10 @@ at-least-eighteen-in-each-repeat gate. No accepted SR/NSR substitutions occurred
 all 45 requested nulls had displayed reasons. The [confirmation audit](evidence/ablations/confirmation-audit.json)
 re-rendered all 60 reports from local observations. Raw events stay outside Git.
 The selector-role screen matched the previous 18/20 screen and was removed.
-The next screen changes only sampling temperature to zero, using the original
-role wording. This tests variance control without changing tools or validation.
+Temperature zero, with the original role wording, accepted 20/20 reports and
+completed 18/20 tasks. Two reports omitted the classifier-limits explanation.
+This version is frozen for three-repeat confirmation; tools and validation remain
+unchanged.
 High live-task accuracy has not been established. The user selected the current free
 model only; paid model comparisons will not run.
 
@@ -388,7 +394,8 @@ unscored when no explicit expectations were supplied.
 
 The scientific backend executes real records, and the reporting candidate reached
 18/20 full tasks in its screen, followed by confirmation results of 18/20,
-15/20 and 15/20 on the current free model. The role screen did not improve completion; a sampling-control screen is next. The gate also requires no accepted SR/NSR substitutions,
+15/20 and 15/20 on the current free model. The role screen was removed. Temperature zero accepted 20/20 reports and
+completed 18/20 tasks; its three-repeat confirmation is pending. The gate also requires no accepted SR/NSR substitutions,
 explained requested nulls, and passing negative evidence tests. All unsuccessful
 screens remain in the evidence directory. These are development results from
 four records and fixed questions, with no held-out dialogue check.

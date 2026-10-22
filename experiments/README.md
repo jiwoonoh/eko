@@ -33,6 +33,7 @@ result, including nonimproving runs. The source and configuration hashes in the
 | History and aliases | Structured history | Exact classifier abbreviations | 16/20 | Retained for next screen |
 | Explanation meanings | History and aliases | Expose existing fixed explanation text in schema | 18/20 | Confirmation failed: 18, 15, 15 |
 | Selector role | Explanation meanings | Describe model as tool/report selector | 18/20 | Removed |
+| Temperature zero | Explanation meanings | Set sampling temperature to zero | 18/20 | Freeze for confirmation |
 
 Structured history accepted 17/20 reports versus 11/20 for native submission, but
 completed fewer full tasks. It remained provisional to isolate the residual label
@@ -93,3 +94,9 @@ The next screen changes only sampling temperature from the endpoint default to
 zero. All role wording, cases, limits and validation remain those of the failed
 confirmation candidate. The current free endpoint advertises temperature support.
 Zero does not guarantee deterministic inference.
+
+The temperature-zero screen accepted all twenty reports and completed eighteen
+full tasks. Two accepted reports omitted the classifier-limits code. No tool or
+provider errors occurred. Freeze this version for `zero-confirmation`, three
+prespecified repeats with the original role wording and the same gate. Keep all
+three results.
