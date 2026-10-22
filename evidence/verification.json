@@ -1,38 +1,37 @@
 {
   "schema_version": 1,
-  "recorded_at": "2026-10-15T15:49:12.621388+00:00",
+  "recorded_at": "2026-10-22T17:40:32.583611+00:00",
   "kind": "automated_and_package_verification",
   "tests": {
     "scientific": {
-      "command": "python -m unittest discover -s tests -v",
-      "discovered": 182,
-      "passed": 182,
+      "command": "python -m unittest discover -s tests",
+      "discovered": 193,
+      "passed": 193,
       "skipped": 0,
-      "elapsed_seconds": 5.008,
+      "elapsed_seconds": 3.428,
       "status": "passed",
       "provider": "mocked; no API requests",
       "checkpoint_required": false
     },
     "core_only": {
-      "command": "python -B -S -m unittest discover -s tests -v",
-      "discovered": 182,
-      "passed": 151,
+      "command": "python -B -S -m unittest discover -s tests",
+      "discovered": 193,
+      "passed": 162,
       "skipped": 31,
-      "elapsed_seconds": 1.509,
+      "elapsed_seconds": 0.904,
       "status": "passed",
       "provider": "mocked; no API requests",
       "checkpoint_required": false
     }
   },
   "documentation": {
-    "explicit_production_functions": 148,
-    "local_links_checked": 334,
+    "production_functions": 155,
+    "local_links_checked": 349,
     "missing_links": 0,
     "ast_inventory_matches_catalog": true,
-    "checked_at": "2026-10-15T16:25:24.960099+00:00",
     "source_sha256": {
-      "README.md": "ed3487195f3187a3c367ca1819804815fe5e3f2ed63150ccdf8430f396a443fd",
-      "PLAN.md": "f91fc190e584fc3fbc1f5d0195c5b40107cecafc967cf0c2bc8936f9fa04d366"
+      "README.md": "2dd2625a29c6be855bc3a3c56bcea701a990a402cd32e005753fcd88bb1f1b15",
+      "PLAN.md": "b8230829c64ac002bfe354d96aa1934fdd9cdcd66ebc161973c0e6dc24dfb93d"
     }
   },
   "packaging": {
@@ -41,8 +40,7 @@
     "required_modules_present": true,
     "packaged_manifest_outside_checkout": "passed",
     "base_runtime_dependencies": 0,
-    "raw_data_weights_logs_excluded": true,
-    "pip_check": "passed"
+    "raw_data_weights_logs_excluded": true
   },
   "versions": {
     "python": "3.11.4",
@@ -58,36 +56,46 @@
   },
   "source_sha256": {
     "contracts.py": "90bde83c168e6a106b4cf1870b9e6fc82ef8f4155c3d51d6a454381d1ecde6d9",
-    "eko.py": "550a8ffad6d2ab3a9b6b28a691f958331f2be41b090225f70d1739db2318038a",
+    "eko.py": "3d4b1f2ab31cb907dd2d5499f0f1aa7f8aae6c097886959ccbad3556047ad5ec",
     "host.py": "8c161cc7142057bef46f7255f1e97170ab2f7f78caa489f0474f12c3cd1f7919",
     "records.py": "1e5b9513d0b66029b8c423b6041b63735ed4c1b4df0798afab0c3e822477ce29",
     "measurements.py": "37fbec523cb5763de791fcf443d3986f7f2b9c1d9bc8bb363a4893e4ec16cd89",
     "worker.py": "2c362b88b1f15acb54f2997a3ec5b2ae1d2b885e4a42c6237ca99b696ce588f2",
     "traces.py": "e0859b7041cf3bffe5cb36ccc518438d62ed22ac56d122727ae8ef529e6dcb29",
-    "reporting.py": "16e839469dea9540aaefeaf6abb0d3ee0389f529408dbd546d058137e01038b4",
+    "reporting.py": "4e33f0480dc34d69d70e449f17aa318e117cdc68625d6cc7e335e23d490ec13b",
     "classifier.py": "ca806bf25be0ef5105ea6ce481993e905f8644350a748098d0684958bba3ea91",
     "ecgfounder.py": "fcc55f63a3701836785e1fb45ee27cbcd520790a5f38f4cb6e8fcbf9067dfd32",
     "ecgfounder_labels.py": "eb8956a88740e530454e8504735d26e15404ab67241bdb6f90c92959f10f8298",
     "providers/openrouter.py": "565ed80e358ab7a3bb26d8ce1a58595fcd2d74ebb6994b29ba59889ea892d7a5",
-    "benchmark.py": "7ee2af11ab5a1c87d445c90ced230e535cf5d54d65f979f4182d4adf3b7587c0",
-    "evaluation.py": "e77f0bef4527216147560095d06a46106dfd00cb3af52f7fa140e8ee561e9518"
+    "benchmark.py": "e7900f4889f6d0568966724fde427bd598827c6aac14f9e696fad6d47fdcec95",
+    "evaluation.py": "4fbb139c68b09dfff1e0bb768c8bb92cc9031ba1321bf64e7e4919a2b6c88e6f",
+    "experiment.py": "9fc7d3593a0682f3229d2d9d01cd33875d058887654bdc0705307a33e4e2b4b3"
   },
   "test_sha256": {
-    "tests/test_benchmark.py": "70c9003bd724d02188040579af2bd578b1f99aeb7ea4d38417d16c6504522d6d",
-    "tests/test_classification_runtime.py": "f059d9fc9604a6261bc13e882c876f3f3ad5c14eb4684230755da24f517b37a1",
+    "tests/test_benchmark.py": "00ac88cdb752f59e49477df943b1cf8619d2e4e75d61d0651a1ccec67594bc73",
+    "tests/test_classification_runtime.py": "9245a7099cd0a6103bda9bf72d6fd4dd50e6224b93edbf1ff6667bc215f8162c",
     "tests/test_classifier.py": "b4ef4d27cdb577e45ff40a08f089232377ff6aed53777eafa4fd7f4f9827ba63",
     "tests/test_cli.py": "1b12ef23970c4552566330b98b8c64743d5feed7fa64bbea02e08947b1f3e986",
     "tests/test_demo.py": "90cb9147c8782723b296af70e140e0dfb4a036bab74c2b3235b079584bfc3f51",
-    "tests/test_evaluation.py": "a2b73d21430e8c99105670057c12644fabef52c997ed740e0b5626b0e5861a90",
+    "tests/test_evaluation.py": "7088d17fac8c8daa45df1163d827f57a005605bdde57a7edc9c79ee0f97dca4f",
+    "tests/test_experiment.py": "e6f1a01bccea1b0acee34bf23c81ae8d972ba9a7318770a4a4a767a70429a706",
     "tests/test_integration.py": "a39a3fed6c9717b7f3af3d4a6e9e5352eef0ae0be67b34f6ee2e8967dae0df2d",
     "tests/test_measurements.py": "c4af8072a0bbbe731e36127a1f8be122dbd9deff990d84a81c086bf2f5b629e9",
     "tests/test_openrouter.py": "28dd02a61f61f7b803c1ae82c9dd83293268ebd3e6311961d4ca92c8239b4c86",
     "tests/test_reporting.py": "ea82c5ad985ab814593a19f1bdfabd7938d6357823b228ac2f0fc031344e5ba9",
-    "tests/test_runtime.py": "6b0c254d060309fbdd72b5e43727d79432101cfbfe41a6b376774c3745bcf106",
+    "tests/test_runtime.py": "39cfea83f5560b0265ea45fbd1551da6453354ee87b7fc4defd39bb583e3fce8",
+    "tests/test_submission.py": "e78dea73ba11b2736ba5268cadedb7f16a194347faa1c2d48b9811a82a75368f",
     "tests/test_worker.py": "d7e896d34396ef5719323e74aac134c7ef150e98df298722985be5f7bd801f3b"
   },
+  "live_study": {
+    "screens": 6,
+    "best_screened_tasks": 8,
+    "expected_turns": 20,
+    "development_gate_met": false,
+    "summary": "ablations/summary.json"
+  },
   "limitations": [
-    "Unit/provider tests use mocked responses. Public-waveform CPU checks are separate artifacts.",
-    "No live OpenRouter API call or clinical validation."
+    "Unit/provider tests use mocked responses. The scripted real-tool check is separate from the live study.",
+    "The live accuracy target has not been achieved; no clinical validation."
   ]
 }

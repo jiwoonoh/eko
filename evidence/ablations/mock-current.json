@@ -1,0 +1,2685 @@
+{
+  "schema_version": 1,
+  "kind": "mock_boundary_real_tools",
+  "status": "complete",
+  "manifest_sha256": "40b1e26138c17e886c917562894b040f745d972aa7b376174ab20e6d6fadf257",
+  "metadata": {
+    "format_version": 1,
+    "upstream_revision": "0ab07899ec0a39b087bebd560b280cad484eb0d0",
+    "python_version": "3.11.4",
+    "package_versions": {
+      "numpy": "1.26.4",
+      "scipy": "1.13.1",
+      "neurokit2": "0.2.7",
+      "torch": "2.6.0"
+    },
+    "source_sha256": {
+      "evaluation.py": "4fbb139c68b09dfff1e0bb768c8bb92cc9031ba1321bf64e7e4919a2b6c88e6f",
+      "contracts.py": "90bde83c168e6a106b4cf1870b9e6fc82ef8f4155c3d51d6a454381d1ecde6d9",
+      "eko.py": "3d4b1f2ab31cb907dd2d5499f0f1aa7f8aae6c097886959ccbad3556047ad5ec",
+      "host.py": "8c161cc7142057bef46f7255f1e97170ab2f7f78caa489f0474f12c3cd1f7919",
+      "records.py": "1e5b9513d0b66029b8c423b6041b63735ed4c1b4df0798afab0c3e822477ce29",
+      "measurements.py": "37fbec523cb5763de791fcf443d3986f7f2b9c1d9bc8bb363a4893e4ec16cd89",
+      "worker.py": "2c362b88b1f15acb54f2997a3ec5b2ae1d2b885e4a42c6237ca99b696ce588f2",
+      "traces.py": "e0859b7041cf3bffe5cb36ccc518438d62ed22ac56d122727ae8ef529e6dcb29",
+      "reporting.py": "4e33f0480dc34d69d70e449f17aa318e117cdc68625d6cc7e335e23d490ec13b",
+      "classifier.py": "ca806bf25be0ef5105ea6ce481993e905f8644350a748098d0684958bba3ea91",
+      "ecgfounder.py": "fcc55f63a3701836785e1fb45ee27cbcd520790a5f38f4cb6e8fcbf9067dfd32",
+      "ecgfounder_labels.py": "eb8956a88740e530454e8504735d26e15404ab67241bdb6f90c92959f10f8298",
+      "providers/openrouter.py": "565ed80e358ab7a3bb26d8ce1a58595fcd2d74ebb6994b29ba59889ea892d7a5",
+      "benchmark.py": "e7900f4889f6d0568966724fde427bd598827c6aac14f9e696fad6d47fdcec95"
+    },
+    "manifest_sha256": "bfa5370e6a0704d58b89caf5a96c3d054413e7972bdab0e14722dba2053c54dd"
+  },
+  "summary": {
+    "expected_turns": 20,
+    "completed_answers": 20,
+    "provider_errors": 0,
+    "tool_errors": 0,
+    "runner_errors": 0,
+    "judge_errors": 0,
+    "failed_tool_observations": 0,
+    "live_observations": 12,
+    "replay_observations": 0,
+    "runner_observations": 0,
+    "reused_observations": 40,
+    "excluded_claim_turns": 0,
+    "supported": 81,
+    "contradicted": 0,
+    "unverifiable": 0,
+    "requested_available": 81,
+    "requested_supported": 81,
+    "statuses": {
+      "success": 20
+    },
+    "completion_rate": 1.0,
+    "task_scored_turns": 20,
+    "completed_tasks": 20,
+    "provider_attempt_failures": 0,
+    "task_completion_rate": 1.0,
+    "answer_rejections": 0,
+    "answer_rejection_rate": 0.0,
+    "timed_turns": 20,
+    "total_elapsed_seconds": 4.599522039992735,
+    "mean_elapsed_seconds": 0.22997610199963675,
+    "attempted_tool_calls": 12,
+    "model_responses": 28,
+    "claim_scope": "explicit_numeric_claims_only",
+    "checkable_claims": 81,
+    "claim_support_rate": 1.0,
+    "requested_available_coverage": 1.0,
+    "clinical_accuracy": null,
+    "prose_faithfulness": null
+  },
+  "cases": [
+    {
+      "case_id": "ptbxl-00008",
+      "history": "without_gt",
+      "questions_sha256": "07f6e32fa2b36e72b01748b4fc7575167ac97cfeb5fee46e01e63a2141ce8a02",
+      "requested_findings": [],
+      "requested_findings_by_turn": [
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003"
+        ],
+        [
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        []
+      ],
+      "expected_tools_by_turn": [
+        [
+          "call_classification_tool",
+          "call_measurement_tool"
+        ],
+        [],
+        [
+          "call_classification_tool"
+        ],
+        [],
+        []
+      ],
+      "required_explanations_by_turn": [
+        [],
+        [],
+        [],
+        [],
+        [
+          "measurement_limits",
+          "classifier_limits"
+        ]
+      ],
+      "record": {
+        "record_id": "ptbxl:8",
+        "sha256": "75b7bd107cef3f3657129b35a6d495d971037e6789004a53dff8d86e97c11cc1",
+        "sampling_rate_hz": 500.0,
+        "lead_names": [
+          "I",
+          "II",
+          "III",
+          "aVR",
+          "aVL",
+          "aVF",
+          "V1",
+          "V2",
+          "V3",
+          "V4",
+          "V5",
+          "V6"
+        ],
+        "waveform_units": [
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV"
+        ]
+      },
+      "configuration": {
+        "provider": "__main__.MockBoundaryModel",
+        "model": "mock-boundary-v1",
+        "provider_settings": {},
+        "limits": {
+          "max_responses": 8,
+          "max_tool_calls": 4,
+          "tool_timeout": 30,
+          "request_timeout": 60
+        },
+        "prompt_sha256": "5ec46cc14d1cfcea39a00ae58f108e24287244f2612a5e88bdeebb8f2efe32ea",
+        "tools_sha256": "3e03d07c14562190e8e9860c1493db942d6270a1c8001db50c1cbeec3dda943c",
+        "classifier": {
+          "backend": "ecgfounder",
+          "source_revision": "04edac702b61c91face519774ddcc0cd712fef23",
+          "model_revision": "d9b1793951b2342f5f7e84f1ac03cd37f8a08724",
+          "checkpoint_sha256": "ee199f3781f4ae1f732973267f003da0a759ea12bddb0dd28a77faa60aca7997",
+          "label_map_sha256": "7c087a0d383c7ea9ae9b818ad00a551b029334edfa5f1fbb5036bfbaa0df0c39",
+          "preprocessing_version": "ecgfounder-ptbxl-global-zscore-v1",
+          "device": "cpu",
+          "task_count": 150,
+          "output_transform": "sigmoid"
+        },
+        "provider_source_sha256": "e7900f4889f6d0568966724fde427bd598827c6aac14f9e696fad6d47fdcec95"
+      }
+    },
+    {
+      "case_id": "ptbxl-00010",
+      "history": "without_gt",
+      "questions_sha256": "07f6e32fa2b36e72b01748b4fc7575167ac97cfeb5fee46e01e63a2141ce8a02",
+      "requested_findings": [],
+      "requested_findings_by_turn": [
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003"
+        ],
+        [
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        []
+      ],
+      "expected_tools_by_turn": [
+        [
+          "call_classification_tool",
+          "call_measurement_tool"
+        ],
+        [],
+        [
+          "call_classification_tool"
+        ],
+        [],
+        []
+      ],
+      "required_explanations_by_turn": [
+        [],
+        [],
+        [],
+        [],
+        [
+          "measurement_limits",
+          "classifier_limits"
+        ]
+      ],
+      "record": {
+        "record_id": "ptbxl:10",
+        "sha256": "2e71501382d1f53e4f7ea435b262a55f717476d642f3849608bbaff6cc2b5c9b",
+        "sampling_rate_hz": 500.0,
+        "lead_names": [
+          "I",
+          "II",
+          "III",
+          "aVR",
+          "aVL",
+          "aVF",
+          "V1",
+          "V2",
+          "V3",
+          "V4",
+          "V5",
+          "V6"
+        ],
+        "waveform_units": [
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV"
+        ]
+      },
+      "configuration": {
+        "provider": "__main__.MockBoundaryModel",
+        "model": "mock-boundary-v1",
+        "provider_settings": {},
+        "limits": {
+          "max_responses": 8,
+          "max_tool_calls": 4,
+          "tool_timeout": 30,
+          "request_timeout": 60
+        },
+        "prompt_sha256": "24af26d50f358747fd1fb95e55211273ea8e17819732fc205954d5db18af4709",
+        "tools_sha256": "050e4c00995cd74c366e7d48bbca638e7d71772c7857be0eea20ccb0e1f0b2b5",
+        "classifier": {
+          "backend": "ecgfounder",
+          "source_revision": "04edac702b61c91face519774ddcc0cd712fef23",
+          "model_revision": "d9b1793951b2342f5f7e84f1ac03cd37f8a08724",
+          "checkpoint_sha256": "ee199f3781f4ae1f732973267f003da0a759ea12bddb0dd28a77faa60aca7997",
+          "label_map_sha256": "7c087a0d383c7ea9ae9b818ad00a551b029334edfa5f1fbb5036bfbaa0df0c39",
+          "preprocessing_version": "ecgfounder-ptbxl-global-zscore-v1",
+          "device": "cpu",
+          "task_count": 150,
+          "output_transform": "sigmoid"
+        },
+        "provider_source_sha256": "e7900f4889f6d0568966724fde427bd598827c6aac14f9e696fad6d47fdcec95"
+      }
+    },
+    {
+      "case_id": "ptbxl-00017",
+      "history": "without_gt",
+      "questions_sha256": "07f6e32fa2b36e72b01748b4fc7575167ac97cfeb5fee46e01e63a2141ce8a02",
+      "requested_findings": [],
+      "requested_findings_by_turn": [
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003"
+        ],
+        [
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        []
+      ],
+      "expected_tools_by_turn": [
+        [
+          "call_classification_tool",
+          "call_measurement_tool"
+        ],
+        [],
+        [
+          "call_classification_tool"
+        ],
+        [],
+        []
+      ],
+      "required_explanations_by_turn": [
+        [],
+        [],
+        [],
+        [],
+        [
+          "measurement_limits",
+          "classifier_limits"
+        ]
+      ],
+      "record": {
+        "record_id": "ptbxl:17",
+        "sha256": "e12710400e97e81685d24516bb99d99cf9a9915e3fe7b7ce19d67692c1cb99a9",
+        "sampling_rate_hz": 500.0,
+        "lead_names": [
+          "I",
+          "II",
+          "III",
+          "aVR",
+          "aVL",
+          "aVF",
+          "V1",
+          "V2",
+          "V3",
+          "V4",
+          "V5",
+          "V6"
+        ],
+        "waveform_units": [
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV"
+        ]
+      },
+      "configuration": {
+        "provider": "__main__.MockBoundaryModel",
+        "model": "mock-boundary-v1",
+        "provider_settings": {},
+        "limits": {
+          "max_responses": 8,
+          "max_tool_calls": 4,
+          "tool_timeout": 30,
+          "request_timeout": 60
+        },
+        "prompt_sha256": "0c1b85bf2dc24c246bfed11c40021ce1d0259bf5777293ead8dfde8a47a0892e",
+        "tools_sha256": "f567e7b140a0c864428b257e5a6293f1d3d2d4573302dbe341d009c035659f9e",
+        "classifier": {
+          "backend": "ecgfounder",
+          "source_revision": "04edac702b61c91face519774ddcc0cd712fef23",
+          "model_revision": "d9b1793951b2342f5f7e84f1ac03cd37f8a08724",
+          "checkpoint_sha256": "ee199f3781f4ae1f732973267f003da0a759ea12bddb0dd28a77faa60aca7997",
+          "label_map_sha256": "7c087a0d383c7ea9ae9b818ad00a551b029334edfa5f1fbb5036bfbaa0df0c39",
+          "preprocessing_version": "ecgfounder-ptbxl-global-zscore-v1",
+          "device": "cpu",
+          "task_count": 150,
+          "output_transform": "sigmoid"
+        },
+        "provider_source_sha256": "e7900f4889f6d0568966724fde427bd598827c6aac14f9e696fad6d47fdcec95"
+      }
+    },
+    {
+      "case_id": "ptbxl-00144",
+      "history": "without_gt",
+      "questions_sha256": "07f6e32fa2b36e72b01748b4fc7575167ac97cfeb5fee46e01e63a2141ce8a02",
+      "requested_findings": [],
+      "requested_findings_by_turn": [
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003"
+        ],
+        [
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        []
+      ],
+      "expected_tools_by_turn": [
+        [
+          "call_classification_tool",
+          "call_measurement_tool"
+        ],
+        [],
+        [
+          "call_classification_tool"
+        ],
+        [],
+        []
+      ],
+      "required_explanations_by_turn": [
+        [],
+        [],
+        [],
+        [],
+        [
+          "measurement_limits",
+          "classifier_limits"
+        ]
+      ],
+      "record": {
+        "record_id": "ptbxl:144",
+        "sha256": "a95fe5417174476d4c5fdf1b0bb25406c8904be71fd7efbf1b426fe4f9340d99",
+        "sampling_rate_hz": 500.0,
+        "lead_names": [
+          "I",
+          "II",
+          "III",
+          "aVR",
+          "aVL",
+          "aVF",
+          "V1",
+          "V2",
+          "V3",
+          "V4",
+          "V5",
+          "V6"
+        ],
+        "waveform_units": [
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV",
+          "mV"
+        ]
+      },
+      "configuration": {
+        "provider": "__main__.MockBoundaryModel",
+        "model": "mock-boundary-v1",
+        "provider_settings": {},
+        "limits": {
+          "max_responses": 8,
+          "max_tool_calls": 4,
+          "tool_timeout": 30,
+          "request_timeout": 60
+        },
+        "prompt_sha256": "cfca0bd905c3a3b261a3375037b35af7d4089c70a8137f9baa8d67c8862b2d3c",
+        "tools_sha256": "057b2a4a49a1d16e52d7b8f7eebec06348b01d8ec5eaa6d49a8772746b5ca7e1",
+        "classifier": {
+          "backend": "ecgfounder",
+          "source_revision": "04edac702b61c91face519774ddcc0cd712fef23",
+          "model_revision": "d9b1793951b2342f5f7e84f1ac03cd37f8a08724",
+          "checkpoint_sha256": "ee199f3781f4ae1f732973267f003da0a759ea12bddb0dd28a77faa60aca7997",
+          "label_map_sha256": "7c087a0d383c7ea9ae9b818ad00a551b029334edfa5f1fbb5036bfbaa0df0c39",
+          "preprocessing_version": "ecgfounder-ptbxl-global-zscore-v1",
+          "device": "cpu",
+          "task_count": 150,
+          "output_transform": "sigmoid"
+        },
+        "provider_source_sha256": "e7900f4889f6d0568966724fde427bd598827c6aac14f9e696fad6d47fdcec95"
+      }
+    }
+  ],
+  "turns": [
+    {
+      "case_id": "ptbxl-00008",
+      "turn_id": "ptbxl-00008/user:1",
+      "status": "success",
+      "tool_calls": 2,
+      "model_responses": 2,
+      "elapsed": 1.6459134580218233,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "7d2946e158d0498a9501af68746e3ba7",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "7d2946e158d0498a9501af68746e3ba7",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "7d2946e158d0498a9501af68746e3ba7",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 8,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 8,
+        "support_rate": 1.0,
+        "requested_available": 8,
+        "requested_supported": 8,
+        "coverage": 1.0
+      },
+      "task_checks": {
+        "complete": true,
+        "requested_findings": [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        "reported_findings": [
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "ecgfounder_005",
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [
+          "call_classification_tool",
+          "call_measurement_tool"
+        ],
+        "observed_tools": [
+          "call_measurement_tool",
+          "call_classification_tool"
+        ],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "rr_interval_ms"
+          },
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "qtc_bazett_ms"
+          },
+          {
+            "evidence_id": "7d2946e158d0498a9501af68746e3ba7",
+            "finding": "ecgfounder_005"
+          },
+          {
+            "evidence_id": "7d2946e158d0498a9501af68746e3ba7",
+            "finding": "ecgfounder_002"
+          },
+          {
+            "evidence_id": "7d2946e158d0498a9501af68746e3ba7",
+            "finding": "ecgfounder_003"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        },
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0,
+      "provider_attempts": []
+    },
+    {
+      "case_id": "ptbxl-00008",
+      "turn_id": "ptbxl-00008/user:2",
+      "status": "success",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 0.0018746249843388796,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "7d2946e158d0498a9501af68746e3ba7",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "7d2946e158d0498a9501af68746e3ba7",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "7d2946e158d0498a9501af68746e3ba7",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 8,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 8,
+        "support_rate": 1.0,
+        "requested_available": 8,
+        "requested_supported": 8,
+        "coverage": 1.0
+      },
+      "task_checks": {
+        "complete": true,
+        "requested_findings": [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        "reported_findings": [
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "ecgfounder_005",
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [],
+        "observed_tools": [],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "rr_interval_ms"
+          },
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "qtc_bazett_ms"
+          },
+          {
+            "evidence_id": "7d2946e158d0498a9501af68746e3ba7",
+            "finding": "ecgfounder_005"
+          },
+          {
+            "evidence_id": "7d2946e158d0498a9501af68746e3ba7",
+            "finding": "ecgfounder_002"
+          },
+          {
+            "evidence_id": "7d2946e158d0498a9501af68746e3ba7",
+            "finding": "ecgfounder_003"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0,
+      "provider_attempts": []
+    },
+    {
+      "case_id": "ptbxl-00008",
+      "turn_id": "ptbxl-00008/user:3",
+      "status": "success",
+      "tool_calls": 1,
+      "model_responses": 2,
+      "elapsed": 0.04078520799521357,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "ae6aacc53183448280195e085db24204",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "ae6aacc53183448280195e085db24204",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "ae6aacc53183448280195e085db24204",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 3,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 3,
+        "support_rate": 1.0,
+        "requested_available": 3,
+        "requested_supported": 3,
+        "coverage": 1.0
+      },
+      "task_checks": {
+        "complete": true,
+        "requested_findings": [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003"
+        ],
+        "reported_findings": [
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "ecgfounder_005"
+        ],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [
+          "call_classification_tool"
+        ],
+        "observed_tools": [
+          "call_classification_tool"
+        ],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "ae6aacc53183448280195e085db24204",
+            "finding": "ecgfounder_005"
+          },
+          {
+            "evidence_id": "ae6aacc53183448280195e085db24204",
+            "finding": "ecgfounder_002"
+          },
+          {
+            "evidence_id": "ae6aacc53183448280195e085db24204",
+            "finding": "ecgfounder_003"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        },
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0,
+      "provider_attempts": []
+    },
+    {
+      "case_id": "ptbxl-00008",
+      "turn_id": "ptbxl-00008/user:4",
+      "status": "success",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 0.0010458749602548778,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 5,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 5,
+        "support_rate": 1.0,
+        "requested_available": 5,
+        "requested_supported": 5,
+        "coverage": 1.0
+      },
+      "task_checks": {
+        "complete": true,
+        "requested_findings": [
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        "reported_findings": [
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [],
+        "observed_tools": [],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "rr_interval_ms"
+          },
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "4397e65f955549f7a138010e19bc8684",
+            "finding": "qtc_bazett_ms"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0,
+      "provider_attempts": []
+    },
+    {
+      "case_id": "ptbxl-00008",
+      "turn_id": "ptbxl-00008/user:5",
+      "status": "success",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 0.002471917017828673,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [],
+        "supported": 0,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 0,
+        "support_rate": null,
+        "requested_available": 0,
+        "requested_supported": 0,
+        "coverage": null
+      },
+      "task_checks": {
+        "complete": true,
+        "requested_findings": [],
+        "reported_findings": [],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [],
+        "observed_tools": [],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [],
+        "explanations": [
+          "measurement_limits",
+          "classifier_limits"
+        ],
+        "unavailable": [
+          "diagnosis"
+        ]
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0,
+      "provider_attempts": []
+    },
+    {
+      "case_id": "ptbxl-00010",
+      "turn_id": "ptbxl-00010/user:1",
+      "status": "success",
+      "tool_calls": 2,
+      "model_responses": 2,
+      "elapsed": 0.9306911670137197,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "839f26b65df944b2b6efa9cb4de2c6bc",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "839f26b65df944b2b6efa9cb4de2c6bc",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "839f26b65df944b2b6efa9cb4de2c6bc",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 8,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 8,
+        "support_rate": 1.0,
+        "requested_available": 8,
+        "requested_supported": 8,
+        "coverage": 1.0
+      },
+      "task_checks": {
+        "complete": true,
+        "requested_findings": [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        "reported_findings": [
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "ecgfounder_005",
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [
+          "call_classification_tool",
+          "call_measurement_tool"
+        ],
+        "observed_tools": [
+          "call_measurement_tool",
+          "call_classification_tool"
+        ],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "rr_interval_ms"
+          },
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "qtc_bazett_ms"
+          },
+          {
+            "evidence_id": "839f26b65df944b2b6efa9cb4de2c6bc",
+            "finding": "ecgfounder_005"
+          },
+          {
+            "evidence_id": "839f26b65df944b2b6efa9cb4de2c6bc",
+            "finding": "ecgfounder_002"
+          },
+          {
+            "evidence_id": "839f26b65df944b2b6efa9cb4de2c6bc",
+            "finding": "ecgfounder_003"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        },
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0,
+      "provider_attempts": []
+    },
+    {
+      "case_id": "ptbxl-00010",
+      "turn_id": "ptbxl-00010/user:2",
+      "status": "success",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 0.0013857079902663827,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "839f26b65df944b2b6efa9cb4de2c6bc",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "839f26b65df944b2b6efa9cb4de2c6bc",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "839f26b65df944b2b6efa9cb4de2c6bc",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 8,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 8,
+        "support_rate": 1.0,
+        "requested_available": 8,
+        "requested_supported": 8,
+        "coverage": 1.0
+      },
+      "task_checks": {
+        "complete": true,
+        "requested_findings": [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        "reported_findings": [
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "ecgfounder_005",
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [],
+        "observed_tools": [],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "rr_interval_ms"
+          },
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "qtc_bazett_ms"
+          },
+          {
+            "evidence_id": "839f26b65df944b2b6efa9cb4de2c6bc",
+            "finding": "ecgfounder_005"
+          },
+          {
+            "evidence_id": "839f26b65df944b2b6efa9cb4de2c6bc",
+            "finding": "ecgfounder_002"
+          },
+          {
+            "evidence_id": "839f26b65df944b2b6efa9cb4de2c6bc",
+            "finding": "ecgfounder_003"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0,
+      "provider_attempts": []
+    },
+    {
+      "case_id": "ptbxl-00010",
+      "turn_id": "ptbxl-00010/user:3",
+      "status": "success",
+      "tool_calls": 1,
+      "model_responses": 2,
+      "elapsed": 0.044061040971428156,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "a58df76252ed4864b6b7b4286147410b",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "a58df76252ed4864b6b7b4286147410b",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "a58df76252ed4864b6b7b4286147410b",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 3,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 3,
+        "support_rate": 1.0,
+        "requested_available": 3,
+        "requested_supported": 3,
+        "coverage": 1.0
+      },
+      "task_checks": {
+        "complete": true,
+        "requested_findings": [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003"
+        ],
+        "reported_findings": [
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "ecgfounder_005"
+        ],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [
+          "call_classification_tool"
+        ],
+        "observed_tools": [
+          "call_classification_tool"
+        ],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "a58df76252ed4864b6b7b4286147410b",
+            "finding": "ecgfounder_005"
+          },
+          {
+            "evidence_id": "a58df76252ed4864b6b7b4286147410b",
+            "finding": "ecgfounder_002"
+          },
+          {
+            "evidence_id": "a58df76252ed4864b6b7b4286147410b",
+            "finding": "ecgfounder_003"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        },
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0,
+      "provider_attempts": []
+    },
+    {
+      "case_id": "ptbxl-00010",
+      "turn_id": "ptbxl-00010/user:4",
+      "status": "success",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 0.0010328330099582672,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 5,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 5,
+        "support_rate": 1.0,
+        "requested_available": 5,
+        "requested_supported": 5,
+        "coverage": 1.0
+      },
+      "task_checks": {
+        "complete": true,
+        "requested_findings": [
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        "reported_findings": [
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [],
+        "observed_tools": [],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "rr_interval_ms"
+          },
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "de44da72d50c4d59abcd3607725577f3",
+            "finding": "qtc_bazett_ms"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0,
+      "provider_attempts": []
+    },
+    {
+      "case_id": "ptbxl-00010",
+      "turn_id": "ptbxl-00010/user:5",
+      "status": "success",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 0.0006802079733461142,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [],
+        "supported": 0,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 0,
+        "support_rate": null,
+        "requested_available": 0,
+        "requested_supported": 0,
+        "coverage": null
+      },
+      "task_checks": {
+        "complete": true,
+        "requested_findings": [],
+        "reported_findings": [],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [],
+        "observed_tools": [],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [],
+        "explanations": [
+          "measurement_limits",
+          "classifier_limits"
+        ],
+        "unavailable": [
+          "diagnosis"
+        ]
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0,
+      "provider_attempts": []
+    },
+    {
+      "case_id": "ptbxl-00017",
+      "turn_id": "ptbxl-00017/user:1",
+      "status": "success",
+      "tool_calls": 2,
+      "model_responses": 2,
+      "elapsed": 0.9417471250053495,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "5bbd5ced8eab409387107dd4c9d00317",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "5bbd5ced8eab409387107dd4c9d00317",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "5bbd5ced8eab409387107dd4c9d00317",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 8,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 8,
+        "support_rate": 1.0,
+        "requested_available": 8,
+        "requested_supported": 8,
+        "coverage": 1.0
+      },
+      "task_checks": {
+        "complete": true,
+        "requested_findings": [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        "reported_findings": [
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "ecgfounder_005",
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [
+          "call_classification_tool",
+          "call_measurement_tool"
+        ],
+        "observed_tools": [
+          "call_measurement_tool",
+          "call_classification_tool"
+        ],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "rr_interval_ms"
+          },
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "qtc_bazett_ms"
+          },
+          {
+            "evidence_id": "5bbd5ced8eab409387107dd4c9d00317",
+            "finding": "ecgfounder_005"
+          },
+          {
+            "evidence_id": "5bbd5ced8eab409387107dd4c9d00317",
+            "finding": "ecgfounder_002"
+          },
+          {
+            "evidence_id": "5bbd5ced8eab409387107dd4c9d00317",
+            "finding": "ecgfounder_003"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        },
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0,
+      "provider_attempts": []
+    },
+    {
+      "case_id": "ptbxl-00017",
+      "turn_id": "ptbxl-00017/user:2",
+      "status": "success",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 0.001513750001322478,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "5bbd5ced8eab409387107dd4c9d00317",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "5bbd5ced8eab409387107dd4c9d00317",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "5bbd5ced8eab409387107dd4c9d00317",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 8,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 8,
+        "support_rate": 1.0,
+        "requested_available": 8,
+        "requested_supported": 8,
+        "coverage": 1.0
+      },
+      "task_checks": {
+        "complete": true,
+        "requested_findings": [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        "reported_findings": [
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "ecgfounder_005",
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [],
+        "observed_tools": [],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "rr_interval_ms"
+          },
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "qtc_bazett_ms"
+          },
+          {
+            "evidence_id": "5bbd5ced8eab409387107dd4c9d00317",
+            "finding": "ecgfounder_005"
+          },
+          {
+            "evidence_id": "5bbd5ced8eab409387107dd4c9d00317",
+            "finding": "ecgfounder_002"
+          },
+          {
+            "evidence_id": "5bbd5ced8eab409387107dd4c9d00317",
+            "finding": "ecgfounder_003"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0,
+      "provider_attempts": []
+    },
+    {
+      "case_id": "ptbxl-00017",
+      "turn_id": "ptbxl-00017/user:3",
+      "status": "success",
+      "tool_calls": 1,
+      "model_responses": 2,
+      "elapsed": 0.036738499999046326,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "d1f4355146ab49b1bcf7fddd700d40a9",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "d1f4355146ab49b1bcf7fddd700d40a9",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "d1f4355146ab49b1bcf7fddd700d40a9",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 3,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 3,
+        "support_rate": 1.0,
+        "requested_available": 3,
+        "requested_supported": 3,
+        "coverage": 1.0
+      },
+      "task_checks": {
+        "complete": true,
+        "requested_findings": [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003"
+        ],
+        "reported_findings": [
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "ecgfounder_005"
+        ],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [
+          "call_classification_tool"
+        ],
+        "observed_tools": [
+          "call_classification_tool"
+        ],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "d1f4355146ab49b1bcf7fddd700d40a9",
+            "finding": "ecgfounder_005"
+          },
+          {
+            "evidence_id": "d1f4355146ab49b1bcf7fddd700d40a9",
+            "finding": "ecgfounder_002"
+          },
+          {
+            "evidence_id": "d1f4355146ab49b1bcf7fddd700d40a9",
+            "finding": "ecgfounder_003"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        },
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0,
+      "provider_attempts": []
+    },
+    {
+      "case_id": "ptbxl-00017",
+      "turn_id": "ptbxl-00017/user:4",
+      "status": "success",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 0.001036665984429419,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "heart_rate_bpm",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "rr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "pr_interval_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "q_s_peak_span_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "qtc_bazett_ms",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 5,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 5,
+        "support_rate": 1.0,
+        "requested_available": 5,
+        "requested_supported": 5,
+        "coverage": 1.0
+      },
+      "task_checks": {
+        "complete": true,
+        "requested_findings": [
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        "reported_findings": [
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [],
+        "observed_tools": [],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "rr_interval_ms"
+          },
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "2cc87104030a49eb9301ce9d4bd0aa79",
+            "finding": "qtc_bazett_ms"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0,
+      "provider_attempts": []
+    },
+    {
+      "case_id": "ptbxl-00017",
+      "turn_id": "ptbxl-00017/user:5",
+      "status": "success",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 0.0007037920295260847,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [],
+        "supported": 0,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 0,
+        "support_rate": null,
+        "requested_available": 0,
+        "requested_supported": 0,
+        "coverage": null
+      },
+      "task_checks": {
+        "complete": true,
+        "requested_findings": [],
+        "reported_findings": [],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [],
+        "observed_tools": [],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [],
+        "explanations": [
+          "measurement_limits",
+          "classifier_limits"
+        ],
+        "unavailable": [
+          "diagnosis"
+        ]
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0,
+      "provider_attempts": []
+    },
+    {
+      "case_id": "ptbxl-00144",
+      "turn_id": "ptbxl-00144/user:1",
+      "status": "success",
+      "tool_calls": 2,
+      "model_responses": 2,
+      "elapsed": 0.9026256669894792,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "685a1b47a6b34ff2b9fdd408c04f7673",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "685a1b47a6b34ff2b9fdd408c04f7673",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "685a1b47a6b34ff2b9fdd408c04f7673",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 3,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 3,
+        "support_rate": 1.0,
+        "requested_available": 3,
+        "requested_supported": 3,
+        "coverage": 1.0
+      },
+      "task_checks": {
+        "complete": true,
+        "requested_findings": [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        "reported_findings": [
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "ecgfounder_005",
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [
+          "call_classification_tool",
+          "call_measurement_tool"
+        ],
+        "observed_tools": [
+          "call_measurement_tool",
+          "call_classification_tool"
+        ],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "357f9bbbf6154d418c7233dabc9824eb",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "357f9bbbf6154d418c7233dabc9824eb",
+            "finding": "rr_interval_ms"
+          },
+          {
+            "evidence_id": "357f9bbbf6154d418c7233dabc9824eb",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "357f9bbbf6154d418c7233dabc9824eb",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "357f9bbbf6154d418c7233dabc9824eb",
+            "finding": "qtc_bazett_ms"
+          },
+          {
+            "evidence_id": "685a1b47a6b34ff2b9fdd408c04f7673",
+            "finding": "ecgfounder_005"
+          },
+          {
+            "evidence_id": "685a1b47a6b34ff2b9fdd408c04f7673",
+            "finding": "ecgfounder_002"
+          },
+          {
+            "evidence_id": "685a1b47a6b34ff2b9fdd408c04f7673",
+            "finding": "ecgfounder_003"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        },
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0,
+      "provider_attempts": []
+    },
+    {
+      "case_id": "ptbxl-00144",
+      "turn_id": "ptbxl-00144/user:2",
+      "status": "success",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 0.0014979160041548312,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "685a1b47a6b34ff2b9fdd408c04f7673",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "685a1b47a6b34ff2b9fdd408c04f7673",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "685a1b47a6b34ff2b9fdd408c04f7673",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 3,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 3,
+        "support_rate": 1.0,
+        "requested_available": 3,
+        "requested_supported": 3,
+        "coverage": 1.0
+      },
+      "task_checks": {
+        "complete": true,
+        "requested_findings": [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        "reported_findings": [
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "ecgfounder_005",
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [],
+        "observed_tools": [],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "357f9bbbf6154d418c7233dabc9824eb",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "357f9bbbf6154d418c7233dabc9824eb",
+            "finding": "rr_interval_ms"
+          },
+          {
+            "evidence_id": "357f9bbbf6154d418c7233dabc9824eb",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "357f9bbbf6154d418c7233dabc9824eb",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "357f9bbbf6154d418c7233dabc9824eb",
+            "finding": "qtc_bazett_ms"
+          },
+          {
+            "evidence_id": "685a1b47a6b34ff2b9fdd408c04f7673",
+            "finding": "ecgfounder_005"
+          },
+          {
+            "evidence_id": "685a1b47a6b34ff2b9fdd408c04f7673",
+            "finding": "ecgfounder_002"
+          },
+          {
+            "evidence_id": "685a1b47a6b34ff2b9fdd408c04f7673",
+            "finding": "ecgfounder_003"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0,
+      "provider_attempts": []
+    },
+    {
+      "case_id": "ptbxl-00144",
+      "turn_id": "ptbxl-00144/user:3",
+      "status": "success",
+      "tool_calls": 1,
+      "model_responses": 2,
+      "elapsed": 0.04216524999355897,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [
+          {
+            "evidence_id": "258b345af56b4a689f5f594a0184213a",
+            "finding": "ecgfounder_005",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "258b345af56b4a689f5f594a0184213a",
+            "finding": "ecgfounder_002",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          },
+          {
+            "evidence_id": "258b345af56b4a689f5f594a0184213a",
+            "finding": "ecgfounder_003",
+            "status": "supported",
+            "reason": "matches_tool_value"
+          }
+        ],
+        "supported": 3,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 3,
+        "support_rate": 1.0,
+        "requested_available": 3,
+        "requested_supported": 3,
+        "coverage": 1.0
+      },
+      "task_checks": {
+        "complete": true,
+        "requested_findings": [
+          "ecgfounder_005",
+          "ecgfounder_002",
+          "ecgfounder_003"
+        ],
+        "reported_findings": [
+          "ecgfounder_002",
+          "ecgfounder_003",
+          "ecgfounder_005"
+        ],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [
+          "call_classification_tool"
+        ],
+        "observed_tools": [
+          "call_classification_tool"
+        ],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "258b345af56b4a689f5f594a0184213a",
+            "finding": "ecgfounder_005"
+          },
+          {
+            "evidence_id": "258b345af56b4a689f5f594a0184213a",
+            "finding": "ecgfounder_002"
+          },
+          {
+            "evidence_id": "258b345af56b4a689f5f594a0184213a",
+            "finding": "ecgfounder_003"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        },
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0,
+      "provider_attempts": []
+    },
+    {
+      "case_id": "ptbxl-00144",
+      "turn_id": "ptbxl-00144/user:4",
+      "status": "success",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 0.0008988750050775707,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [],
+        "supported": 0,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 0,
+        "support_rate": null,
+        "requested_available": 0,
+        "requested_supported": 0,
+        "coverage": null
+      },
+      "task_checks": {
+        "complete": true,
+        "requested_findings": [
+          "heart_rate_bpm",
+          "rr_interval_ms",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms"
+        ],
+        "reported_findings": [
+          "heart_rate_bpm",
+          "pr_interval_ms",
+          "q_s_peak_span_ms",
+          "qtc_bazett_ms",
+          "rr_interval_ms"
+        ],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [],
+        "observed_tools": [],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [
+          {
+            "evidence_id": "357f9bbbf6154d418c7233dabc9824eb",
+            "finding": "heart_rate_bpm"
+          },
+          {
+            "evidence_id": "357f9bbbf6154d418c7233dabc9824eb",
+            "finding": "rr_interval_ms"
+          },
+          {
+            "evidence_id": "357f9bbbf6154d418c7233dabc9824eb",
+            "finding": "pr_interval_ms"
+          },
+          {
+            "evidence_id": "357f9bbbf6154d418c7233dabc9824eb",
+            "finding": "q_s_peak_span_ms"
+          },
+          {
+            "evidence_id": "357f9bbbf6154d418c7233dabc9824eb",
+            "finding": "qtc_bazett_ms"
+          }
+        ],
+        "explanations": [],
+        "unavailable": []
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0,
+      "provider_attempts": []
+    },
+    {
+      "case_id": "ptbxl-00144",
+      "turn_id": "ptbxl-00144/user:5",
+      "status": "success",
+      "tool_calls": 0,
+      "model_responses": 1,
+      "elapsed": 0.0006524590426124632,
+      "error_kind": null,
+      "claim_checks": {
+        "scope": "explicit_numeric_claims_only",
+        "claims": [],
+        "supported": 0,
+        "contradicted": 0,
+        "unverifiable": 0,
+        "checkable": 0,
+        "support_rate": null,
+        "requested_available": 0,
+        "requested_supported": 0,
+        "coverage": null
+      },
+      "task_checks": {
+        "complete": true,
+        "requested_findings": [],
+        "reported_findings": [],
+        "missing_findings": [],
+        "stale_findings": [],
+        "missing_explanations": [],
+        "expected_tools": [],
+        "observed_tools": [],
+        "tool_schedule_met": true
+      },
+      "report": {
+        "findings": [],
+        "explanations": [
+          "measurement_limits",
+          "classifier_limits"
+        ],
+        "unavailable": [
+          "diagnosis"
+        ]
+      },
+      "model_responses_trace": [
+        {
+          "model": "mock-boundary-v1",
+          "usage": {}
+        }
+      ],
+      "answer_rejections": 0,
+      "provider_attempts": []
+    }
+  ],
+  "limitations": [
+    "Reference annotations were not passed to Session, model history, or classifier inputs.",
+    "Rendered numeric consistency is enforced by the report contract; it is not clinical validation."
+  ],
+  "recorded_at": "2026-10-22T17:40:31.636594+00:00",
+  "command": "python -m benchmark dialogue --checkpoint checkpoints/ecgfounder/12_lead_ECGFounder.pth --output /tmp/mock-current-new.json"
+}
