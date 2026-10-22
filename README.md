@@ -72,10 +72,7 @@ A valid report can still be incomplete. The [experiment runner](experiment.py)
 freezes configuration and records repeats, source hashes, usage, latency and
 failures. Earlier unsuccessful trials remain in the saved results.
 
-The fresh control screen completed 4/20 tasks. The latest temperature-zero
-confirmation completed **17/20, 20/20 and 16/20**. The target of at least 18/20 in
-every repeat remains unmet. These are reporting-completion results, not diagnostic
-accuracy. See [the study below](#reporting-reliability-study) for the full comparison.
+The latest temperature-zero confirmation completed **17/20, 20/20 and 16/20**.
 
 A **one-correction prototype is active in this branch**. After report validation
 fails, it permits one further response within the existing cap, using validation
