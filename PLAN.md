@@ -36,7 +36,7 @@ History: `ac4aad8`, `37a7557`, `344fc8b`, `8d4e838`, `973537b`.
    independent scores and provenance remain in JSON/logs. Rendered labels come
    from the trusted manifest; no diagnostic thresholds are imposed. Optional
    `TurnResult.report` records released references for coverage scoring.
-3. **Benchmark/documentation (this revision):** froze twenty distinct fold-9
+3. **Benchmark/documentation (`895f4fa`):** froze twenty distinct fold-9
    patients, excluding HR00705 and its patient. Ran both scientific tools on all
    twenty and five dialogue turns on four representatives. Dialogue used a
    scripted provider and real tools. Dataset references stayed outside model
@@ -69,8 +69,11 @@ final source definitions. Automated provider tests are explicitly mocked.
   history, exact classifier abbreviations, and explanation meanings in the schema.
   The screen completed 18/20 tasks without accepted SR/NSR substitutions. Confirmation
   completed 18/20, 15/20 and 15/20; the gate failed. All 45 requested nulls had
-  displayed explanations and no accepted SR/NSR substitutions occurred. A
-  role-description screen changes only the model responsibility wording.
+  displayed explanations and no accepted SR/NSR substitutions occurred. The role
+  screen matched 18/20 and was removed. Temperature-zero confirmation completed
+  17/20, 20/20 and 16/20; the gate remains unmet. A single bounded correction is
+  implemented and unit-tested, with separate first-pass and recovered counts.
+  Its live screen is pending; research execution is paused.
 - **Blocked:** exact ECG-Agent 71-label reproduction without its checkpoint,
   verified ordering/input dimensions, preprocessing, and fairseq revision.
 - **Deferred:** diagnostic thresholds/calibration, clinical validation, local
@@ -92,11 +95,14 @@ Each screen changes one factor relative to its stated parent. Native submission
 completed 8/20 tasks; structured history completed 7/20 but reduced rejected
 formats. Exact aliases with that history reached 16/20. Exposing the existing
 explanation meanings reached 18/20. The README and sanitized comparison preserve
-all screens, including failures and removed interventions. No report correction,
-required-tool option or compact observation view remains in the runtime.
+all screens, including failures and removed interventions. The required-tool, compact-view and role trials were removed. The earlier
+correction trial was removed before the history/label fixes; one bounded
+correction is implemented as a unit-tested prototype. Its live screen on the
+current reporter is pending; research execution is paused.
 
 The development gate requires at least 18/20 full tasks in each of three repeats,
 no accepted SR/NSR substitutions, explained requested nulls, and passing negative
-evidence tests. The first confirmation failed at 18/20, 15/20 and 15/20. A role-description screen is next. The user selected the existing free
-model only; paid comparisons will not run. These checks do not establish clinical
+evidence tests. The first confirmation failed at 18/20, 15/20 and 15/20; temperature-zero
+confirmation failed at 17/20, 20/20 and 16/20. The user selected the existing
+free model only; paid comparisons will not run. These checks do not establish clinical
 accuracy or performance on unseen dialogue.

@@ -29,7 +29,9 @@ validation in this release.
 | [`52a20f0`](https://github.com/jiwoonoh/eko/commit/52a20f0) | Stored validated report JSON in follow-up history. |
 | [`6a30d52`](https://github.com/jiwoonoh/eko/commit/6a30d52) | Tested exact label aliases with structured history. |
 | [`108c914`](https://github.com/jiwoonoh/eko/commit/108c914) | Exposed fixed explanation meanings in the report schema. |
-| [`f5b7581`](https://github.com/jiwoonoh/eko/commit/f5b7581) | Froze the 18/20 candidate for three-repeat confirmation. |
+| [`f5b7581`](https://github.com/jiwoonoh/eko/commit/f5b7581) | Froze the explanation-schema candidate; confirmation later failed at 18/20, 15/20 and 15/20. |
+| [`4bd1044`](https://github.com/jiwoonoh/eko/commit/4bd1044) | Froze temperature-zero reporting; confirmation later failed at 17/20, 20/20 and 16/20. |
+| This revision | Preserves both confirmations and the unit-tested correction prototype; its live screen is pending. |
 
 Removed: generated Python execution, child agents, model/inbox/world sockets,
 Linux sandbox machinery, terminal rendering, Claude and Hugging Face dialogue
@@ -43,6 +45,47 @@ interruption, bounded execution, and OpenRouter connectivity. Added: record
 validation, scientific tools, evidence IDs, append-only event logs, bounded
 reporting, and evaluation adapters. [PLAN.md](PLAN.md) records completed and
 remaining work.
+
+## Changes since the live-reporting baseline
+
+At [`39ea351`](https://github.com/jiwoonoh/eko/commit/39ea351), Eko already had
+live measurements, ECGFounder classification, a persistent worker and strict
+evidence-based rendering. The reporting study changed how the model selects and
+submits reports, and how completion is measured.
+
+| Area | Before this study | Current implementation |
+|---|---|---|
+| Final report | JSON returned as assistant text | Native `submit_report` action, handled by the controller through the existing validator. Strict JSON text remains accepted through the same path. |
+| Assistant history | Rendered answers | Validated report JSON; users still see rendered answers. |
+| Class abbreviations | Full label catalog and general guidance | Explicit AFIB/NORM/SR/NSR definitions resolved through the pinned label catalog. |
+| Explanation selection | Code names | Existing explanation meanings included in the report schema. |
+| Sampling | Endpoint default | Explicit temperature zero; deterministic inference is not guaranteed. |
+
+The implementation is in [the runner](eko.py), [reporting](reporting.py) and
+[the OpenRouter adapter](providers/openrouter.py). Measurement formulas,
+classifier weights, preprocessing and worker behavior were unchanged during this
+study. No third-party dependencies were added.
+
+Evaluation now checks full requests: every requested finding, explained nulls,
+latest relevant evidence, the required tool schedule and requested explanations.
+A valid report can still be incomplete. The [experiment runner](experiment.py)
+freezes configuration and records repeats, source hashes, usage, latency and
+failures. Earlier unsuccessful trials remain in the saved results.
+
+The fresh control screen completed 4/20 tasks. The latest temperature-zero
+confirmation completed **17/20, 20/20 and 16/20**. The target of at least 18/20 in
+every repeat remains unmet. These are reporting-completion results, not diagnostic
+accuracy. See [the study below](#reporting-reliability-study) for the full comparison.
+
+A **one-correction prototype is active in this branch**. After report validation
+fails, it permits one further response within the existing cap, using validation
+feedback and acquired evidence. It cannot execute scientific tools during
+correction. First-pass and recovered completion are recorded separately. Its
+[unit checks](tests/test_report_correction.py) pass; its live screen on the current
+reporter is pending. The research study is paused.
+
+Automated tests increased from 182 to 199. The function reference below covers
+all 156 explicitly defined production functions and methods.
 
 ## Install and run
 
@@ -122,8 +165,8 @@ turn, thirty seconds per tool, sixty seconds per model request, and one transien
 provider retry. A timeout kills the worker; a later call can start another worker.
 Ctrl+C interrupts a turn and Ctrl+D exits the interactive CLI. Checkpoint readiness
 runs before classification is advertised; failure leaves measurements available.
-Requests use temperature zero for report selection. This reduces sampling
-variation but does not guarantee deterministic inference. The current free
+Requests use temperature zero to limit sampling randomness during report
+selection. This does not guarantee deterministic inference. The current free
 endpoint accepted this parameter. The OpenRouter client omits
 `parallel_tool_calls`, whose presence caused the
 observed parameter-routing 404 on free endpoints. Endpoint availability still
@@ -138,9 +181,11 @@ bounds are not clinical normal ranges.
 The correction requires a JSON report containing evidence references and fixed
 explanation codes. The renderer supplies values, units, and trusted classifier
 label names. Unknown references, wrong-record evidence, malformed reports, and
-free-form conclusions are rejected. A rejected report returns `failed` with a safe
-summary and an `answer_rejected` event. Raw model text remains in the local audit
-log and is excluded from displayed answers and follow-up history.
+free-form conclusions are rejected and logged as `answer_rejected`. The correction prototype permits one further model response, within the existing cap,
+using validation feedback and the acquired evidence. Correction cannot execute
+scientific tools. A second invalid report or failed correction returns a failed
+safe summary. Raw rejected text stays in the local audit log, outside displayed
+answers and follow-up history. First-pass and corrected completion are separate.
 `TurnResult.report` contains the validated references released in the answer.
 Assistant history stores this report as JSON; the user sees its rendered answer.
 The [history check](tests/test_submission.py#L20) verifies that accepted reports
@@ -232,7 +277,7 @@ sanitized results. Weights, waveforms, and raw conversations are excluded.
 | HR00705 CPU inference | All 150 finite scores; repeat scores identical; measurements and classifier reused one worker. Readiness 3.37 s, inference 0.046/0.042 s, child peak RSS 999 MiB on macOS arm64. | [CPU run](evidence/classifier-smoke.json) |
 | Direct scientific tools | All 20 classifier calls succeeded; measurements returned 17 success and 3 partial results, retaining unavailable metrics. | [Direct run](evidence/benchmark-direct.json) |
 | Four-record dialogue | Five turns per record; 20 completed turns, 12 tool executions, 81/81 available requested findings reported, zero rejected reports or execution failures. Model responses were scripted; tools were real. | [Dialogue run](evidence/benchmark-dialogue.json) |
-| Automated checks | 193 tests pass with the scientific environment. Core-only execution passes with 31 optional-dependency skips. | [Verification record](evidence/verification.json), [tests](tests/) |
+| Automated checks | 199 tests pass with the scientific environment. Core-only execution passes with 31 optional-dependency skips. | [Verification record](evidence/verification.json), [tests](tests/) |
 | Live OpenRouter with `cohere/north-mini-code:free` | 9/20 accepted reports; 12 completed tool calls; 11 rejected reports; 49/56 available requested fields reported among accepted turns. Provider-reported inference cost was $0. | [Live run](evidence/benchmark-live-cohere.json), [report audit](evidence/live-report-audit.json) |
 | Initial live attempt with `google/gemma-4-31b-it:free` | All 20 turns failed with provider HTTP 429 before any model response or tool execution. Model behavior was not assessed. | [Provider failure](evidence/benchmark-live-gemma.json) |
 
@@ -340,42 +385,33 @@ predefined acquisition/reuse schedule. Renderer acceptance is separate.
 | Exact aliases with structured history | 16/20 | 18/20 | 414,226 | Limits question incomplete |
 | Explanation meanings in schema | 18/20 | 18/20 | 419,447 | Confirmation failed: 18, 15, 15 |
 | Tool/report selector role | 18/20 | 18/20 | 425,119 | Removed; no screen improvement |
-| Temperature zero | 18/20 | 20/20 | 417,863 | Freeze for confirmation |
+| Temperature zero | 18/20 | 20/20 | 417,863 | Confirmation failed: 17, 20, 16 |
 
 Each screen has one repeat; these are exploratory comparisons, not significance
 claims. Input counts include all provider attempts with reported usage. The
 control's earlier console count excluded a failed request; the table uses uniform
 attempt accounting. Provider-reported inference cost was zero for these screens.
 
-The controller-handled `submit_report` action offers current evidence IDs,
-finding keys and fixed explanation codes, then uses the existing validator and
-renderer. It executes no scientific tool. Strict JSON decisions use the same
-validation path. Required-tool, compact-view and correction behavior was removed;
-source revisions and results remain in the study record.
+The report action executes no scientific tool. The validator and renderer retain
+the existing evidence boundary. Required-tool, compact-view and selector-role
+trials were removed. The original correction trial was removed before the history
+and label fixes; the current correction prototype has unit coverage only.
 
-Structured report history reduced format failures but did not improve full task
-completion. With exact abbreviation guidance resolved through the pinned label catalog,
-completion reached 16/20 with no accepted SR/NSR substitutions. All four remaining
-failures occurred on the limits question. Exposing existing explanation meanings in the report schema then completed
-18/20 tasks with no accepted SR/NSR substitutions. This candidate is frozen for
-three-repeat confirmation; the validator and expected results are unchanged.
-Guidance supplies label definitions and fixed explanations. Record-specific
-values still come from tool evidence; dataset reference annotations remain
-outside model history. The earlier alias-only
-intervention was removed; this screen changes reporting instructions alone with
-structured history held fixed.
+| Confirmation | Full tasks in repeats 1, 2, 3 | Gate |
+|---|---|---|
+| Explanation meanings, endpoint sampling default | 18/20, 15/20, 15/20 | Failed |
+| Explanation meanings, temperature zero | 17/20, 20/20, 16/20 | Failed |
 
-Three confirmation repeats completed 18/20, 15/20 and 15/20 tasks. This fails the
-at-least-eighteen-in-each-repeat gate. No accepted SR/NSR substitutions occurred;
-all 45 requested nulls had displayed reasons. The [confirmation audit](evidence/ablations/confirmation-audit.json)
-re-rendered all 60 reports from local observations. Raw events stay outside Git.
-The selector-role screen matched the previous 18/20 screen and was removed.
-Temperature zero, with the original role wording, accepted 20/20 reports and
-completed 18/20 tasks. Two reports omitted the classifier-limits explanation.
-This version is frozen for three-repeat confirmation; tools and validation remain
-unchanged.
-High live-task accuracy has not been established. The user selected the current free
-model only; paid model comparisons will not run.
+Each confirmation had no accepted SR/NSR substitutions, and all 45 requested null
+measurements had displayed reasons. The [first audit](evidence/ablations/confirmation-audit.json)
+and [temperature-zero audit](evidence/ablations/zero-confirmation-audit.json)
+re-rendered all 60 released reports in each confirmation from actual local
+observations. Raw events remain outside Git.
+
+The latest live evidence predates the current correction prototype. Its live
+screen and any subsequent confirmation are pending. Research execution is paused;
+only `cohere/north-mini-code:free` was used in this study. High live-task accuracy
+has not been established.
 
 Run the frozen experiment from the repository root:
 
@@ -392,13 +428,14 @@ unscored when no explicit expectations were supplied.
 
 ## Remaining work
 
-The scientific backend executes real records, and the reporting candidate reached
-18/20 full tasks in its screen, followed by confirmation results of 18/20,
-15/20 and 15/20 on the current free model. The role screen was removed. Temperature zero accepted 20/20 reports and
-completed 18/20 tasks; its three-repeat confirmation is pending. The gate also requires no accepted SR/NSR substitutions,
-explained requested nulls, and passing negative evidence tests. All unsuccessful
-screens remain in the evidence directory. These are development results from
-four records and fixed questions, with no held-out dialogue check.
+The correction prototype needs its first live screen on the current reporter.
+Any selected implementation must then meet the existing gate in three fixed
+repeats: at least 18/20 full tasks in each repeat, no accepted SR/NSR substitutions,
+explained requested nulls and passing negative evidence tests. The gate and
+expected results have not been relaxed. Research execution is paused.
+
+The saved live results cover four development records and fixed questions. All
+unsuccessful screens remain available. There is no held-out dialogue check.
 
 Independent waveform annotations are needed to evaluate measurement validity.
 Threshold calibration and an independent evaluation design must precede
@@ -412,7 +449,7 @@ Training, treatment guidance, and unrestricted medical prose remain deferred.
 
 ## Function reference
 
-This inventory covers **155 explicitly defined production functions and methods**, including private and nested named helpers. It excludes tests, developer scripts, lambdas, generated dataclass methods, and external-library APIs. `ecgfounder_labels.py` contains verified label bytes and defines no functions.
+This inventory covers **156 explicitly defined production functions and methods**, including private and nested named helpers. It excludes tests, developer scripts, lambdas, generated dataclass methods, and external-library APIs. `ecgfounder_labels.py` contains verified label bytes and defines no functions.
 
 **Evidence:** “Direct test” targets the callable; “Indirect test” exercises it through a caller. Neither means complete branch coverage. “Actual” links a saved local CPU/public-record run. “Source only” claims no dedicated execution check. Mocked OpenRouter tests do not establish live-provider behavior or clinical accuracy. Source/test links are relative to the repository root.
 
@@ -440,9 +477,10 @@ This inventory covers **155 explicitly defined production functions and methods*
 | [`_arguments`](eko.py#L139) | Validate a model tool call against registered arguments. | Session and call -> copied argument object. Rejects unknown tool, wrong record, paths, extra/missing fields, type/enum errors. | [Indirect test](tests/test_runtime.py#L235) |
 | [`_observation`](eko.py#L169) | Authenticate raw output and assign controller evidence identity. | Call and raw result -> ToolObservation. Rejects wrong record/hash, invalid classifier metadata, nonnumeric findings, unexplained nulls, or malformed timing. | [Indirect test](tests/test_classification_runtime.py#L101) |
 | [`_assistant`](eko.py#L223) | Encode native tool calls for provider history. | Decision -> assistant message with JSON arguments. Nonfinite or nonserializable arguments fail serialization. | [Indirect test](tests/test_runtime.py#L124) |
-| [`run_turn`](eko.py#L233) | Run repeated model/tool steps and release a validated report. | Session and question -> TurnResult. Reports provider/tool/runner failure, timeout, interrupt, and caps; blocks unsupported final prose. | [Direct test](tests/test_classification_runtime.py#L59) |
-| [`run_turn.finish`](eko.py#L243) | Build and log the turn's final result. | Status, answer, error -> TurnResult with released references. Includes failed attempts separately from reusable evidence. | [Indirect test](tests/test_classification_runtime.py#L59) |
-| [`run_turn.reject`](eko.py#L250) | Pair a rejected native call with an auditable failure. | Call and reason -> history, failure list, and log updates. Rejected results use source=runner and never become reusable evidence. | [Indirect test](tests/test_runtime.py#L147) |
+| [`run_turn`](eko.py#L233) | Execute bounded scientific calls and one validated report correction. | Session and question -> TurnResult. A single correction reuses evidence, blocks new scientific calls and preserves response caps. Rejected model text stays out of follow-up history. | [Direct test](tests/test_report_correction.py#L27) |
+| [`run_turn.finish`](eko.py#L245) | Build and log the turn's final result. | Status, answer, error -> TurnResult with released references. Includes failed attempts separately from reusable evidence. | [Indirect test](tests/test_classification_runtime.py#L59) |
+| [`run_turn.reject`](eko.py#L252) | Pair a rejected native call with an auditable failure. | Call and reason -> history, failure list, and log updates. Rejected results use source=runner and never become reusable evidence. | [Indirect test](tests/test_runtime.py#L147) |
+| [`run_turn.report_failure`](eko.py#L262) | Release a safe evidence summary after a final-report failure. | Error and status -> failed/timeout turn with auditable replacement references. Retains partial scientific results if the correction provider fails. | [Indirect test](tests/test_report_correction.py#L61) |
 
 ### `host.py`
 
@@ -523,9 +561,9 @@ This inventory covers **155 explicitly defined production functions and methods*
 | [`_error_kind`](evaluation.py#L488) | Classify a turn error as provider/tool/runner/judge. | Turn dictionary -> category or None. Rejects unknown explicit kind/nontext error; unknown prefix becomes runner. | [Indirect test](tests/test_evaluation.py#L320) |
 | [`_package_versions`](evaluation.py#L504) | Read installed measurement dependency versions. | Distribution metadata -> version mapping. Missing numpy/scipy/neurokit2 is represented as None. | [Indirect test](tests/test_evaluation.py#L232) |
 | [`run_manifest`](evaluation.py#L514) | Execute sorted fixed cases through the interactive run_turn loop. | Cases, session factory, optional claim extractor -> manifest/turns/summary. Rejects duplicate IDs, invalid history/questions, or wrong records; always closes created sessions. | [Direct test](tests/test_evaluation.py#L232) |
-| [`run_manifest.collect_models`](evaluation.py#L558) | Capture actual model/usage metadata while forwarding session events. | Event type and fields -> response trace/log updates. Only model_response events enter the trace. | [Indirect test](tests/test_evaluation.py#L232) |
-| [`summarize`](evaluation.py#L619) | Aggregate completion, failure kinds, elapsed time, reuse, and numeric support. | Evaluated-turn iterable -> summary. Rejects invalid IDs/counts/timing; excludes failed/provider/judge turns from claim scores; clinical accuracy stays null. | [Direct test](tests/test_evaluation.py#L329) |
-| [`main`](evaluation.py#L712) | Inspect replay CSV/transcripts or summarize evaluated-turn JSONL. | Subcommand/path -> printed JSON and exit code. Bad files/schema exit 2; makes no model requests. | [Direct test](tests/test_evaluation.py#L353) |
+| [`run_manifest.collect_models`](evaluation.py#L559) | Capture actual model/usage metadata while forwarding session events. | Event type and fields -> response trace/log updates. Only model_response events enter the trace. | [Indirect test](tests/test_evaluation.py#L232) |
+| [`summarize`](evaluation.py#L623) | Aggregate completion, failure kinds, elapsed time, reuse, and numeric support. | Evaluated-turn iterable -> summary. Rejects invalid IDs/counts/timing; excludes failed/provider/judge turns from claim scores; clinical accuracy stays null. | [Direct test](tests/test_evaluation.py#L329) |
+| [`main`](evaluation.py#L723) | Inspect replay CSV/transcripts or summarize evaluated-turn JSONL. | Subcommand/path -> printed JSON and exit code. Bad files/schema exit 2; makes no model requests. | [Direct test](tests/test_evaluation.py#L353) |
 
 ### `demo.py`
 
@@ -545,7 +583,7 @@ This inventory covers **155 explicitly defined production functions and methods*
 
 | Function | Purpose | Inputs, outputs, and failures | Evidence |
 |---|---|---|---|
-| [`report_schema`](reporting.py#L52) | Describe terminal report arguments and fixed explanation meanings. | Record, evidence and scientific tool names -> native controller-action schema. Only known evidence/finding keys are offered; explanation meanings reuse rendered templates. No scientific execution or numeric values accepted. The native-submission test covers binding; explanation guidance is checked by live screens. | [Direct test](tests/test_submission.py#L35) |
+| [`report_schema`](reporting.py#L52) | Describe terminal report arguments and fixed explanation meanings. | Record, evidence and scientific tool names -> native controller-action schema. Only known evidence/finding keys are offered; explanation meanings reuse rendered templates. No scientific execution or numeric values accepted. The native-submission test covers binding; explanation guidance is checked by live screens. | [Indirect test](tests/test_submission.py#L36) |
 | [`report_instructions`](reporting.py#L80) | Give the model an exact reference-only final-report contract. | Registered tool names -> prompt including enabled label catalog. Classifier instructions are omitted when its tool is absent. | [Direct test](tests/test_reporting.py#L331) |
 | [`_unique_object`](reporting.py#L127) | Reject duplicate keys while parsing report JSON. | JSON key/value pairs -> dictionary. Repeated keys raise ValueError rather than overwriting. | [Indirect test](tests/test_reporting.py#L115) |
 | [`_usable`](reporting.py#L136) | Check record/hash/status/source/tool eligibility for report evidence. | Observation, current record, allowed tools -> boolean. Replay, runner, failed, foreign, or unregistered evidence is ineligible. | [Indirect test](tests/test_reporting.py#L105) |
@@ -626,8 +664,8 @@ This inventory covers **155 explicitly defined production functions and methods*
 | [`load_config`](experiment.py#L19) | Validate explicit frozen experimental controls. | JSON config path -> checked configuration. Rejects unknown keys, nonpositive limits, noninteger caps and invalid repeat counts. | [Direct test](tests/test_experiment.py#L25) |
 | [`load_key`](experiment.py#L42) | Load only the API key from a local file as data. | Key-file path -> controller environment. Existing environment wins; never evaluates shell text; rejects absent or oversized key files. | [Direct test](tests/test_experiment.py#L36) |
 | [`summarize`](experiment.py#L66) | Aggregate task completion and resource use across repeats. | Executed reports -> counts, per-repeat tasks, prompt tokens, reported cost and latency. API stochasticity and missing failed-request usage remain limitations. | [Direct test](tests/test_experiment.py#L46) |
-| [`run`](experiment.py#L81) | Execute repeated frozen dialogues and preserve every result. | Configuration, label and output directory -> unique run directory. Records source/config hashes; tools and reference annotations remain separated. | [Direct test](tests/test_experiment.py#L46) |
-| [`main`](experiment.py#L117) | Run a named experiment with explicit configuration and local credentials. | CLI arguments -> process status. Supports recorded repeat override; errors redact the loaded key. | Source only |
+| [`run`](experiment.py#L83) | Execute repeated frozen dialogues and preserve every result. | Configuration, label and output directory -> unique run directory. Records source/config hashes; tools and reference annotations remain separated. | [Direct test](tests/test_experiment.py#L46) |
+| [`main`](experiment.py#L119) | Run a named experiment with explicit configuration and local credentials. | CLI arguments -> process status. Supports recorded repeat override; errors redact the loaded key. | Source only |
 
 ### `providers/openrouter.py`
 
@@ -637,7 +675,7 @@ This inventory covers **155 explicitly defined production functions and methods*
 | [`OpenRouter.__init__`](providers/openrouter.py#L28) | Configure the stdlib native-tool adapter and cancellation state. | Explicit model/key, token cap, timeout -> adapter. Requires nonempty model/key and positive token/timeout settings. | [Direct test](tests/test_openrouter.py#L224) |
 | [`OpenRouter.set_deadline`](providers/openrouter.py#L47) | Assign or clear the next request's monotonic deadline. | Deadline or None -> adapter state. The runner resets this per model request. | [Direct test](tests/test_openrouter.py#L202) |
 | [`OpenRouter._safe`](providers/openrouter.py#L50) | Redact the configured API key from error text. | Error/object -> sanitized string. Only exact configured-key occurrences are replaced. | [Indirect test](tests/test_openrouter.py#L167) |
-| [`OpenRouter.complete`](providers/openrouter.py#L53) | Send native schemas/messages and parse a bounded-retry decision. | Messages and tools -> Decision with actual model/usage. One retry for transient/empty responses within one watchdog deadline; records attempts and redacts errors. | [Direct test](tests/test_openrouter.py#L121) |
+| [`OpenRouter.complete`](providers/openrouter.py#L53) | Request native decisions at zero temperature with one bounded retry. | Messages and tool schemas -> Decision. Stateless history, strict parameter routing and fixed temperature zero; retries only transient/empty responses within one deadline. Zero does not guarantee deterministic inference. | [Direct test](tests/test_openrouter.py#L61) |
 | [`OpenRouter._request`](providers/openrouter.py#L111) | Make one HTTPS chat-completions request and read its JSON. | Encoded body and deadline -> response dictionary. 408/429/5xx retryable; authentication/API/JSON errors fail; always closes connection. | [Indirect test](tests/test_openrouter.py#L161) |
 | [`OpenRouter._set_socket_timeout`](providers/openrouter.py#L157) | Apply remaining request time to the active socket. | Connection and monotonic deadline -> updated timeout. Raises when the request deadline has elapsed. | [Indirect test](tests/test_openrouter.py#L61) |
 | [`OpenRouter._decision`](providers/openrouter.py#L164) | Validate a provider response and preserve native tool-call identities. | Response dictionary -> Decision. Rejects truncation, invalid roles/content/calls/IDs/argument JSON/usage; empty choices can retry. | [Indirect test](tests/test_openrouter.py#L185) |

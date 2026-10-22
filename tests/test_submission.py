@@ -18,8 +18,9 @@ def submit(messages):
 
 class SubmissionTests(unittest.TestCase):
     def test_followup_history_uses_validated_report_json_while_display_remains_rendered(self):
-        for final in (report("heart_rate"), Decision("Unvalidated prose")):
-            model = FakeModel([Decision(tool_calls=(call(),)), final, report("pr_interval")])
+        for final, retries in ((report("heart_rate"), ()),
+                               (Decision("Unvalidated prose"), (Decision("Still unvalidated prose"),))):
+            model = FakeModel([Decision(tool_calls=(call(),)), final, *retries, report("pr_interval")])
             session = Session(model, FakeWorker([measurement()]), RECORD)
             first = run_turn(session, "Measure heart rate.")
             history_report = json.loads(session.history[-1]["content"])

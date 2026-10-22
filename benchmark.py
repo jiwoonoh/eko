@@ -483,7 +483,7 @@ def run_dialogue(manifest: dict, paths: dict[int, Path], checkpoint: str, *, mod
             **report["metadata"].get("source_sha256", {}), "benchmark.py": file_sha256(__file__)}},
         "summary": report["summary"],
         "cases": report["manifest"],
-        "turns": [{key: row[key] for key in ("case_id", "turn_id", "status", "tool_calls", "model_responses", "elapsed", "error_kind", "claim_checks", "task_checks", "report", "model_responses_trace", "answer_rejections", "provider_attempts")}
+        "turns": [{key: row[key] for key in ("case_id", "turn_id", "status", "tool_calls", "model_responses", "elapsed", "error_kind", "claim_checks", "task_checks", "report", "model_responses_trace", "answer_rejections", "report_corrections", "provider_attempts")}
                   for row in report["turns"]],
         "limitations": ["Reference annotations were not passed to Session, model history, or classifier inputs.",
                          "Rendered numeric consistency is enforced by the report contract; it is not clinical validation."]}
