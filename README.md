@@ -312,7 +312,7 @@ real waveforms. Mocked-provider tests cannot establish live model behavior.
 
 The [ablation protocol](experiments/README.md) freezes the cases, questions,
 scientific tools, model and execution limits. The [saved comparison](evidence/ablations/summary.json)
-records all six screens, including rejected interventions. Task completion checks
+records every completed screen, including rejected interventions. Task completion checks
 requested findings and explanations, explicit nulls, evidence freshness, and the
 predefined acquisition/reuse schedule. Renderer acceptance is separate.
 
@@ -324,27 +324,29 @@ predefined acquisition/reuse schedule. Renderer acceptance is separate.
 | Required tool decisions | 2/20 | 8/20 | 433,883 | Removed |
 | Compact observation view | 5/20 | 10/20 | 342,513 | Removed |
 | One bounded report correction | 8/20 | 11/20 | 648,639 | Removed |
+| Structured report history | 7/20 | 17/20 | 429,560 | Provisional format improvement |
 
 Each screen has one repeat; these are exploratory comparisons, not significance
 claims. Input counts include all provider attempts with reported usage. The
 control's earlier console count excluded a failed request; the table uses uniform
 attempt accounting. Provider-reported inference cost was zero for these screens.
 
-The remaining runtime addition is a controller-handled `submit_report` action.
-It offers current evidence IDs, finding keys and fixed explanation codes, then
-uses the existing validator and renderer. It executes no scientific tool.
-Existing strict JSON decisions use the same validation path. Failed alias,
-required-tool, compact-view and correction behavior is absent from the current
-runtime; its source revisions and results remain in the study record.
+The controller-handled `submit_report` action offers current evidence IDs,
+finding keys and fixed explanation codes, then uses the existing validator and
+renderer. It executes no scientific tool. Strict JSON decisions use the same
+validation path. Required-tool, compact-view and correction behavior was removed;
+source revisions and results remain in the study record.
 
-The free endpoint did not reliably honor required tool decisions. The best
-screened candidate still substitutes the sinus-rhythm label on three accepted
-reports and does not meet the proposed eighteen-of-twenty development gate.
-High live-task accuracy has not been established. The next screen stores validated
-report JSON in conversation history while keeping rendered prose in the displayed
-answer. Saved traces showed repeated rendered-style replies on follow-ups. This
-changes history representation alone; no retry or schema relaxation is added. A separate model comparison
-and three-repeat confirmation remain outstanding.
+Structured report history reduced format failures but did not improve full task
+completion. It remains provisional while a follow-up tests exact abbreviation
+guidance resolved through the pinned label catalog. No values, reference labels,
+or requested answers are supplied by this guidance. The earlier alias-only
+intervention was removed; this screen changes reporting instructions alone with
+structured history held fixed.
+
+High live-task accuracy has not been established. The eighteen-of-twenty gate and
+three-repeat confirmation remain outstanding. The user selected the current free
+model only; paid model comparisons will not run.
 
 Run the frozen experiment from the repository root:
 
@@ -515,15 +517,15 @@ This inventory covers **155 explicitly defined production functions and methods*
 |---|---|---|---|
 | [`report_schema`](reporting.py#L52) | Describe terminal report arguments from current usable evidence. | Record, evidence and scientific tool names -> native controller-action schema. Only known evidence/finding keys are offered; no scientific execution or numeric values accepted. | [Direct test](tests/test_submission.py#L35) |
 | [`report_instructions`](reporting.py#L77) | Give the model an exact reference-only final-report contract. | Registered tool names -> prompt including enabled label catalog. Classifier instructions are omitted when its tool is absent. | [Direct test](tests/test_reporting.py#L331) |
-| [`_unique_object`](reporting.py#L118) | Reject duplicate keys while parsing report JSON. | JSON key/value pairs -> dictionary. Repeated keys raise ValueError rather than overwriting. | [Indirect test](tests/test_reporting.py#L115) |
-| [`_usable`](reporting.py#L127) | Check record/hash/status/source/tool eligibility for report evidence. | Observation, current record, allowed tools -> boolean. Replay, runner, failed, foreign, or unregistered evidence is ineligible. | [Indirect test](tests/test_reporting.py#L105) |
-| [`_codes`](reporting.py#L135) | Validate fixed explanation/unavailability code lists. | Value and allowed set -> same list. Rejects unknown codes, wrong containers, and duplicates. | [Indirect test](tests/test_reporting.py#L137) |
-| [`parse_report`](reporting.py#L143) | Parse only the three permitted final-report fields. | JSON text -> normalized reference/code dictionary. Rejects prose, extra keys, duplicate references, invalid types, or empty reports. | [Direct test](tests/test_reporting.py#L202) |
-| [`_latest_classifier`](reporting.py#L173) | Find the latest eligible complete pinned classifier result. | Record, evidence, tools -> observation or None. Malformed/incomplete classifier results are skipped. | [Indirect test](tests/test_reporting.py#L367) |
-| [`_explanation`](reporting.py#L185) | Select fixed capability/measurement-limit text for enabled tools. | Explanation code and classifier flag -> text. Only validated codes reach it; no generated medical prose. | [Indirect test](tests/test_reporting.py#L315) |
-| [`render_report`](reporting.py#L196) | Resolve references into trusted numbers, units, missingness, and labels. | Report JSON, record, evidence, allowed tools -> answer text. Rejects unusable/ambiguous evidence or score/provenance mismatch; appends fixed limits. | [Direct test](tests/test_reporting.py#L248) |
-| [`fallback_report`](reporting.py#L268) | Choose latest measurements and top five valid classifier scores. | Record/evidence/tools -> exact replacement report references. Ignores unusable evidence; stable ties; reports classifier unavailable when absent. | [Direct test](tests/test_reporting.py#L345) |
-| [`safe_report`](reporting.py#L287) | Render the deterministic replacement for an invalid final answer. | Record/evidence/tools -> safe answer text. Shares render_report validation; does not rehabilitate generated prose. | [Direct test](tests/test_reporting.py#L163) |
+| [`_unique_object`](reporting.py#L124) | Reject duplicate keys while parsing report JSON. | JSON key/value pairs -> dictionary. Repeated keys raise ValueError rather than overwriting. | [Indirect test](tests/test_reporting.py#L115) |
+| [`_usable`](reporting.py#L133) | Check record/hash/status/source/tool eligibility for report evidence. | Observation, current record, allowed tools -> boolean. Replay, runner, failed, foreign, or unregistered evidence is ineligible. | [Indirect test](tests/test_reporting.py#L105) |
+| [`_codes`](reporting.py#L141) | Validate fixed explanation/unavailability code lists. | Value and allowed set -> same list. Rejects unknown codes, wrong containers, and duplicates. | [Indirect test](tests/test_reporting.py#L137) |
+| [`parse_report`](reporting.py#L149) | Parse only the three permitted final-report fields. | JSON text -> normalized reference/code dictionary. Rejects prose, extra keys, duplicate references, invalid types, or empty reports. | [Direct test](tests/test_reporting.py#L202) |
+| [`_latest_classifier`](reporting.py#L179) | Find the latest eligible complete pinned classifier result. | Record, evidence, tools -> observation or None. Malformed/incomplete classifier results are skipped. | [Indirect test](tests/test_reporting.py#L367) |
+| [`_explanation`](reporting.py#L191) | Select fixed capability/measurement-limit text for enabled tools. | Explanation code and classifier flag -> text. Only validated codes reach it; no generated medical prose. | [Indirect test](tests/test_reporting.py#L315) |
+| [`render_report`](reporting.py#L202) | Resolve references into trusted numbers, units, missingness, and labels. | Report JSON, record, evidence, allowed tools -> answer text. Rejects unusable/ambiguous evidence or score/provenance mismatch; appends fixed limits. | [Direct test](tests/test_reporting.py#L248) |
+| [`fallback_report`](reporting.py#L274) | Choose latest measurements and top five valid classifier scores. | Record/evidence/tools -> exact replacement report references. Ignores unusable evidence; stable ties; reports classifier unavailable when absent. | [Direct test](tests/test_reporting.py#L345) |
+| [`safe_report`](reporting.py#L293) | Render the deterministic replacement for an invalid final answer. | Record/evidence/tools -> safe answer text. Shares render_report validation; does not rehabilitate generated prose. | [Direct test](tests/test_reporting.py#L163) |
 
 ### `classifier.py`
 

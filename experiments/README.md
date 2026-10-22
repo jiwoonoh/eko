@@ -58,7 +58,7 @@ interaction logs are included.
 The correction screen completed 8/20 tasks, matching native submission alone,
 with higher token use. It was removed. The best screened candidate remains native
 submission at 8/20; the eighteen-of-twenty development gate has not been achieved.
-A different paid model comparison is pending explicit authorization.
+The user selected the current free model only; no paid comparison will run.
 
 Results are saved in [the ablation summary](../evidence/ablations/summary.json).
 Native report submission is provisional at 8/20 tasks. The required-tool,
@@ -71,3 +71,9 @@ A follow-up screen tests canonical report JSON in conversation history. The
 displayed answer remains rendered prose. The hypothesis is that mixing rendered
 assistant prose with structured-output instructions encourages prose on later
 turns. No model, tool, limit, expected result or validation predicate changes.
+
+The structured-history screen accepted 17/20 reports but completed 7/20 tasks
+(native submission: 11/20 and 8/20). It is retained provisionally to isolate label
+selection with structured history; it has not established an overall benefit.
+The next screen changes only abbreviation guidance, resolved through the pinned
+label catalog. It introduces no response correction or request-specific rules.

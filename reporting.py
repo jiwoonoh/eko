@@ -98,15 +98,21 @@ def report_instructions(tool_names: set[str] | None = None) -> str:
             "For classification or rhythm questions, return findings=[], explanations=[], "
             'unavailable=["classification"].'
         )
-    catalog = "; ".join(f"{score_key(index)}={label}" for index, label in enumerate(load_labels()))
+    label_keys = {label: score_key(index) for index, label in enumerate(load_labels())}
+    catalog = "; ".join(f"{key}={label}" for label, key in label_keys.items())
+    aliases = "; ".join(f"{alias} means {label} ({label_keys[label]})" for alias, label in {
+        "AFIB": "ATRIAL FIBRILLATION", "NORM": "NORMAL ECG",
+        "SR": "SINUS RHYTHM", "NSR": "NORMAL SINUS RHYTHM",
+    }.items())
     return instructions + (
         "The registered call_classification_tool supplies ECGFounder scores for this record. "
         "Call it for classification or rhythm-score questions when no usable classifier result exists. "
         "Reference its actual evidence ID and score keys; never supply a diagnosis or label text yourself. "
         "For a broad classification question, select up to five highest scores. "
         "For a named class, select that class's score even when it is small. "
-        "AFIB refers to ATRIAL FIBRILLATION; NORMAL ECG, NORMAL SINUS RHYTHM, and SINUS RHYTHM "
-        "are distinct outputs. Do not merge them or infer disease absence from a low score. "
+        f"Exact label aliases: {aliases}. "
+        "These are distinct outputs. Use the requested label's exact key. "
+        "Do not merge them or infer disease absence from a low score. "
         'Use unavailable=["classification"] only when no usable result is available for this record. '
         f"Pinned label catalog: {catalog}"
     )

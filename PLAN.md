@@ -97,4 +97,4 @@ final source definitions. Automated provider tests are explicitly mocked.
   submission is a provisional candidate; it is not a high-accuracy result.
 - Remaining: qualify a reliable model, then meet the fixed development gate in
   three repeats without weakening evidence checks or changing the test cases.
-  Additional paid model execution is awaiting explicit authorization.
+  The user selected the existing free model only. Paid comparisons will not run.
