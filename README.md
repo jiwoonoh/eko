@@ -29,7 +29,24 @@ We support a couple of backends for the agent.
 - anthropic
 
 ### SGLANG
-Honestly, SGLANG reminds me of old pytorch where just installing it is a pain in the ***. BUT, after doing it a couple times I have my own MACHINE specific configs. Therefore, what I suggest is to go to sglang and just try to install it using their documented way. If it doesn't work, just let me know and I can try to help debug.
+Honestly, SGLANG reminds me of old pytorch where just installing it is a pain in the ***. BUT, after doing it a couple times I found many workarounds and got a working MACHINE specific config. Since SGLANG touches a lot of low level stuff, having a machine specific installation process is quite common. Therefore, what I suggest is to go to sglang and just try to install it using their documented way. If it doesn't work, just let me know and I can try to help debug.
+
+For hosting sglang, this is done completely in another folder and environment. Just set it up, and follow their direction of hosting a llm. It should look something like this in their repo
+
+```
+#!/usr/bin/env bash
+
+export FLASHINFER_USE_CUDA_NORM=1
+MULTINODE=${NNODES:+--nnodes $NNODES --node-rank $NODE_RANK --dist-init-addr $DIST_INIT_ADDR}
+sglang serve \
+    --model-path "${MODEL:-Qwen/Qwen3.8-27B}" \
+    --host 0.0.0.0 --port "${PORT:-30001}" \
+    --tp-size "${TP:-1}" --dp-size "${DP:-1}" \
+    --cuda-graph-max-bs "${CUDA_GRAPH_BS:-256}" \
+    ${MEM_FRAC:+--mem-fraction-static $MEM_FRAC} $MULTINODE
+```
+
+If you have questions, explore the sglang documentation/code or take a look at this [repo](https://github.com/willxxy/sglang-play) where i document some common failures and interesting observations (e.g., why we need export FLASHINFER_USE_CUDA_NORM=1 lol).
 
 ## Running Eko
 
