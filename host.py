@@ -847,13 +847,14 @@ def run(cwd: Path, prompt: str | None, *, model: str, effort: str,
         resume: bool = False, context: int = 0,
         clean_workspace: bool = False,
         python_timeout: float = core.PYTHON_TIMEOUT,
-        provider: str = "claude", max_tokens: int = 4096) -> None:
+        provider: str = "claude", max_tokens: int = 4096,
+        sglang_url: str | None = None) -> None:
     cwd = cwd.expanduser().resolve()
     if not cwd.is_dir():
         raise ValueError(f"not a directory: {cwd}")
     factory = providers._factory(
         provider, model, max_tokens, cwd=cwd, effort=effort,
-        session_id=session_id, resume=resume)
+        session_id=session_id, resume=resume, sglang_url=sglang_url)
     upstream_world = world_socket or os.environ.get("EKO_WORLD")
     with tempfile.TemporaryDirectory(prefix="eko-") as directory:
         runtime = Path(directory)
@@ -868,6 +869,7 @@ def run(cwd: Path, prompt: str | None, *, model: str, effort: str,
             relay.start()
         environment = os.environ.copy()
         environment.pop("OPENROUTER_API_KEY", None)
+        environment.pop("SGLANG_API_KEY", None)
         environment.pop("HF_TOKEN", None)
         environment["EKO_WORLD"] = str(runtime / "world.sock")
         agent = AgentProcess(
@@ -917,12 +919,16 @@ def main() -> None:
         "--cwd", type=Path,
         help="workspace (feral mode defaults to a fresh temporary directory)",
     )
-    parser.add_argument("--provider", choices=("claude", "openrouter", "huggingface"),
-                        default="claude")
+    parser.add_argument("--provider", default="claude",
+                        choices=("claude", "openrouter", "huggingface", "sglang"))
     parser.add_argument("--model", help="model ID or local Hugging Face directory")
     parser.add_argument("--effort", help="Claude reasoning effort (default: high)")
     parser.add_argument("--max-tokens", type=int, default=4096,
-                        help="OpenRouter/Hugging Face output limit (default: 4096)")
+                        help="OpenRouter/Hugging Face/SGLang output limit "
+                             "(default: 4096)")
+    parser.add_argument("--sglang-url",
+                        help="SGLang server root URL (default: SGLANG_URL or "
+                             "http://127.0.0.1:30001)")
     parser.add_argument("--name", default=core.NAME)
     parser.add_argument("--context", type=int, default=0)
     parser.add_argument(
@@ -953,9 +959,11 @@ def main() -> None:
         parser.error("--python-timeout must be greater than zero")
     if args.max_tokens <= 0:
         parser.error("--max-tokens must be greater than zero")
+    if args.sglang_url is not None and args.provider != "sglang":
+        parser.error("--sglang-url requires --provider sglang")
     if args.provider != "claude":
         if not args.model:
-            parser.error("--model is required for OpenRouter and Hugging Face")
+            parser.error(f"--model is required for --provider {args.provider}")
         if args.effort or args.session_id or args.resume:
             parser.error("--effort, --session-id, and --resume require --provider claude")
 
@@ -968,7 +976,8 @@ def main() -> None:
             resume=args.resume is not None, context=args.context,
             clean_workspace=args.clean_workspace,
             python_timeout=args.python_timeout,
-            provider=args.provider, max_tokens=args.max_tokens)
+            provider=args.provider, max_tokens=args.max_tokens,
+            sglang_url=args.sglang_url)
 
     try:
         if args.feral and args.cwd is None:

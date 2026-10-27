@@ -7,7 +7,9 @@ from .base import _Factory, _Model
 
 def _factory(provider: str, model: str, max_tokens: int, *,
              cwd: Path, effort: str, session_id: str | None = None,
-             resume: bool = False) -> _Factory:
+             resume: bool = False, sglang_url: str | None = None) -> _Factory:
+    if sglang_url is not None and provider != "sglang":
+        raise ValueError("--sglang-url requires --provider sglang")
     if provider == "claude":
         from .claude import _factory as create
         return create(cwd, model, effort, session_id, resume)
@@ -21,4 +23,7 @@ def _factory(provider: str, model: str, max_tokens: int, *,
     if provider == "huggingface":
         from .huggingface import _factory as create
         return create(model, max_tokens)
+    if provider == "sglang":
+        from .sglang import _factory as create
+        return create(model, max_tokens, sglang_url)
     raise ValueError(f"unknown provider: {provider}")

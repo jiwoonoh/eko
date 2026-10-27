@@ -10,14 +10,15 @@ terminal, model-provider, or sandbox dependency.
 An Eko process requires a host that provides a model conversation over the
 `EKO_MODEL` Unix socket. One connection to that socket is one independent model
 conversation. The included [`host.py`](host.py) supplies that service through the
-Claude Code CLI, OpenRouter, or a local Hugging Face model. It adds the terminal
-interface, headless operation, and optional Bubblewrap sandbox.
+Claude Code CLI, OpenRouter, a local Hugging Face model, or an SGLang server. It
+adds the terminal interface, headless operation, and optional Bubblewrap sandbox.
 
 Each provider has its own file in [`providers/`](providers/): `claude.py`,
-`openrouter.py`, and `huggingface.py`. The host selects one conversation factory;
-all providers share the model socket contract. OpenRouter and Hugging Face share
-in-memory history handling. Claude retains its CLI-managed sessions, recovery,
-streaming, and authentication.
+`openrouter.py`, `huggingface.py`, and `sglang.py`. The host selects one conversation
+factory; all providers share the model socket contract. OpenRouter, Hugging Face,
+and SGLang share in-memory history handling. OpenRouter and SGLang also share the
+streaming chat-completions client. Claude retains its CLI-managed sessions,
+recovery, streaming, and authentication.
 
 The whole agent is essentially:
 
@@ -57,12 +58,30 @@ Load a Hugging Face chat model by repository ID or local directory:
 uv run python host.py --provider huggingface --model Qwen/Qwen3.5-0.8B
 ```
 
-Local models use their own chat template and accept text only. Weights load once;
-agent conversations have separate histories and share one generation lock.
-OpenRouter and Hugging Face histories last for the host session. Both default to
-4096 output tokens per turn; override with `--max-tokens`. Truncated responses
-raise an error before any Python executes. `--effort`, `--session-id`, and
-`--resume` apply only to Claude.
+Connect to an SGLang server you already run in a separate environment:
+
+```bash
+uv run --script host.py --provider sglang --model Qwen/Qwen3.8-27B \
+  --sglang-url http://127.0.0.1:30001
+```
+
+`--sglang-url` is the server root URL, without `/v1`; it defaults to `SGLANG_URL`
+or `http://127.0.0.1:30001`. Use the server's model ID for `--model`.
+Set `SGLANG_API_KEY` only if the server requires authentication. Eko connects
+directly, bypassing environment HTTP proxies.
+
+Install, configure, and launch SGLang yourself using its
+[documentation](https://docs.sglang.ai/). CUDA, compiler, GPU allocation, and model
+settings depend on your system. Eko neither installs nor launches SGLang; its
+client uses Python's standard library. The server applies the model's chat
+template; image support depends on the served model.
+
+Local Hugging Face models use their own chat template and accept text only.
+Weights load once; agent conversations have separate histories and share one
+generation lock. OpenRouter, Hugging Face, and SGLang histories last for the host
+session. All default to 4096 output tokens per turn; override with `--max-tokens`.
+Truncated responses raise an error before any Python executes. `--effort`,
+`--session-id`, and `--resume` apply only to Claude.
 
 Run the same host without the terminal interface, or place the agent in a
 Bubblewrap sandbox:
@@ -153,10 +172,41 @@ execution.
 Eko requires Python 3.10 or newer. The default provider requires the Claude Code
 CLI and a working Claude subscription; it prompts for authentication when
 necessary. OpenRouter requires an API key. Local Hugging Face models require
-Transformers, PyTorch, and Accelerate. Sandboxing requires Bubblewrap.
+Transformers, PyTorch, and Accelerate. SGLang requires a separately running server
+with its [OpenAI-compatible chat-completions API](https://docs.sglang.ai/basic_usage/openai_api_completions.html).
+Sandboxing requires Bubblewrap.
 
 Run the tests with:
 
 ```bash
 uv run --with prompt-toolkit --with rich python -m unittest -q
 ```
+
+### Reference SGLang server
+
+Server package versions from the supplied hosting `requirements.txt`:
+
+| Component | Recorded configuration |
+| --- | --- |
+| SGLang | 0.5.14, locally built wheel |
+| PyTorch | 2.11.0+cu129 (CUDA 12.9 build) |
+| SGLang kernel | 0.4.4+cu129 |
+| SGL DeepGEMM | 0.1.3+cu129 |
+| FlashInfer (Python and cubin) | 0.6.12 |
+| Triton | 3.6.0 |
+| Transformers | 5.8.1 |
+| CUDA toolkit Python package | 12.9.1 |
+
+Earlier system snapshot from `sglang-play` and `LLM-Augment`:
+
+| Component | Recorded configuration |
+| --- | --- |
+| GPUs | 8 × NVIDIA H100 NVL, 94 GB each; compute capability 9.0 |
+| Python | 3.11.14 |
+| NVIDIA driver | 570.158.01 |
+| NVCC | 12.8.61 |
+| Server compiler | GCC 13 (per setup notes) |
+
+The requirements list does not confirm these system values or the active CUDA
+toolchain; it includes both CUDA 12 and CUDA 13 packages. These records describe
+the separately managed server; Eko integration has not been validated on it.
