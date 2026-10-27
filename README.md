@@ -26,7 +26,6 @@ We support a couple of backends for the agent.
 - huggingface
 - sglang
 - openrouter
-- anthropic
 
 ### SGLANG
 Honestly, SGLANG reminds me of old pytorch where just installing it is a pain in the ***. BUT, after doing it a couple times I found many workarounds and got a working MACHINE specific config. Since SGLANG touches a lot of low level stuff, having a machine specific installation process is quite common. Therefore, what I suggest is to go to sglang and just try to install it using their documented way. If it doesn't work, just let me know and I can try to help debug.
@@ -50,6 +49,12 @@ If you have questions, explore the sglang documentation/code or take a look at t
 
 ## Running Eko
 
+The default provider is `sglang`. Every provider requires `--model`.
+
+The pipeline is `host.py` (provider, sandbox) → `eko.py` (model → Python
+→ result → model). `ui.py` handles the terminal. The model and its credentials
+stay in the host. Background processes send text or images through `EKO_SESSION`;
+`EKO_WORLD` connects an optional external world socket.
 
 Use OpenRouter with `OPENROUTER_API_KEY` set:
 
@@ -68,5 +73,5 @@ Connect to an SGLang server you already run in a separate environment:
 ```bash
 uv run python host.py --provider sglang \
 --model Qwen/Qwen3.8-27B \
---sglang-url https://127.0.0.1:30001
+--sglang-url http://127.0.0.1:30001
 ```

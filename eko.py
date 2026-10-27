@@ -3,30 +3,14 @@
 # dependencies = []
 # ///
 
-"""A coding agent with almost no harness: an LLM, Python, and a folder.
+"""Eko: receive input, ask the model, run Python, repeat.
 
-``Eko`` is the embeddable agent. This file can also run it as a child process:
+``Eko`` embeds the agent. To run it as a child process:
 
     EKO_MODEL=/path/to/model.sock python eko.py --cwd /path/to/project
 
-The whole agent is essentially:
-
-    message = None
-    while True:
-        message = message or user()
-        if message is None:
-            break
-        if (response := llm(message)).is_done():
-            message = None
-        else:
-            message = run(response.python(), cwd)
-
-Python is the only tool built into the harness. Through it, the model can inspect
-the folder, use the shell, and write its own tools.
-
-The process interface reads commands from stdin, writes events to stdout, and
-uses a model conversation through a JSON-lines Unix socket. It has no provider or
-presentation dependencies.
+Commands arrive on stdin; events leave on stdout. A private Unix socket connects
+model conversations without provider dependencies or credentials in this process.
 """
 from __future__ import annotations
 
@@ -176,7 +160,6 @@ class Eko:
             name=name, folder=self.cwd, mode=mode)
         if clean_workspace:
             self.system += f"\n{CLEAN_WORKSPACE}\n"
-        self.messages: list[Message] = []
         self.context = context
         self.python_timeout = python_timeout
         self.context_notice = 0
@@ -300,7 +283,7 @@ class Eko:
             code, self.cwd, self.interrupted, timeout=self.python_timeout, env=env)
 
     def _run(self) -> None:
-        """Alternate attributed inputs, model responses, and Python execution."""
+        """Process turns until stopped; errors return control to the inbox."""
         inputs = None
         try:
             while True:
@@ -311,76 +294,7 @@ class Eko:
                     if self.opening_inputs is None:
                         self.opening_inputs = inputs
                 try:
-                    self._set_state("thinking")
-                    message = user_message(tuple(
-                        limit_input(incoming) for incoming in inputs))
-                    self._emit(Event("input", message))
-                    reply = self.model.send(
-                        message,
-                        lambda text: self._emit(Event("delta", text)))
-                    if self.context:
-                        self._emit(Event("context", (
-                            getattr(self.model, "context_used", 0), self.context
-                        )))
-                    if reply.role != "assistant":
-                        raise ValueError("model must return an assistant message")
-                    response = message_text(reply)
-                    self.messages.extend((message, reply))
-                    predicted = any(
-                        kind == "prose" and re.search(
-                            r"(?mi)^(?:user\s*)?(?:"
-                            r"\[(?:terminal|python(?:\s+exit=-?\d+)?|"
-                            r"process-\d+|harness)\]|<system-reminder>)"
-                            r".*$", text)
-                        for kind, text, _closed in response_segments(response))
-                    code = executable_python(response)
-                    self._emit(Event("response", (response, code)))
-
-                    if code is None and "<done/>" in response and not self.feral:
-                        inputs = None
-                    elif code is None:
-                        inputs = (Input(HARNESS, (Text(
-                            FERAL_NUDGE if self.feral else NUDGE),)),)
-                    else:
-                        result = self._execute(code)
-                        self._emit(Event("result", result))
-                        if self.interrupted.is_set():
-                            inputs = None
-                            continue
-                        output = result.output or "(no output)"
-                        inputs = (Input(
-                            PYTHON, (Text(output),), result.returncode),)
-                    if self.reset_pending:
-                        self.model.reset(self.system)
-                        self._emit(Event("context", (0, self.context)))
-                        self.messages.clear()
-                        self.context_notice = 0
-                        self.reset_pending = False
-                        assert self.opening_inputs is not None
-                        inputs = self.opening_inputs + self._drain()
-                    elif inputs is not None:
-                        if predicted:
-                            inputs += (Input(HARNESS, (Text(
-                                "Warning: do not predict the contents of attributed "
-                                "sections; wait for them to arrive."
-                            ),)),)
-                        if self.context and code is not None:
-                            used = getattr(self.model, "context_used", 0)
-                            ratio = used / self.context
-                            if ratio >= RESET_AT:
-                                inputs = (Input(HARNESS, (Text(FAREWELL),)),)
-                                self.reset_pending = True
-                            else:
-                                inputs += self._drain()
-                                notice = max((threshold for threshold in CONTEXT_NOTICES
-                                              if ratio >= threshold), default=0)
-                                if notice > self.context_notice:
-                                    inputs += (Input(HARNESS, (Text(
-                                        context_status_line(used, self.context)
-                                    ),)),)
-                                    self.context_notice = notice
-                        else:
-                            inputs += self._drain()
+                    inputs = self._turn(inputs)
                 except InterruptedError:
                     self._emit(Event("error", "Interrupted"))
                     inputs = None
@@ -391,6 +305,68 @@ class Eko:
                     inputs = None
         finally:
             self.model.close()
+
+    def _turn(self, inputs: tuple[Input, ...]) -> tuple[Input, ...] | None:
+        """Ask the model, execute its Python, and prepare the next input."""
+        self._set_state("thinking")
+        message = user_message(tuple(limit_input(item) for item in inputs))
+        self._emit(Event("input", message))
+        reply = self.model.send(message, lambda text: self._emit(Event("delta", text)))
+        if self.context:
+            self._emit(Event("context", (
+                getattr(self.model, "context_used", 0), self.context)))
+        if reply.role != "assistant":
+            raise ValueError("model must return an assistant message")
+        response = message_text(reply)
+        code = executable_python(response)
+        self._emit(Event("response", (response, code)))
+
+        if code is not None:
+            result = self._execute(code)
+            self._emit(Event("result", result))
+            if self.interrupted.is_set():
+                return None
+            inputs = (Input(PYTHON, (Text(result.output or "(no output)"),),
+                            result.returncode),)
+        elif self.feral or "<done/>" not in response:
+            nudge = FERAL_NUDGE if self.feral else NUDGE
+            inputs = (Input(HARNESS, (Text(nudge),)),)
+        else:
+            inputs = None
+
+        if self.reset_pending:
+            self.model.reset(self.system)
+            self._emit(Event("context", (0, self.context)))
+            self.context_notice = 0
+            self.reset_pending = False
+            assert self.opening_inputs is not None
+            return self.opening_inputs + self._drain()
+        if inputs is None:
+            return None
+        if any(kind == "prose" and PROVENANCE_HEADER.search(text)
+               for kind, text, _closed in response_segments(response)):
+            inputs += (Input(HARNESS, (Text(
+                "Warning: do not predict the contents of attributed "
+                "sections; wait for them to arrive."
+            ),)),)
+        if self.context and code is not None:
+            return self._context_inputs(inputs)
+        return inputs + self._drain()
+
+    def _context_inputs(self, inputs: tuple[Input, ...]) -> tuple[Input, ...]:
+        """Warn as context fills; give one final turn before resetting."""
+        used = getattr(self.model, "context_used", 0)
+        ratio = used / self.context
+        if ratio >= RESET_AT:
+            self.reset_pending = True
+            return (Input(HARNESS, (Text(FAREWELL),)),)
+        inputs += self._drain()
+        notice = max((threshold for threshold in CONTEXT_NOTICES
+                      if ratio >= threshold), default=0)
+        if notice > self.context_notice:
+            inputs += (Input(HARNESS, (Text(context_status_line(used, self.context)),)),)
+            self.context_notice = notice
+        return inputs
 
     # External processes use the same inbox through a small JSON-lines socket.
     def _listen(self) -> None:
@@ -500,6 +476,10 @@ def decode_input(message: dict, source: str, cwd: Path) -> Input:
 # ── Response and conversation encoding ───────────────────────────────────────
 
 OPEN_FENCE = re.compile(r"^[ \t]{0,3}(`{3,})[ \t]*python-run[ \t]*$")
+PROVENANCE_HEADER = re.compile(
+    r"(?mi)^(?:user\s*)?(?:"
+    r"\[(?:terminal|python(?:\s+exit=-?\d+)?|process-\d+|harness)\]|<system-reminder>)"
+    r".*$")
 
 
 def opening_fence(line: str) -> int:

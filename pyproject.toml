@@ -18,5 +18,5 @@ dependencies = [
 eko = "host:main"
 
 [tool.setuptools]
-py-modules = ["eko", "host"]
+py-modules = ["eko", "host", "ui"]
 packages = ["providers"]
