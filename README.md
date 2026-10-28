@@ -1,5 +1,11 @@
 # Eko: ECG research runtime
 
+> **Experimental archive.** This branch preserves our ECG runtime and reporting
+> experiments. The fork's `main` branch follows [willxxy/eko](https://github.com/willxxy/eko).
+> The exact pre-sync snapshot is tagged
+> [`archive/ecg-runtime-2026-10-28`](https://github.com/jiwoonoh/eko/tree/archive/ecg-runtime-2026-10-28).
+> See [ARCHIVE.md](ARCHIVE.md) for status and branch usage.
+
 This branch turns Eko's coding agent into a bounded ECG tool runner. It measures
 waveforms, runs an optional 150-label classifier, and supports follow-up questions
 through OpenRouter. Displayed findings come from executed tools and validated
