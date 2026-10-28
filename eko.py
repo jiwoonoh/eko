@@ -35,7 +35,7 @@ NAME = "Eko"
 SYSTEM = """You are {name}.
 You are in {folder}.
 
-Write a fenced ```python-run block to act. Stop your response after the block.
+Write one fenced ```python-run block to act. Stop your response after the block.
 After your response ends, it runs in that folder. Its combined output returns in a
 [python exit=N] section, where N is the process exit status. Fenced ```python and
 ```py blocks are displayed but not run.
@@ -318,7 +318,12 @@ class Eko:
         if reply.role != "assistant":
             raise ValueError("model must return an assistant message")
         response = message_text(reply)
-        code = executable_python(response)
+        feedback = None
+        try:
+            code = executable_python(response)
+        except ValueError as error:
+            code = None
+            feedback = str(error)
         self.emit(Event("response", (response, code)))
 
         if code is not None:
@@ -328,8 +333,8 @@ class Eko:
                 return None
             inputs = (Input(PYTHON, (Text(result.output or "(no output)"),),
                             result.returncode),)
-        elif self.feral or "<done/>" not in response:
-            nudge = FERAL_NUDGE if self.feral else NUDGE
+        elif feedback or self.feral or "<done/>" not in response:
+            nudge = feedback or (FERAL_NUDGE if self.feral else NUDGE)
             inputs = (Input(HARNESS, (Text(nudge),)),)
         else:
             inputs = None
@@ -520,9 +525,16 @@ def response_segments(text: str) -> list[tuple[str, str, bool]]:
 
 
 def executable_python(text: str) -> str | None:
-    blocks = [content for kind, content, closed in response_segments(text)
-              if kind == "python" and closed]
-    return "\n".join(blocks) if blocks else None
+    """Accept one complete action ending the response; reject ambiguous drafts."""
+    segments = response_segments(text.rstrip())
+    blocks = [content for kind, content, closed in segments if kind == "python"]
+    if not blocks:
+        return None
+    kind, code, closed = segments[-1]
+    if len(blocks) != 1 or kind != "python" or not closed:
+        raise ValueError("Send one complete ```python-run block and stop after it. "
+                         "No Python was run.")
+    return code
 
 
 def limit_input(incoming: Input, limit: int = MAX_INPUT_TEXT) -> Input:
