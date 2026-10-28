@@ -75,3 +75,11 @@ uv run python host.py --provider sglang \
 --model Qwen/Qwen3.8-27B \
 --sglang-url http://127.0.0.1:30001
 ```
+
+## ECG-Agent adaptation
+
+For all current measurements in `toolxbo/measurements/`, we follow [ECG-Agent](https://github.com/gustmd0121/ECG-Agent) exactly in calculating them. We also maintain the exact tools used in ECG-Agent, and shown to the LLM.
+
+### Notes
+- ECG-Agent seems to use all four measurements?
+- The flow of the tool choosing is not implemented yet. Subsequently, I found creating the evaluation pipeline to match ECG-Agent not totally obvious. We should think of a way to adapt our agentic pipeline to the evaluation framework of ECG-Agent. I will come back to this soon.
