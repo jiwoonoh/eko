@@ -26,13 +26,11 @@ class ECG:
             self.cleaned, self.r_peaks,
             sampling_rate=self.sampling_rate, method="dwt")[1]
 
-
 def median(values: np.ndarray, minimum: float, maximum: float) -> float | None:
     """Return the median within the supplied extractor's limits, or None."""
     values = np.asarray(values, dtype=float)
     valid = values[np.isfinite(values) & (values >= minimum) & (values <= maximum)]
     return float(np.median(valid)) if valid.size else None
-
 
 def load_ecg(ecg_path: Path) -> tuple[np.ndarray, int | None]:
     """Return (signal, sampling_rate_hz), with signal shaped (leads, samples).
@@ -42,7 +40,6 @@ def load_ecg(ecg_path: Path) -> tuple[np.ndarray, int | None]:
     """
     # TODO: Open ecg_path and return its ECG array and sampling rate.
     raise NotImplementedError("Implement ECG loading in toolbox/measurements/load.py")
-
 
 @cache.cache
 def prepare(ecg_path: str, file_version: tuple, neurokit_version: str) -> ECG:
@@ -71,14 +68,12 @@ def prepare(ecg_path: str, file_version: tuple, neurokit_version: str) -> ECG:
     median_rr = median(rr_ms[rr_ms < 2000], 300, 2000)
     return ECG(cleaned, sampling_rate, r_peaks, rr_ms, median_rr)
 
-
 def get_ecg(ecg_path: str) -> ECG:
     """Reuse preprocessing for an unchanged file in this working directory."""
     path = Path(ecg_path).expanduser().resolve(strict=True)
     stat = path.stat()
     file_version = (stat.st_mtime_ns, stat.st_ctime_ns, stat.st_size)
     return prepare(str(path), file_version, nk.__version__)
-
 
 def intervals(waves: dict, start: str, end: str, sampling_rate: int,
               *, require_increasing: bool = False) -> np.ndarray:
@@ -91,7 +86,6 @@ def intervals(waves: dict, start: str, end: str, sampling_rate: int,
     if require_increasing:
         valid &= ends > starts
     return (ends[valid] - starts[valid] + 1) / sampling_rate * 1000
-
 
 def clear_cache() -> None:
     """Clear cached ECG data after changing the loader or processing helpers."""

@@ -1,12 +1,7 @@
-"""Private provider contract and in-memory conversation history."""
-
 from __future__ import annotations
-
 import threading
 from typing import Callable, Protocol
-
 import eko as core
-
 
 class Model(Protocol):
     context_used: int
@@ -18,9 +13,7 @@ class Model(Protocol):
 
     def close(self) -> None: ...
 
-
 Factory = Callable[[], Model]
-
 
 class Conversation:
     """Keep completed turns private to one agent connection."""
@@ -49,8 +42,6 @@ class Conversation:
     def generate(self, system, messages, on_text) -> tuple[str, int]:
         raise NotImplementedError
 
-    def interrupt(self) -> None:
-        self.interrupted.set()
+    def interrupt(self) -> None: self.interrupted.set()
 
-    def close(self) -> None:
-        self.interrupt()
+    def close(self) -> None: self.interrupt()

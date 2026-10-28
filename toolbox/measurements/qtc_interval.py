@@ -1,15 +1,9 @@
 import math
-
 import numpy as np
-
 from .ecg import get_ecg, intervals, median
 
-
 def qtc_interval(ecg_path: str) -> float | None:
-    """Return median lead II Bazett QTc (ms), keeping 300-600, or None.
-
-    Match the original: drop missing QT pairs, then pair QT[j] with RR[j].
-    """
+    """Return median lead II Bazett QTc (ms), keeping 300-600, or None."""
     ecg = get_ecg(ecg_path)
     qt_ms = intervals(ecg.waves, "ECG_Q_Peaks", "ECG_T_Offsets", ecg.sampling_rate)
     rr_sec = np.diff(ecg.r_peaks) / ecg.sampling_rate

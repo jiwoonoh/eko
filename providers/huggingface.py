@@ -1,17 +1,9 @@
-"""Local Transformers conversations sharing one model instance."""
-
 from __future__ import annotations
-
 import threading
-
 import eko as core
-
 from .base import Conversation, Factory
 
-
 class LocalModel:
-    """Load weights once; serialize generation across agent conversations."""
-
     def __init__(self, model: str, max_tokens: int) -> None:
         try:
             from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -27,7 +19,6 @@ class LocalModel:
         self.model.eval()
         self.max_tokens = max_tokens
         self.lock = threading.Lock()
-
 
 class HuggingFace(Conversation):
     def __init__(self, runtime: LocalModel) -> None:
