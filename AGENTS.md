@@ -29,5 +29,3 @@
 * Respect established boundaries. Each layer may communicate only with its immediate dependencies. Never bypass intermediate abstractions.
 
 * Follow established conventions consistently. Do not introduce shorthand that reduces clarity.
-
-* When correcting an error, first reproduce it with a verifiable check. Observe the failure. Make the smallest necessary correction. Observe the check passing.

@@ -14,9 +14,12 @@ dependencies = [
     "transformers>=5.18.0",
 ]
 
+[project.optional-dependencies]
+measurements = ["joblib", "neurokit2", "numpy"]
+
 [project.scripts]
 eko = "host:main"
 
 [tool.setuptools]
 py-modules = ["eko", "host", "ui"]
-packages = ["providers"]
+packages = ["providers", "toolbox", "toolbox.measurements"]
