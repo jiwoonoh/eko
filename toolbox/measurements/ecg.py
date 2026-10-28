@@ -1,22 +1,14 @@
 from dataclasses import dataclass
 from pathlib import Path
-
 from joblib import Memory
 import neurokit2 as nk
 import numpy as np
 
-
 cache_dir = Path.cwd() / ".eko-cache"
 cache_dir.mkdir(mode=0o700, exist_ok=True)
 cache = Memory(cache_dir / "measurements", verbose=0)
-
 # Peak minimum, interval limits, and inclusive sample counts follow the supplied extractor.
 MIN_PEAKS = 7
-
-
-class InsufficientPeaks(ValueError):
-    """Too few R-peaks for the supplied extractor's measurements."""
-
 
 @dataclass
 class ECG:
@@ -72,7 +64,7 @@ def prepare(ecg_path: str, file_version: tuple, neurokit_version: str) -> ECG:
     info = nk.ecg_peaks(cleaned, sampling_rate=sampling_rate)[1]
     r_peaks = np.asarray(info["ECG_R_Peaks"], dtype=float)
     if r_peaks.size < MIN_PEAKS:
-        raise InsufficientPeaks(
+        raise ValueError(
             f"At least {MIN_PEAKS} R-peaks are required; found {r_peaks.size}")
 
     rr_ms = np.diff(r_peaks) / sampling_rate * 1000
