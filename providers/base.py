@@ -8,7 +8,7 @@ from typing import Callable, Protocol
 import eko as core
 
 
-class _Model(Protocol):
+class Model(Protocol):
     context_used: int
 
     def complete(self, system: str, message: core.Message,
@@ -19,10 +19,10 @@ class _Model(Protocol):
     def close(self) -> None: ...
 
 
-_Factory = Callable[[], _Model]
+Factory = Callable[[], Model]
 
 
-class _Conversation:
+class Conversation:
     """Keep completed turns private to one agent connection."""
 
     def __init__(self) -> None:
@@ -36,7 +36,7 @@ class _Conversation:
             raise ValueError("model input must be a user message")
         self.interrupted.clear()
         messages = [*self.messages, message]
-        text, used = self._generate(system, messages, on_text)
+        text, used = self.generate(system, messages, on_text)
         if self.interrupted.is_set():
             raise InterruptedError
         if not text.strip():
@@ -46,7 +46,7 @@ class _Conversation:
         self.context_used = used
         return reply
 
-    def _generate(self, system, messages, on_text) -> tuple[str, int]:
+    def generate(self, system, messages, on_text) -> tuple[str, int]:
         raise NotImplementedError
 
     def interrupt(self) -> None:

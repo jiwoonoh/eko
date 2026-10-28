@@ -69,79 +69,79 @@ class NativeStream:
 
     def feed(self, delta: str) -> None:
         self.buffer += delta.replace("\x1b", "")
-        self._drain()
+        self.drain()
         if time.monotonic() - self.last_flush >= .1:
-            self._flush()
+            self.flush()
 
-    def _flush(self) -> None:
+    def flush(self) -> None:
         if self.pending_output:
-            self.ui._append("".join(self.pending_output))
+            self.ui.append("".join(self.pending_output))
             self.pending_output.clear()
         self.last_flush = time.monotonic()
 
-    def _drain(self, final: bool = False) -> None:
+    def drain(self, final: bool = False) -> None:
         while "\n" in self.buffer:
             line, self.buffer = self.buffer.split("\n", 1)
-            self._line(line + "\n")
+            self.line(line + "\n")
         if final and self.buffer:
             line, self.buffer = self.buffer, ""
-            self._line(line)
+            self.line(line)
         if final:
             if self.code:
-                self._commit_code(final=True)
-                self._close_box()
+                self.commit_code(final=True)
+                self.close_box()
                 self.code = False
             else:
-                self._prose("", final=True)
+                self.add_prose("", final=True)
 
-    def _line(self, line: str) -> None:
+    def line(self, line: str) -> None:
         if self.code:
             if core.closing_fence(line, self.fence_length):
-                self._commit_code(final=True)
-                self._close_box()
+                self.commit_code(final=True)
+                self.close_box()
                 self.code = False
                 self.fence_length = 0
             else:
                 self.code_lines.append(line.rstrip("\r\n"))
-                self._commit_code()
+                self.commit_code()
             return
         if length := core.opening_fence(line):
-            self._prose("", final=True)
+            self.add_prose("", final=True)
             self.code = True
             self.fence_length = length
-            self._open_box()
+            self.open_box()
         else:
-            self._prose(line)
+            self.add_prose(line)
 
-    def _prose(self, text: str, final: bool = False) -> None:
+    def add_prose(self, text: str, final: bool = False) -> None:
         text = text.replace("<done/>", "")
         self.prose += text
         # A blank line closes a Markdown block. Keeping only the unfinished
         # block mutable prevents later tokens from restyling terminal history.
         while "\n\n" in self.prose:
             block, self.prose = self.prose.split("\n\n", 1)
-            self._render_prose(block)
+            self.render_prose(block)
         if final and self.prose:
-            self._render_prose(self.prose)
+            self.render_prose(self.prose)
             self.prose = ""
 
-    def _render_prose(self, text: str) -> None:
+    def render_prose(self, text: str) -> None:
         if text.strip():
-            self.pending_output.append(self.ui._render(Markdown(text.strip())) + "\n")
+            self.pending_output.append(self.ui.render(Markdown(text.strip())) + "\n")
 
-    def _width(self) -> int:
+    def width(self) -> int:
         return max(20, shutil.get_terminal_size().columns - 2)
 
-    def _open_box(self) -> None:
+    def open_box(self) -> None:
         self.code_lines = []
         self.code_emitted = 0
-        width = self._width()
+        width = self.width()
         title = "─ python "
-        self.pending_output.append(self.ui._render(RichText(
+        self.pending_output.append(self.ui.render(RichText(
             "╭" + title + "─" * max(0, width - len(title) - 2) + "╮",
             style=f"bold {GOLD}")))
 
-    def _stable_code_lines(self) -> int:
+    def stable_code_lines(self) -> int:
         """Return the prefix whose Python highlighting cannot change later."""
         source = "\n".join(self.code_lines) + "\n"
         stable = len(self.code_lines)
@@ -153,19 +153,19 @@ class NativeStream:
                 stable = min(stable, max(0, location[0] - 1))
         return stable
 
-    def _commit_code(self, final: bool = False) -> None:
-        end = len(self.code_lines) if final else self._stable_code_lines()
+    def commit_code(self, final: bool = False) -> None:
+        end = len(self.code_lines) if final else self.stable_code_lines()
         if end <= self.code_emitted:
             return
         source = "\n".join(self.code_lines) + "\n"
         highlighted = Syntax("", "python", theme="ansi_dark").highlight(source)
         lines = highlighted.split("\n")
         for line in lines[self.code_emitted:end]:
-            self._code_line(line)
+            self.code_line(line)
         self.code_emitted = end
 
-    def _code_line(self, line: RichText) -> None:
-        width = self._width()
+    def code_line(self, line: RichText) -> None:
+        width = self.width()
         content = line[:max(1, width - 4)]
         padding = " " * max(0, width - len(content.plain) - 4)
         row = RichText()
@@ -173,16 +173,16 @@ class NativeStream:
         row.append_text(content)
         row.append(padding)
         row.append(" │", style=GOLD)
-        self.pending_output.append(self.ui._render(row))
+        self.pending_output.append(self.ui.render(row))
 
-    def _close_box(self) -> None:
-        width = self._width()
-        self.pending_output.append(self.ui._render(RichText(
+    def close_box(self) -> None:
+        width = self.width()
+        self.pending_output.append(self.ui.render(RichText(
             "╰" + "─" * (width - 2) + "╯", style=GOLD)))
 
     def finish(self) -> None:
-        self._drain(final=True)
-        self._flush()
+        self.drain(final=True)
+        self.flush()
 
 
 class UI:
@@ -201,17 +201,17 @@ class UI:
         self.keys = KeyBindings()
 
         self.transcript_window = Window(
-            FormattedTextControl(self._transcript), height=1,
+            FormattedTextControl(self.transcript), height=1,
             wrap_lines=False, always_hide_cursor=True)
         self.composer = TextArea(
             height=1,
             prompt=[(f"{GOLD} bold", "› ")],
             multiline=True, wrap_lines=True)
-        self.status_window = Window(FormattedTextControl(self._status), height=1)
+        self.status_window = Window(FormattedTextControl(self.status_text), height=1)
 
         @self.keys.add("enter")
         def send(event) -> None:
-            self._submit()
+            self.submit()
 
         @self.keys.add("c-c")
         def cancel(event) -> None:
@@ -254,30 +254,30 @@ class UI:
             if event.type == "state":
                 state = str(event.value)
                 if state == "thinking":
-                    self._start_activity("thinking")
+                    self.start_activity("thinking")
                 elif state == "running Python":
-                    self._start_activity("running")
+                    self.start_activity("running")
                 else:
-                    self._stop_activity()
+                    self.stop_activity()
             elif event.type == "delta":
                 if stream is None:
                     stream = NativeStream(self)
                 stream.feed(str(event.value))
             elif event.type == "response":
-                self._stop_activity()
+                self.stop_activity()
                 if stream is None:
                     stream = NativeStream(self)
                     stream.feed(event.value[0])
                 stream.finish()
                 stream = None
             elif event.type == "result":
-                self._stop_activity()
+                self.stop_activity()
                 self.result(event.value)
             elif event.type == "context":
                 self.context_used, self.context_capacity = map(int, event.value)
                 self.app.invalidate()
             elif event.type == "error":
-                self._stop_activity()
+                self.stop_activity()
                 if stream is not None:
                     stream.finish()
                     stream = None
@@ -288,18 +288,18 @@ class UI:
         self.on_submit = agent.send
         self.on_interrupt = agent.interrupt
 
-    def _start_activity(self, label: str) -> None:
+    def start_activity(self, label: str) -> None:
         """Show current activity above the prompt."""
         with self.lock:
-            self.live = self._render(RichText(label, style=f"dim {GOLD_ACTIVE}"))
+            self.live = self.render(RichText(label, style=f"dim {GOLD_ACTIVE}"))
         self.app.invalidate()
 
-    def _stop_activity(self) -> None:
+    def stop_activity(self) -> None:
         with self.lock:
             self.live = ""
         self.app.invalidate()
 
-    def _submit(self) -> None:
+    def submit(self) -> None:
         text = self.composer.text.strip()
         if not text:
             return
@@ -310,11 +310,11 @@ class UI:
         self.user(text)
         self.on_submit(text)
 
-    def _transcript(self):
+    def transcript(self):
         with self.lock:
             return ANSI(self.live)
 
-    def _status(self):
+    def status_text(self):
         state = self.status()
         active = state.startswith(("thinking", "running"))
         hint = ("esc interrupt · enter send" if active else
@@ -323,14 +323,14 @@ class UI:
                    if self.context_capacity else "")
         return [("class:status", f"  {hint}{context}")]
 
-    def _render(self, renderable) -> str:
+    def render(self, renderable) -> str:
         stream = io.StringIO()
         width = max(40, shutil.get_terminal_size().columns - 2)
         Console(file=stream, force_terminal=True, color_system="truecolor",
                 highlight=False, width=width).print(renderable)
         return stream.getvalue()
 
-    def _append(self, text: str) -> None:
+    def append(self, text: str) -> None:
         def write() -> None:
             sys.stdout.write(text)
             sys.stdout.flush()
@@ -344,7 +344,7 @@ class UI:
 
             def schedule() -> None:
                 task = run_in_terminal(write)
-                task.add_done_callback(lambda _: done.set())
+                task.add_done_callback(lambda future: done.set())
 
             self.app.loop.call_soon_threadsafe(schedule)
             done.wait(2)
@@ -358,11 +358,11 @@ class UI:
         # scrollback instead of making a full-screen spacer jump around.
         padding = max(
             0, shutil.get_terminal_size().lines - 9)
-        self._append(self._render(header) + "\n" * padding)
+        self.append(self.render(header) + "\n" * padding)
 
     def user(self, text: str) -> None:
-        rendered = self._render(RichText.assemble(("› ", f"bold {GOLD}"), text))
-        self._append(rendered + "\n")
+        rendered = self.render(RichText.assemble(("› ", f"bold {GOLD}"), text))
+        self.append(rendered + "\n")
 
     def result(self, result: core.Result) -> None:
         ok = result.returncode == 0
@@ -371,11 +371,11 @@ class UI:
         width = max(40, shutil.get_terminal_size().columns - 4)
         output = display_output(result.output, width)
         body = RichText(output.rstrip() or "(no output)", style="dim")
-        self._append(self._render(Group(RichText(label, style=style), body)) + "\n")
+        self.append(self.render(Group(RichText(label, style=style), body)) + "\n")
 
     def stopped(self, message: str = "Stopped") -> None:
-        rendered = self._render(RichText(f"! {message}", style="#ff875f")) + "\n"
-        self._append(rendered)
+        rendered = self.render(RichText(f"! {message}", style="#ff875f")) + "\n"
+        self.append(rendered)
 
     def run(self) -> None:
         self.app.pre_run_callables.append(self.on_start)

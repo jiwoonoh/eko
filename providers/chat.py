@@ -10,10 +10,10 @@ from urllib.parse import urlsplit
 
 import eko as core
 
-from .base import _Conversation
+from .base import Conversation
 
 
-def _chat_message(message: core.Message) -> dict:
+def chat_message(message: core.Message) -> dict:
     content = []
     for part in message.content:
         if isinstance(part, core.Text):
@@ -27,7 +27,7 @@ def _chat_message(message: core.Message) -> dict:
     return {"role": message.role, "content": content}
 
 
-class _ChatCompletions(_Conversation):
+class ChatCompletions(Conversation):
     def __init__(self, name: str, endpoint: str, model: str,
                  api_key: str | None, max_tokens: int) -> None:
         super().__init__()
@@ -41,11 +41,11 @@ class _ChatCompletions(_Conversation):
         self.model, self.api_key, self.max_tokens = model, api_key, max_tokens
         self.socket: socket.socket | None = None
 
-    def _generate(self, system, messages, on_text) -> tuple[str, int]:
+    def generate(self, system, messages, on_text) -> tuple[str, int]:
         payload = {
             "model": self.model,
             "messages": [{"role": "system", "content": system},
-                         *map(_chat_message, messages)],
+                         *map(chat_message, messages)],
             "max_tokens": self.max_tokens,
             "stream": True,
             "stream_options": {"include_usage": True},

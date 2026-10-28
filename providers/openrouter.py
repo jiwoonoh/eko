@@ -2,14 +2,14 @@
 
 import os
 
-from .base import _Factory
-from .chat import _ChatCompletions
+from .base import Factory
+from .chat import ChatCompletions
 
 
-def _factory(model: str, max_tokens: int) -> _Factory:
+def factory(model: str, max_tokens: int) -> Factory:
     api_key = os.environ.get("OPENROUTER_API_KEY")
     if not api_key:
         raise ValueError("Set OPENROUTER_API_KEY for OpenRouter")
-    return lambda: _ChatCompletions(
+    return lambda: ChatCompletions(
         "OpenRouter", "https://openrouter.ai/api/v1/chat/completions",
         model, api_key, max_tokens)

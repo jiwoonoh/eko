@@ -36,19 +36,19 @@ class AgentProcess:
         self.proc = subprocess.Popen(
             command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
             stderr=subprocess.PIPE, text=True, bufsize=1, env=env)
-        self.observer: Callable[[core.Event], None] = lambda _event: None
+        self.observer: Callable[[core.Event], None] = lambda event: None
         self.state = "starting"
         self.ready = threading.Event()
         self.session: str | None = None
-        self._write_lock = threading.Lock()
-        self._diagnostic_lock = threading.Lock()
-        self._startup_diagnostics: list[str] = []
-        self._reader = threading.Thread(target=self._read, daemon=True)
-        self._errors = threading.Thread(target=self._read_errors, daemon=True)
-        self._reader.start()
-        self._errors.start()
+        self.write_lock = threading.Lock()
+        self.diagnostic_lock = threading.Lock()
+        self.startup_diagnostics: list[str] = []
+        self.reader = threading.Thread(target=self.read, daemon=True)
+        self.errors = threading.Thread(target=self.read_errors, daemon=True)
+        self.reader.start()
+        self.errors.start()
 
-    def _read(self) -> None:
+    def read(self) -> None:
         assert self.proc.stdout
         try:
             for line in self.proc.stdout:
@@ -64,48 +64,48 @@ class AgentProcess:
                     self.observer(event)
         except Exception as error:
             message = f"Agent connection failed: {error}"
-            self._record_startup_diagnostic(message)
+            self.record_startup_diagnostic(message)
             self.observer(core.Event("error", message))
         finally:
             self.ready.set()
 
-    def _read_errors(self) -> None:
+    def read_errors(self) -> None:
         assert self.proc.stderr
         for line in self.proc.stderr:
             message = line.rstrip()
-            self._record_startup_diagnostic(message)
+            self.record_startup_diagnostic(message)
             self.observer(core.Event("error", message))
 
-    def _record_startup_diagnostic(self, message: str) -> None:
+    def record_startup_diagnostic(self, message: str) -> None:
         if self.session is None and message:
-            with self._diagnostic_lock:
-                self._startup_diagnostics.append(message)
+            with self.diagnostic_lock:
+                self.startup_diagnostics.append(message)
 
     def startup_error(self) -> str:
         """Return diagnostics emitted before the agent became ready."""
         if self.proc.poll() is not None:
-            self._reader.join(.2)
-            self._errors.join(.2)
-        with self._diagnostic_lock:
-            details = "\n".join(self._startup_diagnostics).strip()
+            self.reader.join(.2)
+            self.errors.join(.2)
+        with self.diagnostic_lock:
+            details = "\n".join(self.startup_diagnostics).strip()
         return "agent did not start" + (f":\n{details}" if details else "")
 
-    def _send(self, value: dict) -> None:
+    def send_command(self, value: dict) -> None:
         assert self.proc.stdin
-        with self._write_lock:
+        with self.write_lock:
             self.proc.stdin.write(json.dumps(value, separators=(",", ":")) + "\n")
             self.proc.stdin.flush()
 
     def send(self, text: str) -> None:
-        self._send({"type": "input", "content": [{"type": "text", "text": text}]})
+        self.send_command({"type": "input", "content": [{"type": "text", "text": text}]})
 
     def interrupt(self) -> None:
-        self._send({"type": "interrupt"})
+        self.send_command({"type": "interrupt"})
 
     def stop(self) -> None:
         if self.proc.poll() is None:
             try:
-                self._send({"type": "stop"})
+                self.send_command({"type": "stop"})
             except (BrokenPipeError, OSError):
                 pass
             try:
@@ -116,14 +116,14 @@ class AgentProcess:
         for stream in (self.proc.stdin, self.proc.stdout, self.proc.stderr):
             if stream is not None and not stream.closed:
                 stream.close()
-        self._reader.join(2)
-        self._errors.join(2)
+        self.reader.join(2)
+        self.errors.join(2)
 
     def status(self) -> str:
         return self.state
 
 
-def _model_client(connection: socket.socket, backend: providers._Model) -> None:
+def model_client(connection: socket.socket, backend: providers.Model) -> None:
     """Give one agent connection an independent model conversation."""
     lock = threading.Lock()
     active: threading.Thread | None = None
@@ -180,7 +180,7 @@ def _model_client(connection: socket.socket, backend: providers._Model) -> None:
 
 
 class ModelServer:
-    def __init__(self, path: Path, factory: providers._Factory) -> None:
+    def __init__(self, path: Path, factory: providers.Factory) -> None:
         self.path = path
         self.factory = factory
         self.listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -189,15 +189,15 @@ class ModelServer:
         self.listener.settimeout(.2)
         self.stopping = threading.Event()
         self.clients: list[threading.Thread] = []
-        self.thread = threading.Thread(target=self._run, daemon=True)
+        self.thread = threading.Thread(target=self.run, daemon=True)
 
     def start(self) -> None:
         self.thread.start()
 
-    def _run(self) -> None:
+    def run(self) -> None:
         while not self.stopping.is_set():
             try:
-                connection, _ = self.listener.accept()
+                connection, address = self.listener.accept()
             except socket.timeout:
                 continue
             except OSError:
@@ -210,7 +210,7 @@ class ModelServer:
                       file=sys.stderr, flush=True)
                 continue
             thread = threading.Thread(
-                target=_model_client,
+                target=model_client,
                 args=(connection, backend), daemon=True)
             thread.start()
             self.clients.append(thread)
@@ -242,26 +242,26 @@ class WorldRelay:
         self.connections: set[socket.socket] = set()
         self.connection_lock = threading.Lock()
         self.clients: list[threading.Thread] = []
-        self.thread = threading.Thread(target=self._run, daemon=True)
+        self.thread = threading.Thread(target=self.run, daemon=True)
 
     def start(self) -> None:
         self.thread.start()
 
-    def _run(self) -> None:
+    def run(self) -> None:
         while not self.stopping.is_set():
             try:
-                downstream, _ = self.listener.accept()
+                downstream, address = self.listener.accept()
             except socket.timeout:
                 continue
             except OSError:
                 return
             thread = threading.Thread(
-                target=self._bridge, args=(downstream,), daemon=True
+                target=self.bridge, args=(downstream,), daemon=True
             )
             self.clients.append(thread)
             thread.start()
 
-    def _bridge(self, downstream: socket.socket) -> None:
+    def bridge(self, downstream: socket.socket) -> None:
         upstream = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         sockets = (downstream, upstream)
         with self.connection_lock:
@@ -270,7 +270,7 @@ class WorldRelay:
             upstream.connect(str(self.upstream))
             threads = [
                 threading.Thread(
-                    target=self._pump, args=(source, destination), daemon=True
+                    target=self.pump, args=(source, destination), daemon=True
                 )
                 for source, destination in ((downstream, upstream), (upstream, downstream))
             ]
@@ -287,7 +287,7 @@ class WorldRelay:
                 connection.close()
 
     @staticmethod
-    def _pump(source: socket.socket, destination: socket.socket) -> None:
+    def pump(source: socket.socket, destination: socket.socket) -> None:
         try:
             while data := source.recv(64 * 1024):
                 destination.sendall(data)
@@ -312,16 +312,16 @@ class WorldRelay:
         self.path.unlink(missing_ok=True)
 
 
-def _mount_parents(path: Path) -> list[str]:
+def mount_parents(path: Path) -> list[str]:
     parents = list(path.parents)[:-1]
     return [item for parent in reversed(parents)
             for item in ("--dir", str(parent))]
 
 
-def _agent_command(cwd: Path, runtime: Path, *, sandbox: bool,
-                   feral: bool, name: str, context: int = 0,
-                   python_timeout: float = core.PYTHON_TIMEOUT,
-                   clean_workspace: bool = False) -> list[str]:
+def agent_command(cwd: Path, runtime: Path, *, sandbox: bool,
+                  feral: bool, name: str, context: int = 0,
+                  python_timeout: float = core.PYTHON_TIMEOUT,
+                  clean_workspace: bool = False) -> list[str]:
     source = Path(core.__file__).resolve()
     arguments = ["--cwd", "/workspace" if sandbox else str(cwd),
                  "--model-socket",
@@ -363,7 +363,7 @@ def _agent_command(cwd: Path, runtime: Path, *, sandbox: bool,
         "--symlink", "usr/bin", "/bin", "--symlink", "usr/lib", "/lib",
         "--symlink", "usr/lib64", "/lib64", "--symlink", "usr/sbin", "/sbin",
         "--dir", "/etc", "--ro-bind", "/etc/alternatives", "/etc/alternatives",
-        *_mount_parents(base), "--ro-bind", str(base), str(base),
+        *mount_parents(base), "--ro-bind", str(base), str(base),
         "--ro-bind", str(environment), "/opt/eko", "--dir", "/run",
         "--ro-bind", str(source), "/run/eko.py",
         "--bind", str(cwd), "/workspace", "--bind", str(runtime), "/run/eko",
@@ -404,7 +404,7 @@ def run(cwd: Path, prompt: str | None, *, model: str,
     cwd = cwd.expanduser().resolve()
     if not cwd.is_dir():
         raise ValueError(f"not a directory: {cwd}")
-    factory = providers._factory(
+    factory = providers.factory(
         provider, model, max_tokens, sglang_url=sglang_url)
     upstream_world = world_socket or os.environ.get("EKO_WORLD")
     with tempfile.TemporaryDirectory(prefix="eko-") as directory:
@@ -424,7 +424,7 @@ def run(cwd: Path, prompt: str | None, *, model: str,
         environment.pop("HF_TOKEN", None)
         environment["EKO_WORLD"] = str(runtime / "world.sock")
         agent = AgentProcess(
-            _agent_command(
+            agent_command(
                 cwd, runtime, sandbox=sandbox, feral=feral, name=name,
                 context=context, clean_workspace=clean_workspace,
                 python_timeout=python_timeout

@@ -153,7 +153,7 @@ class Eko:
                  python_timeout: float = PYTHON_TIMEOUT) -> None:
         self.cwd = cwd.resolve()
         self.feral = feral
-        self.observer = observer or (lambda _event: None)
+        self.observer = observer or (lambda event: None)
         self.model = model
         mode = "" if feral else NORMAL_MODE
         self.system = SYSTEM.format(
@@ -186,8 +186,8 @@ class Eko:
         os.chmod(self.socket_path, 0o600)
         self.listener.listen()
         self.listener.settimeout(.2)
-        self.listener_thread = threading.Thread(target=self._listen, daemon=True)
-        self.thread = threading.Thread(target=self._run, daemon=True)
+        self.listener_thread = threading.Thread(target=self.listen, daemon=True)
+        self.thread = threading.Thread(target=self.run, daemon=True)
         self.model.start(self.system)
         if prompt:
             self.send(prompt)
@@ -242,15 +242,15 @@ class Eko:
         return [next((part.text for part in event.content
                       if isinstance(part, Text)), "[image]") for event in events]
 
-    def _emit(self, event: Event) -> None:
+    def emit(self, event: Event) -> None:
         """Publish a core event to the optional presentation or embedding."""
         self.observer(event)
 
-    def _set_state(self, state: str) -> None:
+    def set_state(self, state: str) -> None:
         self.state = state
-        self._emit(Event("state", state))
+        self.emit(Event("state", state))
 
-    def _drain(self) -> tuple[Input, ...]:
+    def drain(self) -> tuple[Input, ...]:
         """Drain queued inputs so one model turn can batch them without losing origin."""
         pending: list[Input] = []
         while True:
@@ -264,66 +264,66 @@ class Eko:
             pending.append(message)
         return tuple(pending)
 
-    def _receive(self) -> tuple[Input, ...] | None:
+    def receive(self) -> tuple[Input, ...] | None:
         """Wait for one input, then batch everything already queued behind it."""
-        self._set_state("idle")
+        self.set_state("idle")
         self.interrupted.clear()
         first = self.inbox.get()
         if first is None:
             return None
-        return (first, *self._drain())
+        return (first, *self.drain())
 
-    def _execute(self, code: str) -> Result:
-        self._set_state("running Python")
+    def execute(self, code: str) -> Result:
+        self.set_state("running Python")
         env = os.environ.copy()
         env["EKO_SESSION"] = str(self.socket_path)
         env["EKO_AGENT"] = str(Path(__file__).resolve())
         env["EKO_PYTHON_TIMEOUT"] = str(self.python_timeout)
-        return _run_python(
+        return run_python(
             code, self.cwd, self.interrupted, timeout=self.python_timeout, env=env)
 
-    def _run(self) -> None:
+    def run(self) -> None:
         """Process turns until stopped; errors return control to the inbox."""
         inputs = None
         try:
             while True:
                 if inputs is None:
-                    inputs = self._receive()
+                    inputs = self.receive()
                     if inputs is None:
                         return
                     if self.opening_inputs is None:
                         self.opening_inputs = inputs
                 try:
-                    inputs = self._turn(inputs)
+                    inputs = self.turn(inputs)
                 except InterruptedError:
-                    self._emit(Event("error", "Interrupted"))
+                    self.emit(Event("error", "Interrupted"))
                     inputs = None
                 except Exception as error:
                     if self.stopping.is_set():
                         return
-                    self._emit(Event("error", str(error)))
+                    self.emit(Event("error", str(error)))
                     inputs = None
         finally:
             self.model.close()
 
-    def _turn(self, inputs: tuple[Input, ...]) -> tuple[Input, ...] | None:
+    def turn(self, inputs: tuple[Input, ...]) -> tuple[Input, ...] | None:
         """Ask the model, execute its Python, and prepare the next input."""
-        self._set_state("thinking")
+        self.set_state("thinking")
         message = user_message(tuple(limit_input(item) for item in inputs))
-        self._emit(Event("input", message))
-        reply = self.model.send(message, lambda text: self._emit(Event("delta", text)))
+        self.emit(Event("input", message))
+        reply = self.model.send(message, lambda text: self.emit(Event("delta", text)))
         if self.context:
-            self._emit(Event("context", (
+            self.emit(Event("context", (
                 getattr(self.model, "context_used", 0), self.context)))
         if reply.role != "assistant":
             raise ValueError("model must return an assistant message")
         response = message_text(reply)
         code = executable_python(response)
-        self._emit(Event("response", (response, code)))
+        self.emit(Event("response", (response, code)))
 
         if code is not None:
-            result = self._execute(code)
-            self._emit(Event("result", result))
+            result = self.execute(code)
+            self.emit(Event("result", result))
             if self.interrupted.is_set():
                 return None
             inputs = (Input(PYTHON, (Text(result.output or "(no output)"),),
@@ -336,31 +336,31 @@ class Eko:
 
         if self.reset_pending:
             self.model.reset(self.system)
-            self._emit(Event("context", (0, self.context)))
+            self.emit(Event("context", (0, self.context)))
             self.context_notice = 0
             self.reset_pending = False
             assert self.opening_inputs is not None
-            return self.opening_inputs + self._drain()
+            return self.opening_inputs + self.drain()
         if inputs is None:
             return None
         if any(kind == "prose" and PROVENANCE_HEADER.search(text)
-               for kind, text, _closed in response_segments(response)):
+               for kind, text, closed in response_segments(response)):
             inputs += (Input(HARNESS, (Text(
                 "Warning: do not predict the contents of attributed "
                 "sections; wait for them to arrive."
             ),)),)
         if self.context and code is not None:
-            return self._context_inputs(inputs)
-        return inputs + self._drain()
+            return self.context_inputs(inputs)
+        return inputs + self.drain()
 
-    def _context_inputs(self, inputs: tuple[Input, ...]) -> tuple[Input, ...]:
+    def context_inputs(self, inputs: tuple[Input, ...]) -> tuple[Input, ...]:
         """Warn as context fills; give one final turn before resetting."""
         used = getattr(self.model, "context_used", 0)
         ratio = used / self.context
         if ratio >= RESET_AT:
             self.reset_pending = True
             return (Input(HARNESS, (Text(FAREWELL),)),)
-        inputs += self._drain()
+        inputs += self.drain()
         notice = max((threshold for threshold in CONTEXT_NOTICES
                       if ratio >= threshold), default=0)
         if notice > self.context_notice:
@@ -369,24 +369,24 @@ class Eko:
         return inputs
 
     # External processes use the same inbox through a small JSON-lines socket.
-    def _listen(self) -> None:
+    def listen(self) -> None:
         assert self.listener is not None
         while not self.stopping.is_set():
             try:
-                connection, _ = self.listener.accept()
+                connection, address = self.listener.accept()
             except socket.timeout:
                 continue
             except OSError:
                 return
-            threading.Thread(target=self._serve, args=(connection,), daemon=True).start()
+            threading.Thread(target=self.serve, args=(connection,), daemon=True).start()
 
-    def _serve(self, connection: socket.socket) -> None:
+    def serve(self, connection: socket.socket) -> None:
         """Receive JSON and derive provenance from kernel-attested peer credentials."""
         with connection:
             try:
                 credentials = connection.getsockopt(
                     socket.SOL_SOCKET, socket.SO_PEERCRED, struct.calcsize("3i"))
-                pid, _uid, _gid = struct.unpack("3i", credentials)
+                pid, uid, gid = struct.unpack("3i", credentials)
                 source = f"process-{pid}"
                 reader = connection.makefile("rb")
                 while line := reader.readline(MAX_MESSAGE + 1):
@@ -405,7 +405,7 @@ class Eko:
             except (ConnectionError, OSError):
                 return
             except Exception as error:
-                self._emit(Event("error", f"Agent input rejected: {error}"))
+                self.emit(Event("error", f"Agent input rejected: {error}"))
 
 # ── Input decoding ───────────────────────────────────────────────────────────
 
@@ -417,7 +417,7 @@ IMAGE_TYPES = {
 }
 
 
-def _image_type(data: bytes) -> str | None:
+def image_type(data: bytes) -> str | None:
     kind = next((value for signature, value in IMAGE_TYPES.items()
                  if data.startswith(signature)), None)
     if kind is None and data.startswith(b"RIFF") and data[8:12] == b"WEBP":
@@ -455,11 +455,11 @@ def decode_input(message: dict, source: str, cwd: Path) -> Input:
                     raise ValueError("image path leaves the workspace")
                 data = path.read_bytes()
                 name = name or raw["path"]
-                media_type = _image_type(data)
+                media_type = image_type(data)
             elif isinstance(raw.get("data"), str):
                 data = base64.b64decode(raw["data"], validate=True)
                 media_type = raw.get("media_type")
-                if media_type != _image_type(data):
+                if media_type != image_type(data):
                     raise ValueError("image media_type does not match its data")
             else:
                 raise ValueError("image requires path or base64 data")
@@ -585,7 +585,7 @@ def context_status_line(used: int, capacity: int) -> str:
 
 # ── Python execution ─────────────────────────────────────────────────────────
 
-def _run_python(code: str, cwd: Path, interrupted: threading.Event, *,
+def run_python(code: str, cwd: Path, interrupted: threading.Event, *,
                timeout: float = PYTHON_TIMEOUT,
                env: dict[str, str] | None = None) -> Result:
     """Run one model-written Python block in the persistent working folder."""
@@ -602,12 +602,12 @@ def _run_python(code: str, cwd: Path, interrupted: threading.Event, *,
         deadline = started + timeout
         while True:
             try:
-                output, _ = proc.communicate(timeout=.1)
+                output, stderr = proc.communicate(timeout=.1)
                 break
             except subprocess.TimeoutExpired:
                 if interrupted.is_set() or time.monotonic() >= deadline:
                     os.killpg(proc.pid, signal.SIGKILL)
-                    output, _ = proc.communicate()
+                    output, stderr = proc.communicate()
                     reason = ("Interrupted" if interrupted.is_set()
                               else f"TIMEOUT after {timeout:g}s")
                     output += f"\n{reason}"
@@ -618,7 +618,7 @@ def _run_python(code: str, cwd: Path, interrupted: threading.Event, *,
     return Result(output, proc.returncode, time.monotonic() - started)
 
 
-def _reap_children() -> None:
+def reap_children() -> None:
     """Reap orphaned background processes when Eko is namespace PID 1."""
     children = Path("/proc/1/task/1/children")
     while True:
@@ -636,7 +636,7 @@ def _reap_children() -> None:
         time.sleep(.2)
 
 
-def _shutdown_children(grace: float = 1) -> None:
+def shutdown_children(grace: float = 1) -> None:
     """Terminate and reap every remaining child before namespace PID 1 exits."""
     children = Path("/proc/1/task/1/children")
 
@@ -709,23 +709,23 @@ class Model:
         self.endpoint = endpoint
         self.write_lock = threading.Lock()
         self.context_used = 0
-        self._connect()
+        self.connect()
 
-    def _connect(self) -> None:
+    def connect(self) -> None:
         self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.socket.connect(str(self.endpoint))
         self.reader = self.socket.makefile("rb")
 
-    def _send(self, value: dict) -> None:
+    def send_command(self, value: dict) -> None:
         with self.write_lock:
             self.socket.sendall((json.dumps(value, separators=(",", ":")) + "\n").encode())
 
     def start(self, system: str) -> None:
-        self._send({"system": system})
+        self.send_command({"system": system})
 
     def send(self, message: Message,
              on_text: Callable[[str], None]) -> Message:
-        self._send({"message": encode_message(message)})
+        self.send_command({"message": encode_message(message)})
         while line := self.reader.readline():
             event = json.loads(line)
             if "delta" in event:
@@ -741,13 +741,13 @@ class Model:
 
     def interrupt(self) -> None:
         try:
-            self._send({"interrupt": True})
+            self.send_command({"interrupt": True})
         except OSError:
             pass
 
     def reset(self, system: str) -> None:
         self.close()
-        self._connect()
+        self.connect()
         self.context_used = 0
         self.start(system)
 
@@ -797,7 +797,7 @@ def serve(cwd: Path, model_socket: Path, *, prompt: str | None = None,
           python_timeout: float = PYTHON_TIMEOUT) -> None:
     """Run the agent using JSON-lines stdin, stdout, and model socket."""
     if os.getpid() == 1:
-        threading.Thread(target=_reap_children, daemon=True).start()
+        threading.Thread(target=reap_children, daemon=True).start()
     write_lock = threading.Lock()
 
     def write(value: dict) -> None:
@@ -834,7 +834,7 @@ def serve(cwd: Path, model_socket: Path, *, prompt: str | None = None,
         agent.stop()
         agent.wait(5)
         if os.getpid() == 1:
-            _shutdown_children()
+            shutdown_children()
 
 
 def main() -> None:

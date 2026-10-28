@@ -6,10 +6,10 @@ import threading
 
 import eko as core
 
-from .base import _Conversation, _Factory
+from .base import Conversation, Factory
 
 
-class _LocalModel:
+class LocalModel:
     """Load weights once; serialize generation across agent conversations."""
 
     def __init__(self, model: str, max_tokens: int) -> None:
@@ -29,12 +29,12 @@ class _LocalModel:
         self.lock = threading.Lock()
 
 
-class _HuggingFace(_Conversation):
-    def __init__(self, runtime: _LocalModel) -> None:
+class HuggingFace(Conversation):
+    def __init__(self, runtime: LocalModel) -> None:
         super().__init__()
         self.runtime = runtime
 
-    def _generate(self, system, messages, on_text) -> tuple[str, int]:
+    def generate(self, system, messages, on_text) -> tuple[str, int]:
         import torch
         from transformers import StoppingCriteriaList, TextStreamer
 
@@ -63,7 +63,7 @@ class _HuggingFace(_Conversation):
             streamer = Stream(runtime.tokenizer, skip_prompt=True,
                               skip_special_tokens=True)
             stopping = StoppingCriteriaList([
-                lambda _ids, _scores, **_kwargs: self.interrupted.is_set()])
+                lambda ids, scores, **kwargs: self.interrupted.is_set()])
             with torch.inference_mode():
                 output = runtime.model.generate(
                     **inputs, max_new_tokens=runtime.max_tokens,
@@ -82,6 +82,6 @@ class _HuggingFace(_Conversation):
             runtime.lock.release()
 
 
-def _factory(model: str, max_tokens: int) -> _Factory:
-    runtime = _LocalModel(model, max_tokens)
-    return lambda: _HuggingFace(runtime)
+def factory(model: str, max_tokens: int) -> Factory:
+    runtime = LocalModel(model, max_tokens)
+    return lambda: HuggingFace(runtime)
