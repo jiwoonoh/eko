@@ -106,7 +106,7 @@ class AgentProcess:
         if self.proc.poll() is None:
             try:
                 self.send_command({"type": "stop"})
-            except (BrokenPipeError, OSError):
+            except OSError:
                 pass
             try:
                 self.proc.wait(5)
@@ -150,28 +150,27 @@ def model_client(connection: socket.socket, backend: providers.Model) -> None:
 
     try:
         with connection, connection.makefile("rb") as reader:
-            try:
-                initial = json.loads(reader.readline())
-                if not isinstance(initial, dict):
-                    return
-                system = initial.get("system")
-                if not isinstance(system, str):
-                    return
-                while line := reader.readline():
-                    request = json.loads(line)
-                    if not isinstance(request, dict):
-                        return
-                    if request.get("interrupt") is True:
-                        backend.interrupt()
-                    elif (isinstance(request.get("message"), dict) and
-                          (active is None or not active.is_alive())):
-                        active = threading.Thread(
-                            target=complete, args=(request["message"],), daemon=True)
-                        active.start()
-                    else:
-                        send({"error": "model generation already active"})
-            except (json.JSONDecodeError, UnicodeDecodeError):
+            initial = json.loads(reader.readline())
+            if not isinstance(initial, dict):
                 return
+            system = initial.get("system")
+            if not isinstance(system, str):
+                return
+            while line := reader.readline():
+                request = json.loads(line)
+                if not isinstance(request, dict):
+                    return
+                if request.get("interrupt") is True:
+                    backend.interrupt()
+                elif (isinstance(request.get("message"), dict) and
+                      (active is None or not active.is_alive())):
+                    active = threading.Thread(
+                        target=complete, args=(request["message"],), daemon=True)
+                    active.start()
+                else:
+                    send({"error": "model generation already active"})
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return
     finally:
         backend.interrupt()
         if active is not None:
@@ -181,7 +180,6 @@ def model_client(connection: socket.socket, backend: providers.Model) -> None:
 
 class ModelServer:
     def __init__(self, path: Path, factory: providers.Factory) -> None:
-        self.path = path
         self.factory = factory
         self.listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.listener.bind(str(path))
@@ -347,12 +345,7 @@ def agent_command(cwd: Path, runtime: Path, *, sandbox: bool,
     package_paths = []
     for name in ("purelib", "platlib"):
         path = Path(sysconfig.get_path(name)).resolve()
-        try:
-            relative = path.relative_to(environment)
-        except ValueError as error:
-            raise RuntimeError(
-                f"sandbox package directory is outside the environment: {path}"
-            ) from error
+        relative = path.relative_to(environment)
         mapped = str(Path("/opt/eko") / relative)
         if mapped not in package_paths:
             package_paths.append(mapped)
@@ -433,13 +426,11 @@ def run(cwd: Path, prompt: str | None, *, model: str,
             resources.callback(classifier_server.close)
         server = ModelServer(runtime / "model.sock", factory)
         server.start()
-        relay = (
-            WorldRelay(runtime / "world.sock", Path(upstream_world))
-            if upstream_world
-            else None
-        )
-        if relay is not None:
+        resources.callback(server.close)
+        if upstream_world:
+            relay = WorldRelay(runtime / "world.sock", Path(upstream_world))
             relay.start()
+            resources.callback(relay.close)
         environment = os.environ.copy()
         environment.pop("OPENROUTER_API_KEY", None)
         environment.pop("SGLANG_API_KEY", None)
@@ -459,6 +450,7 @@ def run(cwd: Path, prompt: str | None, *, model: str,
             # Bubblewrap's --setenv options supply the sandbox environment.
             env={} if sandbox else environment,
         )
+        resources.callback(agent.stop)
         try:
             if not agent.ready.wait(10) or agent.proc.poll() is not None:
                 raise RuntimeError(agent.startup_error())
@@ -475,22 +467,15 @@ def run(cwd: Path, prompt: str | None, *, model: str,
             ui = UI(context=context)
             ui.header(cwd, model, name)
             ui.connect(agent)
-            ui.on_exit = lambda: (agent.stop(), ui.exit())
+            ui.on_exit = ui.exit
             ui.on_start = lambda: agent.send(prompt) if prompt else None
             if prompt:
                 ui.user(prompt)
             ui.run()
         except KeyboardInterrupt:
-            signal.signal(signal.SIGINT, signal.SIG_IGN)
+            pass
         finally:
-            try:
-                signal.signal(signal.SIGINT, signal.SIG_IGN)
-            except KeyboardInterrupt:
-                signal.signal(signal.SIGINT, signal.SIG_IGN)
-            agent.stop()
-            if relay is not None:
-                relay.close()
-            server.close()
+            signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 
 def main() -> None:

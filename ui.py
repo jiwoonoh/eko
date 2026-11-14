@@ -144,14 +144,15 @@ class NativeStream:
     def stable_code_lines(self) -> int:
         """Return the prefix whose Python highlighting cannot change later."""
         source = "\n".join(self.code_lines) + "\n"
-        stable = len(self.code_lines)
         try:
             list(tokenize.generate_tokens(io.StringIO(source).readline))
-        except (tokenize.TokenError, IndentationError, SyntaxError) as error:
-            location = error.args[1] if len(error.args) > 1 else None
-            if isinstance(location, tuple):
-                stable = min(stable, max(0, location[0] - 1))
-        return stable
+        except tokenize.TokenError as error:
+            line = error.args[1][0]
+        except SyntaxError as error:
+            line = error.lineno or 1
+        else:
+            return len(self.code_lines)
+        return min(len(self.code_lines), max(0, line - 1))
 
     def commit_code(self, final: bool = False) -> None:
         end = len(self.code_lines) if final else self.stable_code_lines()

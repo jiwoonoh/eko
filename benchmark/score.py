@@ -4,9 +4,12 @@ import argparse
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 import json
+from math import ceil, isfinite
 import os
 from pathlib import Path
 import re
+from urllib.error import HTTPError
+from urllib.parse import quote
 from urllib.request import Request, urlopen
 
 from rich.console import Console
@@ -17,7 +20,8 @@ from .data import (append, lead_context, load_cases, load_references, read_rows,
                    reference_responses, response_text)
 from .prompts import direct_prompt, faithfulness_prompt, quality_prompt, tool_prompt
 
-JUDGE = "google/gemini-2.5-pro"
+# JUDGE = "google/gemini-2.5-pro"
+JUDGE = "meta/muse-ember"
 console = Console(highlight=False)
 
 
@@ -88,8 +92,13 @@ def judge(prompt, model, api_key):
         "https://openrouter.ai/api/v1/chat/completions",
         data=json.dumps(payload).encode(),
         headers={"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"})
-    with urlopen(request, timeout=300) as response:
-        return json.load(response)
+    try:
+        with urlopen(request, timeout=300) as response:
+            return json.load(response)
+    except HTTPError as error:
+        detail = error.read().decode("utf-8", errors="replace").strip()
+        raise RuntimeError(f"OpenRouter judge HTTP {error.code} for {model}: "
+                           f"{detail or error.reason}") from error
 
 
 def judge_text(response):
@@ -129,12 +138,30 @@ def parse_scores(text, metric):
     return scores
 
 
-def score(task, model, api_key, dry_run):
+def estimate_cost(prompts, model, output_tokens):
+    """Estimate a full run using OpenRouter's current catalog rates."""
+    url = f"https://openrouter.ai/api/v1/model/{quote(model, safe='/:')}"
+    with urlopen(url, timeout=15) as response:
+        pricing = json.load(response)["data"]["pricing"]
+    prices = {key: float(pricing[key]) for key in ("prompt", "completion")}
+    prices["request"] = float(pricing.get("request", 0))
+    if any(not isfinite(price) or price < 0 for price in prices.values()):
+        raise ValueError(f"No fixed pricing available for {model}")
+
+    chars_per_token = 4
+    input_tokens = sum(ceil(len(prompt) / chars_per_token) for prompt in prompts)
+    output_tokens *= len(prompts)
+    input_cost = input_tokens * prices["prompt"]
+    output_cost = output_tokens * prices["completion"]
+    request_cost = len(prompts) * prices["request"]
+    return {"input_tokens": input_tokens, "output_tokens": output_tokens,
+            "input_usd": input_cost, "output_usd": output_cost,
+            "request_usd": request_cost, "total_usd": input_cost + output_cost + request_cost}
+
+
+def score(task, model, api_key):
     row = dict(task)
     if "status" in row:
-        return row
-    if dry_run:
-        row["status"] = "pending"
         return row
     row["raw_response"] = ""
     response = None
@@ -176,10 +203,15 @@ def main():
     parser.add_argument("--judge-model", default=JUDGE)
     parser.add_argument("--batch-size", type=int, default=8,
                         help="Concurrent judge requests per batch (default: 8)")
-    parser.add_argument("--dry-run", action="store_true", help="Save judge prompts without API calls")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="Estimate full scoring cost without scoring or writing files")
+    parser.add_argument("--estimate-output-tokens", type=int, default=512,
+                        help="Assumed output tokens per judge call, including reasoning (default: 512)")
     args = parse_args(parser, "score")
     if args.batch_size <= 0:
         parser.error("--batch-size must be positive")
+    if args.estimate_output_tokens <= 0:
+        parser.error("--estimate-output-tokens must be positive")
     args.leads = lead_context(args.dataset, args.leads)
     response_config = args.responses.with_suffix(args.responses.suffix + ".config.json")
     if response_config.exists():
@@ -194,10 +226,32 @@ def main():
     references = load_references(args.reference_dataset, args.reference_split)
     responses = {row["case_id"]: row for row in read_rows(args.responses)}
     planned = list(tasks(cases, responses, references))
+    if args.dry_run:
+        prompts = [task["prompt"] for task in planned if "prompt" in task]
+        console.print(f"Judge: {args.judge_model}", markup=False)
+        console.print(f"Full run: {len(prompts)} judge calls, {len(planned) - len(prompts)} skipped "
+                      "(includes already scored tasks).")
+        if not prompts:
+            console.print("Estimated scoring cost: $0.0000 USD")
+            return
+        try:
+            cost = estimate_cost(prompts, args.judge_model, args.estimate_output_tokens)
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            parser.exit(1, f"Cost estimate unavailable: {error}\n")
+        console.print(f"Estimated scoring cost: ${cost['total_usd']:.4f} USD")
+        console.print(f"  Input: ~{cost['input_tokens']:,} tokens (${cost['input_usd']:.4f})")
+        console.print(f"  Output: ~{cost['output_tokens']:,} tokens (${cost['output_usd']:.4f})")
+        if cost["request_usd"]:
+            console.print(f"  Request fees: ${cost['request_usd']:.4f}")
+        console.print(f"Assumes 4 characters/input token and {args.estimate_output_tokens} "
+                      "output tokens/call, including reasoning; this is not a spending cap.")
+        console.print("Uses live OpenRouter catalog rates; routing, caching, pricing tiers, "
+                      "and credit purchase fees may change the cost.")
+        return
     settings = {key: value for key, value in vars(args).items()
-                if key not in ("config", "output", "dry_run", "batch_size")}
+                if key not in ("config", "output", "dry_run", "batch_size", "estimate_output_tokens")}
     save_settings(args.output, {**settings, "history": "generated"})
-    api_key = None if args.dry_run else os.environ["OPENROUTER_API_KEY"]
+    api_key = os.environ["OPENROUTER_API_KEY"]
     existing = {row["id"]: row for row in read_rows(args.output)} if args.output.exists() else {}
     results = []
     resumed = 0
@@ -216,7 +270,7 @@ def main():
         for start in track(range(0, len(pending), args.batch_size), description="Scoring batches",
                            console=console, disable=detailed):
             batch = pending[start:start + args.batch_size]
-            futures = [pool.submit(score, task, args.judge_model, api_key, args.dry_run)
+            futures = [pool.submit(score, task, args.judge_model, api_key)
                        for task in batch]
             failed = False
             for future in futures:

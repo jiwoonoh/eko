@@ -5,12 +5,8 @@ from .base import Conversation, Factory
 
 class LocalModel:
     def __init__(self, model: str, max_tokens: int) -> None:
-        try:
-            from transformers import AutoModelForCausalLM, AutoTokenizer
-        except ImportError as error:
-            raise RuntimeError(
-                "Hugging Face requires transformers, torch, and accelerate; "
-                "see README.md") from error
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+
         self.tokenizer = AutoTokenizer.from_pretrained(model)
         if not self.tokenizer.chat_template:
             raise ValueError("Hugging Face model must have a chat template")

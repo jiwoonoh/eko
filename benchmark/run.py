@@ -107,40 +107,41 @@ def show_turn(case, turn):
 
 
 def run_case(case, ecg_dir, factory, classifier, args):
-    record = {"case_id": case["case_id"], "ecg_file": case["ecg_file"], "turns": []}
-    # References and result files are outside the agent workspace.
-    with tempfile.TemporaryDirectory(prefix="eko-bench-", dir="/tmp") as directory, ExitStack() as resources:
-        directory = Path(directory)
-        workspace, runtime = directory / "workspace", directory / "runtime"
-        workspace.mkdir()
-        runtime.mkdir()
-        prepare_ecg(ecg_dir, case["ecg_file"], workspace / "record.mat")
-        shutil.copytree(ROOT / "toolbox", workspace / "toolbox",
-                        ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
-        sandbox = args.execution == "sandbox"
-        server = host.ModelServer(runtime / "model.sock", factory)
-        server.start()
-        resources.callback(server.close)
-        environment = os.environ.copy()
-        for key in ("OPENROUTER_API_KEY", "SGLANG_API_KEY", "HF_TOKEN", "GOOGLE_API_KEY",
-                    "GEMINI_API_KEY", "EKO_CLASSIFIER", "EKO_WORLD"):
-            environment.pop(key, None)
-        if classifier is not None:
-            from toolbox.neural_networks.classification.service import ClassifierServer
+    record = {"case_id": case["case_id"], "ecg_file": case["ecg_file"],
+              "status": "ok", "turns": []}
+    try:
+        # References and result files are outside the agent workspace.
+        with tempfile.TemporaryDirectory(prefix="eko-bench-", dir="/tmp") as directory, ExitStack() as resources:
+            directory = Path(directory)
+            workspace, runtime = directory / "workspace", directory / "runtime"
+            workspace.mkdir()
+            runtime.mkdir()
+            prepare_ecg(ecg_dir, case["ecg_file"], workspace / "record.mat")
+            shutil.copytree(ROOT / "toolbox", workspace / "toolbox",
+                            ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+            sandbox = args.execution == "sandbox"
+            server = host.ModelServer(runtime / "model.sock", factory)
+            server.start()
+            resources.callback(server.close)
+            environment = os.environ.copy()
+            for key in ("OPENROUTER_API_KEY", "SGLANG_API_KEY", "HF_TOKEN", "GOOGLE_API_KEY",
+                        "GEMINI_API_KEY", "EKO_CLASSIFIER", "EKO_WORLD"):
+                environment.pop(key, None)
+            if classifier is not None:
+                from toolbox.neural_networks.classification.service import ClassifierServer
 
-            service = ClassifierServer(runtime / "classifier.sock", classifier, workspace,
-                                       sandbox=sandbox)
-            service.start()
-            resources.callback(service.close)
-            environment["EKO_CLASSIFIER"] = str(runtime / "classifier.sock")
-        agent = host.AgentProcess(host.agent_command(
-            workspace, runtime, sandbox=sandbox, feral=False, name="Eko",
-            python_timeout=args.python_timeout, classifier=classifier is not None),
-            env={} if sandbox else environment)
-        resources.callback(agent.stop)
-        events = queue.Queue()
-        agent.observer = events.put
-        try:
+                service = ClassifierServer(runtime / "classifier.sock", classifier, workspace,
+                                           sandbox=sandbox)
+                service.start()
+                resources.callback(service.close)
+                environment["EKO_CLASSIFIER"] = str(runtime / "classifier.sock")
+            agent = host.AgentProcess(host.agent_command(
+                workspace, runtime, sandbox=sandbox, feral=False, name="Eko",
+                python_timeout=args.python_timeout, classifier=classifier is not None),
+                env={} if sandbox else environment)
+            resources.callback(agent.stop)
+            events = queue.Queue()
+            agent.observer = events.put
             if not agent.ready.wait(10) or agent.proc.poll() is not None:
                 raise RuntimeError(agent.startup_error())
             for index, query in enumerate(case["user_turns"]):
@@ -151,11 +152,10 @@ def run_case(case, ecg_dir, factory, classifier, args):
                 if args.max_samples is not None:
                     show_turn(case, turn)
                 if result["status"] != "ok":
+                    record["status"] = "error"
                     break
-            record["status"] = ("ok" if len(record["turns"]) == len(case["user_turns"])
-                                and all(t["status"] == "ok" for t in record["turns"]) else "error")
-        except (OSError, RuntimeError) as error:
-            record.update(status="error", error=str(error))
+    except Exception as error:
+        record.update(status="error", error=str(error))
     return record
 
 
@@ -205,11 +205,7 @@ def main():
                 if detailed:
                     console.print(f"ECG {key}: skipped (already complete)", markup=False)
                 continue
-            try:
-                record = run_case(case, args.ecg_dir, factory, classifier, args)
-            except Exception as error:
-                record = {"case_id": key, "ecg_file": case["ecg_file"],
-                          "status": "error", "error": str(error), "turns": []}
+            record = run_case(case, args.ecg_dir, factory, classifier, args)
             append(stream, record)
             previous[key] = record
             completed += record["status"] == "ok"

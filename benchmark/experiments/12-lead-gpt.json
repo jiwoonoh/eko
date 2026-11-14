@@ -1,0 +1,15 @@
+{
+  "dataset": "gustmd0121/12-lead-ecg-mtd-dataset",
+  "split": "test",
+  "leads": "12-lead",
+  "run": {
+    "output": "benchmark-results/12-lead/responses.jsonl"
+  },
+  "score": {
+    "reference_dataset": "gustmd0121/12-lead-ecg-mtd-dataset-gt",
+    "reference_split": "test",
+    "judge_model": "meta/muse-ember",
+    "responses": "benchmark-results/12-lead/responses.jsonl",
+    "output": "benchmark-results/12-lead/scores.jsonl"
+  }
+}

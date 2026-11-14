@@ -407,7 +407,7 @@ class Eko:
                         self.interrupt()
                     else:
                         raise ValueError("unsupported session event type")
-            except (ConnectionError, OSError):
+            except OSError:
                 return
             except Exception as error:
                 self.emit(Event("error", f"Agent input rejected: {error}"))
@@ -666,24 +666,16 @@ def shutdown_children(grace: float = 1) -> None:
             except ChildProcessError:
                 return
 
-    deadline = time.monotonic() + grace
-    while pids() and time.monotonic() < deadline:
-        for pid in pids():
-            try:
-                os.kill(pid, signal.SIGTERM)
-            except ProcessLookupError:
-                pass
-        reap()
-        time.sleep(.02)
-    deadline = time.monotonic() + grace
-    while pids() and time.monotonic() < deadline:
-        for pid in pids():
-            try:
-                os.kill(pid, signal.SIGKILL)
-            except ProcessLookupError:
-                pass
-        reap()
-        time.sleep(.02)
+    for sig in (signal.SIGTERM, signal.SIGKILL):
+        deadline = time.monotonic() + grace
+        while (remaining := pids()) and time.monotonic() < deadline:
+            for pid in remaining:
+                try:
+                    os.kill(pid, sig)
+                except ProcessLookupError:
+                    pass
+            reap()
+            time.sleep(.02)
     reap()
 
 
