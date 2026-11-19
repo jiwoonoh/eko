@@ -20,7 +20,6 @@ from .data import (append, lead_context, load_cases, load_references, read_rows,
                    reference_responses, response_text)
 from .prompts import direct_prompt, faithfulness_prompt, quality_prompt, tool_prompt
 
-# JUDGE = "google/gemini-2.5-pro"
 JUDGE = "meta/muse-ember"
 console = Console(highlight=False)
 
@@ -28,23 +27,23 @@ console = Console(highlight=False)
 def tasks(cases, responses, references):
     for case in cases:
         key = case["case_id"]
-        record = responses.get(key, {})
+        questions = case["user_turns"]
+        case_references = references.get(key, {})
         turns = {}
-        for turn in record.get("turns", []):
+        for turn in responses.get(key, {}).get("turns", []):
             turn = dict(turn)
             index = turn["turn"]
             if index in turns:
                 raise ValueError(f"Duplicate response turn for ECG {key}: {index}")
-            if (index < 0 or index >= len(case["user_turns"])
-                    or turn.get("query") != case["user_turns"][index]):
+            if index < 0 or index >= len(questions) or turn.get("query") != questions[index]:
                 raise ValueError(f"Response question differs for ECG {key}, turn {index}")
             if turn.get("status") == "ok":
                 turn["response"] = response_text(turn["response"])
             turns[index] = turn
         expected = {entry["turn"]: entry["category"]
                     for entry in reference_responses(case["reference_dialogue"])}
-        for index, query in enumerate(case["user_turns"]):
-            reference = references.get(key, {}).get(query)
+        for index, query in enumerate(questions):
+            reference = case_references.get(query)
             if reference is None and index not in expected:
                 continue
             category = reference["category"] if reference else expected[index]
@@ -64,7 +63,7 @@ def tasks(cases, responses, references):
                       if category == "direct_response" else
                       tool_prompt(key, data, "eko", reference["response"], category))
             yield {**task, "prompt": prompt}
-        for index in range(len(case["user_turns"])):
+        for index in range(len(questions)):
             turn = turns.get(index, {})
             task = {"id": f"{key}:faithfulness:{index}", "case_id": key,
                     "metric": "faithfulness", "turn": index}
@@ -76,12 +75,12 @@ def tasks(cases, responses, references):
                 yield {**task, "prompt": faithfulness_prompt(
                     "\n\n".join(turn["evidence"]), turn["response"])}
         task = {"id": f"{key}:dialogue", "case_id": key, "metric": "dialogue"}
-        if any(turns.get(i, {}).get("status") != "ok" for i in range(len(case["user_turns"]))):
+        if any(turns.get(i, {}).get("status") != "ok" for i in range(len(questions))):
             yield {**task, "status": "incomplete_dialogue"}
             continue
         dialogue = "\n".join(
             f"User: {query}\nAssistant: {turns[i]['response']}"
-            for i, query in enumerate(case["user_turns"]))
+            for i, query in enumerate(questions))
         yield {**task, "prompt": quality_prompt(dialogue, case["cefr_level"])}
 
 
@@ -318,7 +317,7 @@ def main():
     console.print(f"Tool responses: {tool_response['scored']}/{tool_response['total']} scored" +
                   (f"; {means}" if means else ""))
     console.print(f"Summary: {path}", markup=False)
-    if any(row["status"] == "judge_error" for row in results):
+    if counts["judge_error"]:
         raise SystemExit(1)
 
 

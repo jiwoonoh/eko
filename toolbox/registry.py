@@ -27,17 +27,17 @@ class Toolbox:
             raise ValueError(f"--tools must be a list drawn from: {', '.join(TOOLS)}")
         if len(names) != len(set(names)):
             raise ValueError("--tools must not contain duplicates")
-        self._tools = {name: TOOLS[name] for name in names}
-        self._states = {name: tool.load(args) for name, tool in self._tools.items()}
+        selected = [TOOLS[name] for name in names]
+        self._tools = [(tool, tool.load(args)) for tool in selected]
         single_lead = SINGLE_LEADS.get(getattr(args, "leads", None))
         self.prompt = "\n\n".join(tool.prompt_for(single_lead=single_lead)
-                                  for tool in self._tools.values())
+                                  for tool in selected)
 
     def start(self, resources, workspace, runtime, *, sandbox):
-        _stage(self._tools, runtime)
+        _stage((tool for tool, _ in self._tools), runtime)
         environment = {}
-        for name, tool in self._tools.items():
-            values = tool.start(self._states[name], resources, workspace, runtime, sandbox=sandbox)
+        for tool, state in self._tools:
+            values = tool.start(state, resources, workspace, runtime, sandbox=sandbox)
             overlap = environment.keys() & values.keys()
             if overlap:
                 raise ValueError(f"Tools share environment variables: {', '.join(sorted(overlap))}")
@@ -50,7 +50,7 @@ def _stage(tools, directory):
     target = directory / "toolbox"
     target.mkdir()
     (target / "__init__.py").touch()
-    for tool in tools.values():
+    for tool in tools:
         for name in tool.files:
             source = (ROOT / name).resolve()
             destination = target / source.relative_to(ROOT)

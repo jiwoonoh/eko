@@ -91,6 +91,10 @@ class AgentProcess:
             details = "\n".join(self.startup_diagnostics).strip()
         return "agent did not start" + (f":\n{details}" if details else "")
 
+    def wait_ready(self) -> None:
+        if not self.ready.wait(10) or self.proc.poll() is not None:
+            raise RuntimeError(self.startup_error())
+
     def send_command(self, value: dict) -> None:
         assert self.proc.stdin
         with self.write_lock:
@@ -197,13 +201,7 @@ class ModelServer:
         self.thread.start()
 
     def run(self) -> None:
-        while not self.stopping.is_set():
-            try:
-                connection, address = self.listener.accept()
-            except socket.timeout:
-                continue
-            except OSError:
-                return
+        for connection in core.accept_connections(self.listener, self.stopping):
             try:
                 backend = self.factory()
             except Exception as error:
@@ -250,13 +248,7 @@ class WorldRelay:
         self.thread.start()
 
     def run(self) -> None:
-        while not self.stopping.is_set():
-            try:
-                downstream, address = self.listener.accept()
-            except socket.timeout:
-                continue
-            except OSError:
-                return
+        for downstream in core.accept_connections(self.listener, self.stopping):
             thread = threading.Thread(
                 target=self.bridge, args=(downstream,), daemon=True
             )
@@ -444,8 +436,7 @@ def run(cwd: Path, prompt: str | None, *, model: str,
         )
         resources.callback(agent.stop)
         try:
-            if not agent.ready.wait(10) or agent.proc.poll() is not None:
-                raise RuntimeError(agent.startup_error())
+            agent.wait_ready()
             if headless:
                 agent.observer = print_event
                 print(f"EKO_SESSION={runtime / 'session.sock'}", flush=True)

@@ -127,8 +127,7 @@ def run_case(case, ecg_dir, factory, tools, args):
             resources.callback(agent.stop)
             events = queue.Queue()
             agent.observer = events.put
-            if not agent.ready.wait(10) or agent.proc.poll() is not None:
-                raise RuntimeError(agent.startup_error())
+            agent.wait_ready()
             for index, query in enumerate(case["user_turns"]):
                 prompt = instruction(tools, case["leads"], query)
                 result = answer(agent, events, prompt, args.turn_timeout, args.max_steps)
