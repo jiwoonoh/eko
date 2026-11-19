@@ -6,7 +6,7 @@ import argparse
 from torch import nn
 from pathlib import Path
 
-from ...leads import LEADS, keep_lead
+from ...leads import LEADS, add_lead_argument, keep_leads, select_leads
 from ...record import load_record
 
 # Defaults from fairseq_signals.models.ecg_transformer and models.transformer.
@@ -154,9 +154,10 @@ def convert_weights(state: dict, layers: int) -> dict:
 
 class Classifier:
     def __init__(self, checkpoint: Path, device: str | None = None,
-                 *, single_lead: str | None = None) -> None:
-        self.single_lead = single_lead
-        self.labels = SINGLE_LEAD_LABELS[single_lead] if single_lead else set(CLASS_LABELS)
+                 *, leads: list[str] | tuple[str, ...] | None = None) -> None:
+        self.leads = select_leads(leads)
+        self.labels = (SINGLE_LEAD_LABELS.get(self.leads[0], CLASS_LABELS)
+                       if len(self.leads) == 1 else CLASS_LABELS)
         state = torch.load(checkpoint.expanduser(), map_location="cpu", weights_only=False)
         cfg = state.get("cfg")
         model_cfg = DEFAULTS | cfg["model"]
@@ -178,9 +179,7 @@ class Classifier:
         signal = data["feats"]
         if signal.ndim != 2 or signal.shape[0] != len(LEADS):
             raise ValueError(f"Expected (12, samples) in lead order {LEADS}")
-        if self.single_lead:
-            signal = keep_lead(signal, self.single_lead)
-        source = torch.as_tensor(signal.copy(), dtype=torch.float32)
+        source = torch.as_tensor(keep_leads(signal, self.leads), dtype=torch.float32)
         if source.shape[1] < self.model.min_samples or not torch.isfinite(source).all():
             raise ValueError("ECG is too short or contains nonfinite values")
         probabilities = self.model(source.unsqueeze(0).to(self.device)).sigmoid()[0]
@@ -206,8 +205,13 @@ def main() -> None:
     parser.add_argument("--checkpoint", type=Path, required=True)
     parser.add_argument("--device", help="PyTorch device (default: CUDA when available, else CPU)")
     parser.add_argument("ecg_path", type=Path)
+    add_lead_argument(parser)
     args = parser.parse_args()
-    classifier = Classifier(args.checkpoint, args.device)
+    try:
+        leads = select_leads(args.leads)
+    except ValueError as error:
+        parser.error(str(error))
+    classifier = Classifier(args.checkpoint, args.device, leads=leads)
     print(json.dumps(classifier.evaluate(args.ecg_path), indent=2, allow_nan=False))
 
 

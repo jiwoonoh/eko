@@ -2,6 +2,26 @@
 
 
 def tool_prompt(ecg_id, response_data, model_name, gt_response, category):
+    return _response_prompt(ecg_id, response_data, model_name, gt_response, category,
+                            include_tool_output=True)
+
+
+def direct_prompt(ecg_id, response_data, model_name, gt_response):
+    return _response_prompt(ecg_id, response_data, model_name, gt_response, "direct_response",
+                            include_tool_output=False)
+
+
+def _response_prompt(ecg_id, response_data, model_name, gt_response, category, *, include_tool_output):
+    query = response_data.get("context", {}).get("user_query", "")
+    if include_tool_output:
+        context = (f"- Tool Output (provided to assistant): {response_data.get('tool_output', 'N/A')}\n"
+                   f"- User's Question: {query}")
+    else:
+        context = f"- User's Question/Previous Turn: {query}"
+
+    # Preserve the original prompt text so existing scores can still be reused.
+    accuracy_spacing = " " if include_tool_output else "  "
+    criteria_spacing = "" if include_tool_output else "    \n"
     return f"""
 You are a medical expert evaluating an AI's ECG dialogue response. Compare the assistant's response to the ground truth.
 
@@ -9,8 +29,7 @@ You are a medical expert evaluating an AI's ECG dialogue response. Compare the a
 - ECG ID: {ecg_id}
 - Model: {model_name}
 - Response Category: {category}
-- Tool Output (provided to assistant): {response_data.get('tool_output', 'N/A')}
-- User's Question: {response_data.get('context', {}).get('user_query', '')}
+{context}
 
 **Ground Truth Response:**
 {gt_response}
@@ -20,51 +39,14 @@ You are a medical expert evaluating an AI's ECG dialogue response. Compare the a
 
 **Evaluation Criteria:**
 1. Accuracy (1-5): How well does the response match the ground truth? Key information to look for are representative diagnosis classes (e.g., sinus rhythm, myocardial infarction) or measurement interval (e.g., Heart rate, PR interval, QRS duration, QTc interval) for post tool calls and representative key information for direct responses.\x20
-    - 5: Fully accurate. If the diagnosis classes mentioned by the model's response is fully accurate, as in all representative diagnosis classes are identified and correct, this score should be applied. For measurement interval, if for example the heart rate, pr interval, qrs duration, and qtc interval is accurate within the normal range for a normal ECG, this score should be applied.\x20
+    - 5: Fully accurate. If the diagnosis classes mentioned by the model's response is fully accurate, as in all representative diagnosis classes are identified and correct, this score should be applied. For measurement interval, if for example the heart rate, pr interval, qrs duration, and qtc interval is accurate within the normal range for a normal ECG, this score should be applied.{accuracy_spacing}
     - 3: Partially accurate. If the diagnosis classes mentioned by the model's response is partially inaccurate, as in one representative diagnosis class is identified but another one is inaccurate (50% accuracy), this score should be applied. For measurement interval, if for example the measurements of heart rate and pr interval is accurate within the normal range for a normal ECG but the QRS duration and QTC interval are inaccurate, this score should be applied.\x20\x20
     - 1: Largely inaccurate. If the diagnosis classes mentioned by the model's response is entirely inaccurate, as in not a single relevant class is identified, this score should be applied. For measurement interval, if for example abnormal heart rate, pr interval, qrs duration, and qtc interval is identified for a completely normal ECG, this score should be applied.
 2. Completeness (1-5): Does the response cover essential information mentioned in the ground truth? This score focuses on whether the answer is comprehensive and includes as much essential information as possible.\x20
     - 5: Comprehensive. If the response includes all key information from the ground truth, this score should be applied.\x20
     - 3: Partially complete. If the response includes some key information but is missing others, this score should be applied.
     - 1: Incomplete. If the response is missing all key information, this score should be applied.
-
-**Instructions:** Rate each criterion and provide a brief justification.
-
-**Response Format:**
-Accuracy: [score]
-Accuracy Explanation: [justification]
-Completeness: [score]
-Completeness Explanation: [justification]
-"""
-
-
-def direct_prompt(ecg_id, response_data, model_name, gt_response):
-    return f"""
-You are a medical expert evaluating an AI's ECG dialogue response. Compare the assistant's response to the ground truth.
-
-**Context:**
-- ECG ID: {ecg_id}
-- Model: {model_name}
-- Response Category: direct_response
-- User's Question/Previous Turn: {response_data.get('context', {}).get('user_query', '')}
-
-**Ground Truth Response:**
-{gt_response}
-
-**Assistant Response to Evaluate:**
-{response_data.get('response', '')}
-
-**Evaluation Criteria:**
-1. Accuracy (1-5): How well does the response match the ground truth? Key information to look for are representative diagnosis classes (e.g., sinus rhythm, myocardial infarction) or measurement interval (e.g., Heart rate, PR interval, QRS duration, QTc interval) for post tool calls and representative key information for direct responses.\x20
-    - 5: Fully accurate. If the diagnosis classes mentioned by the model's response is fully accurate, as in all representative diagnosis classes are identified and correct, this score should be applied. For measurement interval, if for example the heart rate, pr interval, qrs duration, and qtc interval is accurate within the normal range for a normal ECG, this score should be applied.\x20\x20
-    - 3: Partially accurate. If the diagnosis classes mentioned by the model's response is partially inaccurate, as in one representative diagnosis class is identified but another one is inaccurate (50% accuracy), this score should be applied. For measurement interval, if for example the measurements of heart rate and pr interval is accurate within the normal range for a normal ECG but the QRS duration and QTC interval are inaccurate, this score should be applied.\x20\x20
-    - 1: Largely inaccurate. If the diagnosis classes mentioned by the model's response is entirely inaccurate, as in not a single relevant class is identified, this score should be applied. For measurement interval, if for example abnormal heart rate, pr interval, qrs duration, and qtc interval is identified for a completely normal ECG, this score should be applied.
-2. Completeness (1-5): Does the response cover essential information mentioned in the ground truth? This score focuses on whether the answer is comprehensive and includes as much essential information as possible.\x20
-    - 5: Comprehensive. If the response includes all key information from the ground truth, this score should be applied.\x20
-    - 3: Partially complete. If the response includes some key information but is missing others, this score should be applied.
-    - 1: Incomplete. If the response is missing all key information, this score should be applied.
-\x20\x20\x20\x20
-
+{criteria_spacing}
 **Instructions:** Rate each criterion and provide a brief justification.
 
 **Response Format:**

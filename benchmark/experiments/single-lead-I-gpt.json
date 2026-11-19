@@ -1,7 +1,7 @@
 {
   "dataset": "gustmd0121/single-lead-I-ecg-mtd-dataset",
   "split": "test",
-  "leads": "single-lead-I",
+  "leads": ["I"],
   "run": {
     "tools": ["measurement", "classification"],
     "output": "benchmark-results/lead-restricted/single-lead-I/responses.jsonl"

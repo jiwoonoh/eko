@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import base64
+from contextlib import suppress
 import http.client
 import json
 import socket
@@ -109,7 +110,5 @@ class ChatCompletions(Conversation):
         super().interrupt()
         connection = self.socket
         if connection is not None:
-            try:
+            with suppress(OSError):
                 connection.shutdown(socket.SHUT_RDWR)
-            except OSError:
-                pass

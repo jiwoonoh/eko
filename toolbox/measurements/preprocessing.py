@@ -8,7 +8,7 @@ from joblib import Memory
 import neurokit2 as nk
 import numpy as np
 
-from ..leads import LEADS
+from ..leads import DEFAULT_MEASUREMENT_LEAD, LEADS
 from ..record import load_record
 
 cache_dir = Path.cwd() / ".eko-cache"
@@ -62,7 +62,7 @@ def _load_measurement_lead(ecg_path: str) -> tuple[np.ndarray, int, str]:
     signal = np.asarray(data["feats"], dtype=float)
     if rate != 500:
         raise ValueError("ECG-Agent's measurement tool requires 500 Hz ECGs")
-    lead = np.asarray(data.get("measurement_lead", "II")).item()
+    lead = np.asarray(data.get("measurement_lead", DEFAULT_MEASUREMENT_LEAD)).item()
     return signal[LEADS.index(lead)], 500, lead
 
 

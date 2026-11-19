@@ -28,6 +28,7 @@ import threading
 import time
 import uuid
 from collections.abc import Iterator
+from contextlib import suppress
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
@@ -62,6 +63,7 @@ an OpenRPC Unix socket.{mode}
 
 NUDGE = "Write a fenced ```python-run block, or <done/> if the prompt is resolved."
 FERAL_NUDGE = "Write a fenced ```python-run block."
+INVALID_ACTION = "Send one complete ```python-run block and stop after it. No Python was run."
 NORMAL_MODE = (" If no action is needed, answer directly. When the prompt is "
                "fully resolved, end with <done/> and no Python block.")
 CLEAN_WORKSPACE = "Keep your workspace clean and organized."
@@ -245,7 +247,8 @@ class Eko:
 
     def status(self) -> str:
         """Describe current and queued work for an observer."""
-        queued = len(self.pending())
+        with self.inbox.mutex:
+            queued = sum(event is not None for event in self.inbox.queue)
         return self.state + (f" · {queued} pending" if queued else "")
 
     def pending(self) -> list[str]:
@@ -266,15 +269,10 @@ class Eko:
     def drain(self) -> tuple[Input, ...]:
         """Drain queued inputs so one model turn can batch them without losing origin."""
         pending: list[Input] = []
-        while True:
-            try:
-                message = self.inbox.get_nowait()
-            except queue.Empty:
-                break
-            if message is None:
-                self.inbox.put(None)
-                break
-            pending.append(message)
+        with suppress(queue.Empty):
+            while (message := self.inbox.get_nowait()) is not None:
+                pending.append(message)
+            self.inbox.put(None)
         return tuple(pending)
 
     def receive(self) -> tuple[Input, ...] | None:
@@ -332,12 +330,7 @@ class Eko:
             raise ValueError("model must return an assistant message")
         response = message_text(reply)
         segments = response_segments(response.rstrip())
-        feedback = None
-        try:
-            code = _executable_python(segments)
-        except ValueError as error:
-            code = None
-            feedback = str(error)
+        code, feedback = _parse_action(segments)
         self.emit(Event("response", (response, code)))
 
         if code is not None:
@@ -398,7 +391,7 @@ class Eko:
             try:
                 credentials = connection.getsockopt(
                     socket.SOL_SOCKET, socket.SO_PEERCRED, struct.calcsize("3i"))
-                pid, uid, gid = struct.unpack("3i", credentials)
+                pid, _, _ = struct.unpack("3i", credentials)
                 source = f"process-{pid}"
                 reader = connection.makefile("rb")
                 while line := reader.readline(MAX_MESSAGE + 1):
@@ -533,18 +526,20 @@ def response_segments(text: str) -> list[tuple[str, str, bool]]:
 
 def executable_python(text: str) -> str | None:
     """Accept one complete action ending the response; reject ambiguous drafts."""
-    return _executable_python(response_segments(text.rstrip()))
+    code, feedback = _parse_action(response_segments(text.rstrip()))
+    if feedback:
+        raise ValueError(feedback)
+    return code
 
 
-def _executable_python(segments: list[tuple[str, str, bool]]) -> str | None:
+def _parse_action(segments: list[tuple[str, str, bool]]) -> tuple[str | None, str | None]:
     blocks = sum(kind == "python" for kind, _, _ in segments)
     if blocks == 0:
-        return None
+        return None, None
     kind, code, closed = segments[-1]
     if blocks != 1 or kind != "python" or not closed:
-        raise ValueError("Send one complete ```python-run block and stop after it. "
-                         "No Python was run.")
-    return code
+        return None, INVALID_ACTION
+    return code, None
 
 
 def limit_input(incoming: Input, limit: int = MAX_INPUT_TEXT) -> Input:
@@ -624,12 +619,12 @@ def run_python(code: str, cwd: Path, interrupted: threading.Event, *,
         deadline = started + timeout
         while True:
             try:
-                output, stderr = proc.communicate(timeout=.1)
+                output, _ = proc.communicate(timeout=.1)
                 break
             except subprocess.TimeoutExpired:
                 if interrupted.is_set() or time.monotonic() >= deadline:
                     os.killpg(proc.pid, signal.SIGKILL)
-                    output, stderr = proc.communicate()
+                    output, _ = proc.communicate()
                     reason = ("Interrupted" if interrupted.is_set()
                               else f"TIMEOUT after {timeout:g}s")
                     output += f"\n{reason}"
@@ -653,10 +648,8 @@ def reap_children() -> None:
         with CHILDREN_LOCK:
             for pid in pids:
                 if pid not in ACTIVE_CHILDREN:
-                    try:
+                    with suppress(ChildProcessError):
                         os.waitpid(pid, os.WNOHANG)
-                    except ChildProcessError:
-                        pass
         time.sleep(.2)
 
 
@@ -674,10 +667,8 @@ def shutdown_children(grace: float = 1) -> None:
         deadline = time.monotonic() + grace
         while (remaining := _namespace_children()) and time.monotonic() < deadline:
             for pid in remaining:
-                try:
+                with suppress(ProcessLookupError):
                     os.kill(pid, sig)
-                except ProcessLookupError:
-                    pass
             reap()
             time.sleep(.02)
     reap()
@@ -748,10 +739,8 @@ class Model:
         raise RuntimeError("model service disconnected")
 
     def interrupt(self) -> None:
-        try:
+        with suppress(OSError):
             self.send_command({"interrupt": True})
-        except OSError:
-            pass
 
     def reset(self, system: str) -> None:
         self.close()

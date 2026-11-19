@@ -79,8 +79,9 @@ class NativeStream:
         self.last_flush = time.monotonic()
 
     def drain(self, final: bool = False) -> None:
-        while "\n" in self.buffer:
-            line, self.buffer = self.buffer.split("\n", 1)
+        lines = self.buffer.split("\n")
+        self.buffer = lines.pop()
+        for line in lines:
             self.line(line + "\n")
         if not final:
             return
@@ -120,8 +121,9 @@ class NativeStream:
             self.prose = ""
 
     def render_prose(self, text: str) -> None:
-        if text.strip():
-            self.pending_output.append(self.ui.render(Markdown(text.strip())) + "\n")
+        text = text.strip()
+        if text:
+            self.pending_output.append(self.ui.render(Markdown(text)) + "\n")
 
     def width(self) -> int:
         return max(20, shutil.get_terminal_size().columns - 2)

@@ -4,7 +4,12 @@ import argparse
 import json
 from pathlib import Path
 
-from .data import DATASET, LEAD_CONTEXTS
+from toolbox.leads import add_lead_argument, select_leads
+
+from .data import DATASET
+
+
+LEGACY_LEADS = {"12-lead": None, "single-lead-I": ["I"], "single-lead-II": ["II"]}
 
 
 def parse_args(parser, section):
@@ -12,8 +17,7 @@ def parse_args(parser, section):
     parser.add_argument("--dataset", default=DATASET)
     parser.add_argument("--split", default="test")
     parser.add_argument("--max-samples", type=int)
-    parser.add_argument("--leads", choices=LEAD_CONTEXTS,
-                        help="Lead condition for the dialogue and its tools")
+    add_lead_argument(parser)
     probe = argparse.ArgumentParser(add_help=False)
     probe.add_argument("--config", type=Path)
     config, _ = probe.parse_known_args()
@@ -31,20 +35,31 @@ def parse_args(parser, section):
     args = parser.parse_args()
     if args.max_samples is not None and args.max_samples <= 0:
         parser.error("--max-samples must be positive")
-    if args.leads is not None and args.leads not in LEAD_CONTEXTS:
-        parser.error(f"--leads must be one of {', '.join(LEAD_CONTEXTS)}")
+    try:
+        args.leads = select_leads(args.leads)
+    except ValueError as error:
+        parser.error(str(error))
     return args
+
+
+def response_leads(settings):
+    """Read the actual waveform selection from a generation sidecar."""
+    leads = settings.get("tool_leads", settings.get("leads"))
+    if isinstance(leads, str) and leads in LEGACY_LEADS:
+        leads = LEGACY_LEADS[leads]
+    return select_leads(leads)
 
 
 def save_settings(output, settings):
     output.parent.mkdir(parents=True, exist_ok=True)
     path = output.with_suffix(output.suffix + ".config.json")
-    settings = json.loads(json.dumps(settings, default=str))
+    serialized = json.dumps(settings, indent=2, default=str)
     if output.exists() and output.stat().st_size and path.exists():
         previous = json.loads(path.read_text())
+        settings = json.loads(serialized)
         changed = sorted(key for key in previous.keys() | settings.keys()
                          if key != "max_samples" and previous.get(key) != settings.get(key))
         if changed:
             raise ValueError(f"Existing output uses different settings: {', '.join(changed)}. "
                              "Choose a separate output file.")
-    path.write_text(json.dumps(settings, indent=2) + "\n")
+    path.write_text(serialized + "\n")

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import argparse
-from contextlib import ExitStack
+from contextlib import ExitStack, suppress
 import json
 import os
 import shutil
@@ -54,33 +54,29 @@ class AgentProcess:
         try:
             for line in self.proc.stdout:
                 raw = json.loads(line)
-                event = core.decode_event(raw)
-                kind = event.type
-                if kind == "ready":
+                if raw["type"] == "ready":
                     self.session = raw["session"]
                     self.ready.set()
-                else:
-                    if kind == "state":
-                        self.state = str(event.value)
-                    self.observer(event)
+                    continue
+                event = core.decode_event(raw)
+                if event.type == "state":
+                    self.state = str(event.value)
+                self.observer(event)
         except Exception as error:
-            message = f"Agent connection failed: {error}"
-            self.record_startup_diagnostic(message)
-            self.observer(core.Event("error", message))
+            self._report_error(f"Agent connection failed: {error}")
         finally:
             self.ready.set()
 
     def read_errors(self) -> None:
         assert self.proc.stderr
         for line in self.proc.stderr:
-            message = line.rstrip()
-            self.record_startup_diagnostic(message)
-            self.observer(core.Event("error", message))
+            self._report_error(line.rstrip())
 
-    def record_startup_diagnostic(self, message: str) -> None:
+    def _report_error(self, message: str) -> None:
         if self.session is None and message:
             with self.diagnostic_lock:
                 self.startup_diagnostics.append(message)
+        self.observer(core.Event("error", message))
 
     def startup_error(self) -> str:
         """Return diagnostics emitted before the agent became ready."""
@@ -109,10 +105,8 @@ class AgentProcess:
 
     def stop(self) -> None:
         if self.proc.poll() is None:
-            try:
+            with suppress(OSError):
                 self.send_command({"type": "stop"})
-            except OSError:
-                pass
             try:
                 self.proc.wait(5)
             except subprocess.TimeoutExpired:
@@ -135,11 +129,8 @@ def model_client(connection: socket.socket, backend: providers.Model, instructio
 
     def send(value: dict) -> None:
         data = (json.dumps(value, separators=(",", ":")) + "\n").encode()
-        with lock:
-            try:
-                connection.sendall(data)
-            except OSError:
-                pass
+        with lock, suppress(OSError):
+            connection.sendall(data)
 
     def complete(message: dict) -> None:
         try:
@@ -288,10 +279,8 @@ class WorldRelay:
         except OSError:
             pass
         finally:
-            try:
+            with suppress(OSError):
                 destination.shutdown(socket.SHUT_WR)
-            except OSError:
-                pass
 
     def close(self) -> None:
         self.stopping.set()

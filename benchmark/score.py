@@ -3,6 +3,7 @@
 import argparse
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
+from functools import partial
 import json
 from math import ceil, isfinite
 import os
@@ -15,8 +16,8 @@ from urllib.request import Request, urlopen
 from rich.console import Console
 from rich.progress import track
 
-from .config import parse_args, save_settings
-from .data import (append, lead_context, load_cases, load_references, read_rows,
+from .config import parse_args, response_leads, save_settings
+from .data import (append, iter_rows, load_cases, load_references,
                    reference_responses, response_text)
 from .prompts import direct_prompt, faithfulness_prompt, quality_prompt, tool_prompt
 
@@ -30,14 +31,13 @@ def tasks(cases, responses, references):
         case_references = references.get(key, {})
         turns = {}
         for turn in responses.get(key, {}).get("turns", []):
-            turn = dict(turn)
             index = turn["turn"]
             if index in turns:
                 raise ValueError(f"Duplicate response turn for ECG {key}: {index}")
             if index < 0 or index >= len(questions) or turn.get("query") != questions[index]:
                 raise ValueError(f"Response question differs for ECG {key}, turn {index}")
             if turn.get("status") == "ok":
-                turn["response"] = response_text(turn["response"])
+                turn = {**turn, "response": response_text(turn["response"])}
             turns[index] = turn
         expected = {entry["turn"]: entry["category"]
                     for entry in reference_responses(case["reference_dialogue"])}
@@ -121,10 +121,10 @@ def judge_text(response):
 def parse_scores(text, metric):
     text = re.sub(r"(\*\*|__)(.*?)\1", r"\2", text)
     if metric == "faithfulness":
-        match = re.fullmatch("[01]", text.strip())
-        if match is None:
+        text = text.strip()
+        if text not in ("0", "1"):
             raise ValueError("Judge faithfulness score must be 0 or 1")
-        return {"faithfulness": int(match[0])}
+        return {"faithfulness": int(text)}
     labels = ({"accuracy": "Accuracy", "completeness": "Completeness"} if metric == "response"
               else {"naturalness": "Naturalness Score", "cefr_adherence": "CEFR Adherence Score"})
     scores = {}
@@ -210,19 +210,23 @@ def main():
         parser.error("--batch-size must be positive")
     if args.estimate_output_tokens <= 0:
         parser.error("--estimate-output-tokens must be positive")
-    args.leads = lead_context(args.dataset, args.leads)
     response_config = args.responses.with_suffix(args.responses.suffix + ".config.json")
     if response_config.exists():
         settings = json.loads(response_config.read_text())
         if settings.get("history") != "generated":
             parser.error("Responses must use generated conversation history")
-        changed = [key for key in ("dataset", "split", "leads")
+        changed = [key for key in ("dataset", "split")
                    if settings.get(key) != getattr(args, key)]
+        try:
+            if response_leads(settings) != args.leads:
+                changed.append("leads")
+        except ValueError as error:
+            parser.error(f"Invalid waveform leads in {response_config}: {error}")
         if changed:
             parser.error(f"Response settings differ: {', '.join(changed)}")
-    cases = load_cases(args.dataset, args.split, args.max_samples, args.leads)
+    cases = load_cases(args.dataset, args.split, args.max_samples)
     references = load_references(args.reference_dataset, args.reference_split)
-    responses = {row["case_id"]: row for row in read_rows(args.responses)}
+    responses = {row["case_id"]: row for row in iter_rows(args.responses)}
     planned = list(tasks(cases, responses, references))
     if args.dry_run:
         prompts = [task["prompt"] for task in planned if "prompt" in task]
@@ -250,7 +254,7 @@ def main():
                 if key not in ("config", "output", "dry_run", "batch_size", "estimate_output_tokens")}
     save_settings(args.output, {**settings, "history": "generated"})
     api_key = os.environ["OPENROUTER_API_KEY"]
-    existing = {row["id"]: row for row in read_rows(args.output)} if args.output.exists() else {}
+    existing = {row["id"]: row for row in iter_rows(args.output, missing_ok=True)}
     results = []
     resumed = 0
     pending = []
@@ -264,15 +268,13 @@ def main():
         else:
             pending.append(task)
     detailed = args.max_samples is not None
+    score_task = partial(score, model=args.judge_model, api_key=api_key)
     with args.output.open("a") as stream, ThreadPoolExecutor(max_workers=args.batch_size) as pool:
         for start in track(range(0, len(pending), args.batch_size), description="Scoring batches",
                            console=console, disable=detailed):
             batch = pending[start:start + args.batch_size]
-            futures = [pool.submit(score, task, args.judge_model, api_key)
-                       for task in batch]
             failed = False
-            for future in futures:
-                row = future.result()
+            for row in pool.map(score_task, batch):
                 append(stream, row)
                 results.append(row)
                 if detailed or row["status"] == "judge_error":

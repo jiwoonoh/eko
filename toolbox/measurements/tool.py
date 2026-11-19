@@ -1,12 +1,13 @@
 """Register individual measurements separately from the fixed ECG-Agent panel."""
 
 from ..base import Tool
+from ..leads import measurement_lead
 from .ecg_analysis import PANEL
 
 
 class Measurement(Tool):
-    def prompt_for(self, *, single_lead=None):
-        return self.prompt.format(lead=single_lead or "II")
+    def prompt_for(self, *, leads):
+        return self.prompt.format(lead=measurement_lead(leads))
 
 
 def measurement_tool(name, quantity, *, files=()):

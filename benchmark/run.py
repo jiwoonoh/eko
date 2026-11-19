@@ -12,16 +12,17 @@ import time
 import eko as core
 import host
 import providers
+from toolbox.leads import describe_leads
 from toolbox.registry import Toolbox, add_arguments as add_tool_arguments
 from rich.console import Console
 from rich.progress import track
 
 from .config import parse_args, save_settings
-from .data import append, lead_context, load_cases, prepare_ecg, read_rows, response_text
+from .data import append, iter_rows, load_cases, prepare_ecg, response_text
 
 console = Console(highlight=False)
 INSTRUCTION = """You are a world-renowned cardiac electrophysiologist. Respond directly to the user's latest question. Keep the answers concise. Interpret findings when relevant.
-ECG: record.mat. Dialogue context: {leads}.
+ECG: record.mat with {leads}.
 The file contains waveforms, not findings. {tool_instruction}
 
 {tool_prompts}
@@ -66,11 +67,11 @@ def answer(agent, events, prompt, timeout, max_steps):
         trace.append(core.encode_event(event))
         if event.type == "error":
             return {"status": "error", "error": str(event.value), "trace": trace}
-        if event.type == "input":
+        elif event.type == "input":
             text = core.message_text(event.value)
             if text.startswith("[python exit=0]"):
                 evidence.append(text)
-        if event.type == "response":
+        elif event.type == "response":
             steps += 1
             text, code = event.value
             text = response_text(text)
@@ -79,7 +80,7 @@ def answer(agent, events, prompt, timeout, max_steps):
             elif steps >= max_steps:
                 return {"status": "error", "error": f"Reached {max_steps} model steps",
                         "trace": trace}
-        if event.type == "state" and event.value == "idle" and steps:
+        elif event.type == "state" and event.value == "idle" and steps:
             if not final:
                 return {"status": "error", "error": "No completed answer", "trace": trace}
             return {"status": "ok", "response": final, "evidence": evidence,
@@ -113,7 +114,7 @@ def run_case(case, ecg_dir, factory, tools, args):
             workspace, runtime = directory / "workspace", directory / "runtime"
             workspace.mkdir()
             runtime.mkdir()
-            prepare_ecg(ecg_dir, case["ecg_file"], workspace / "record.mat", leads=case["leads"])
+            prepare_ecg(ecg_dir, case["ecg_file"], workspace / "record.mat", leads=args.leads)
             sandbox = args.execution == "sandbox"
             tool_env = tools.start(resources, workspace, runtime, sandbox=sandbox)
             server = host.ModelServer(runtime / "model.sock", factory)
@@ -128,8 +129,9 @@ def run_case(case, ecg_dir, factory, tools, args):
             events = queue.Queue()
             agent.observer = events.put
             agent.wait_ready()
+            leads = describe_leads(args.leads)
             for index, query in enumerate(case["user_turns"]):
-                prompt = instruction(tools, case["leads"], query)
+                prompt = instruction(tools, leads, query)
                 result = answer(agent, events, prompt, args.turn_timeout, args.max_steps)
                 turn = {"turn": index, "query": query, **result}
                 record["turns"].append(turn)
@@ -163,18 +165,17 @@ def main():
     args = parse_args(parser, "run")
     if args.turn_timeout <= 0 or args.python_timeout <= 0 or args.max_steps <= 0:
         parser.error("--turn-timeout, --python-timeout, and --max-steps must be positive")
-    args.leads = lead_context(args.dataset, args.leads)
     args.ecg_dir = args.ecg_dir.expanduser().resolve()
     try:
         tools = Toolbox(args)
     except ValueError as error:
         parser.error(str(error))
     settings = {key: value for key, value in vars(args).items() if key not in ("config", "output")}
-    settings.update(history="generated", tool_leads=args.leads, temperature=0.0,
+    settings.update(history="generated", temperature=0.0,
                     instruction=instruction(tools, "{leads}", "{query}"))
     save_settings(args.output, settings)
-    cases = load_cases(args.dataset, args.split, args.max_samples, args.leads)
-    previous = {r["case_id"]: r for r in read_rows(args.output)} if args.output.exists() else {}
+    cases = load_cases(args.dataset, args.split, args.max_samples)
+    previous = {row["case_id"]: row.get("status") for row in iter_rows(args.output, missing_ok=True)}
     factory = providers.factory(args.provider, args.model, args.max_tokens, sglang_url=args.sglang_url)
     completed = failed = skipped = 0
     turn_counts = Counter()
@@ -183,21 +184,22 @@ def main():
     with args.output.open("a") as stream:
         for case in track(cases, description="Generating dialogues", console=console, disable=detailed):
             key = case["case_id"]
-            if previous.get(key, {}).get("status") == "ok":
+            if previous.get(key) == "ok":
                 skipped += 1
                 if detailed:
                     console.print(f"ECG {key}: skipped (already complete)", markup=False)
                 continue
             record = run_case(case, args.ecg_dir, factory, tools, args)
             append(stream, record)
-            previous[key] = record
-            completed += record["status"] == "ok"
-            failed += record["status"] != "ok"
-            turn_counts.update(turn["status"] for turn in record["turns"])
-            unattempted += len(case["user_turns"]) - len(record["turns"])
             status = record["status"]
+            previous[key] = status
+            completed += status == "ok"
+            failed += status != "ok"
+            turns = record["turns"]
+            turn_counts.update(turn["status"] for turn in turns)
+            unattempted += len(case["user_turns"]) - len(turns)
             if status == "error":
-                error = next((turn["error"] for turn in record["turns"] if turn.get("error")),
+                error = next((turn["error"] for turn in turns if turn.get("error")),
                              record.get("error", "Unknown error"))
                 status += f": {error}"
             if detailed or record["status"] == "error":

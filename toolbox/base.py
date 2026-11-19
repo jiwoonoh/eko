@@ -21,7 +21,7 @@ print({function}('record.mat'))
 ```""",
         )
 
-    def prompt_for(self, *, single_lead=None):
+    def prompt_for(self, *, leads):
         """Render usage instructions for the available waveform leads."""
         return self.prompt
 

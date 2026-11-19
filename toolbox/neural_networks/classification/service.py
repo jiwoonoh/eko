@@ -1,5 +1,6 @@
 """Serve the host's resident classifier over a private Unix socket."""
 
+from contextlib import suppress
 import json
 from pathlib import Path
 import socketserver
@@ -21,10 +22,8 @@ class ClassifierRequest(socketserver.StreamRequestHandler):
             response = {"result": self.server.classifier.evaluate(path)}
         except Exception as error:
             response = {"error": str(error)}
-        try:
+        with suppress(BrokenPipeError, ConnectionResetError):
             self.wfile.write((json.dumps(response, allow_nan=False) + "\n").encode())
-        except (BrokenPipeError, ConnectionResetError):
-            pass
 
 
 class ClassifierServer(socketserver.UnixStreamServer):

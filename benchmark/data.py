@@ -4,22 +4,23 @@ import json
 import os
 from pathlib import Path
 
-from toolbox.leads import LEADS, SINGLE_LEADS, keep_lead
+from toolbox.leads import LEADS, keep_leads, measurement_lead, select_leads
 
 DATASET = "gustmd0121/12-lead-ecg-mtd-dataset"
-LEAD_CONTEXTS = ("12-lead", *SINGLE_LEADS)
-
-
-def lead_context(dataset, requested=None):
-    leads = requested or Path(dataset).name.split("-ecg-mtd-dataset")[0]
-    if leads not in LEAD_CONTEXTS:
-        raise ValueError(f"Unknown lead context {leads!r}; specify --leads")
-    return leads
 
 
 def read_rows(path):
-    with Path(path).open() as stream:
-        return [json.loads(line) for line in stream if line.strip()]
+    return list(iter_rows(path))
+
+
+def iter_rows(path, *, missing_ok=False):
+    path = Path(path)
+    if missing_ok and not path.exists():
+        return
+    with path.open() as stream:
+        for line in stream:
+            if line.strip():
+                yield json.loads(line)
 
 
 def append(stream, row):
@@ -46,6 +47,7 @@ def reference_responses(dialogue):
         if turn["role"] == "user":
             user_index += 1
             query = turn["content"]
+            continue
         if turn["role"] != "assistant" or turn.get("action") != "response":
             continue
         previous = dialogue[index - 1] if index else {}
@@ -82,18 +84,17 @@ def load_references(dataset, split):
     return references
 
 
-def load_cases(dataset=DATASET, split="test", max_samples=None, leads=None):
+def load_cases(dataset=DATASET, split="test", max_samples=None):
     from datasets import load_dataset
 
     rows = load_dataset(dataset, split=split)
     if max_samples is not None:
         rows = rows.select(range(min(max_samples, len(rows))))
-    leads = lead_context(dataset, leads)
     cases = []
     for row in rows:
         metadata = json.loads(row["metadata"])
         dialogue = json.loads(row["dialogue"])
-        cases.append({"case_id": str(metadata["ecg_id"]), "leads": leads,
+        cases.append({"case_id": str(metadata["ecg_id"]),
                       "ecg_file": metadata["ecg_lookup_filename_used"],
                       "cefr_level": metadata["cefr_level"],
                       "user_turns": [turn["content"] for turn in dialogue if turn["role"] == "user"],
@@ -101,9 +102,9 @@ def load_cases(dataset=DATASET, split="test", max_samples=None, leads=None):
     return cases
 
 
-def prepare_ecg(ecg_dir, ecg_file, destination, *, leads="12-lead"):
-    """Stage the waveform for the dialogue's lead condition."""
-    leads = lead_context(DATASET, leads)
+def prepare_ecg(ecg_dir, ecg_file, destination, *, leads=None):
+    """Stage only the selected waveforms for the agent."""
+    leads = select_leads(leads)
     import numpy as np
     from scipy.io import savemat
     from toolbox.record import load_record
@@ -118,10 +119,9 @@ def prepare_ecg(ecg_dir, ecg_file, destination, *, leads="12-lead"):
         raise ValueError("ECG-Agent's benchmark tools require 500 Hz ECGs")
     if signal.ndim != 2 or signal.shape[0] != len(LEADS) or not signal.shape[1]:
         raise ValueError("Expected feats with shape (12, samples) in ECG-Agent lead order")
+    signal = keep_leads(signal, leads)
     if not np.isfinite(signal).all():
-        raise ValueError("ECG contains nonfinite values")
-    record = {"feats": signal, "curr_sample_rate": int(rate)}
-    if leads in SINGLE_LEADS:
-        lead = SINGLE_LEADS[leads]
-        record.update(feats=keep_lead(signal, lead), measurement_lead=lead)
+        raise ValueError("Selected ECG leads contain nonfinite values")
+    record = {"feats": signal, "curr_sample_rate": int(rate),
+              "measurement_lead": measurement_lead(leads)}
     savemat(destination, record)

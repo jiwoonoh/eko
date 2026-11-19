@@ -1,7 +1,6 @@
 {
   "dataset": "gustmd0121/12-lead-ecg-mtd-dataset",
   "split": "test",
-  "leads": "12-lead",
   "run": {
     "tools": ["measurement", "classification"],
     "output": "benchmark-results/lead-restricted/12-lead/responses.jsonl"

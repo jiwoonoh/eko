@@ -3,12 +3,12 @@
 from pathlib import Path
 
 from ...base import Tool
-from ...leads import SINGLE_LEADS
+from ...leads import describe_leads
 
 
 class Classification(Tool):
-    def prompt_for(self, *, single_lead=None):
-        return self.prompt.format(leads=f"lead {single_lead}" if single_lead else "all 12 leads")
+    def prompt_for(self, *, leads):
+        return self.prompt.format(leads=describe_leads(leads))
 
     def add_arguments(self, parser):
         parser.add_argument("--classifier-checkpoint", type=Path,
@@ -20,8 +20,8 @@ class Classification(Tool):
             raise ValueError("--classifier-checkpoint is required when classification is enabled")
         from .model import Classifier
 
-        single_lead = SINGLE_LEADS.get(getattr(args, "leads", None))
-        return Classifier(args.classifier_checkpoint, args.classifier_device, single_lead=single_lead)
+        return Classifier(args.classifier_checkpoint, args.classifier_device,
+                          leads=getattr(args, "leads", None))
 
     def start(self, state, resources, workspace, runtime, *, sandbox):
         from .service import ClassifierServer
