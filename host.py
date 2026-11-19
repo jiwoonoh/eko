@@ -20,6 +20,7 @@ from typing import Callable
 
 import eko as core
 import providers
+from toolbox.registry import Toolbox, add_arguments as add_tool_arguments
 
 
 # ── Agent process and model service ──────────────────────────────────────────
@@ -90,6 +91,10 @@ class AgentProcess:
             details = "\n".join(self.startup_diagnostics).strip()
         return "agent did not start" + (f":\n{details}" if details else "")
 
+    def wait_ready(self) -> None:
+        if not self.ready.wait(10) or self.proc.poll() is not None:
+            raise RuntimeError(self.startup_error())
+
     def send_command(self, value: dict) -> None:
         assert self.proc.stdin
         with self.write_lock:
@@ -106,7 +111,7 @@ class AgentProcess:
         if self.proc.poll() is None:
             try:
                 self.send_command({"type": "stop"})
-            except (BrokenPipeError, OSError):
+            except OSError:
                 pass
             try:
                 self.proc.wait(5)
@@ -123,7 +128,7 @@ class AgentProcess:
         return self.state
 
 
-def model_client(connection: socket.socket, backend: providers.Model) -> None:
+def model_client(connection: socket.socket, backend: providers.Model, instructions: str = "") -> None:
     """Give one agent connection an independent model conversation."""
     lock = threading.Lock()
     active: threading.Thread | None = None
@@ -150,28 +155,29 @@ def model_client(connection: socket.socket, backend: providers.Model) -> None:
 
     try:
         with connection, connection.makefile("rb") as reader:
-            try:
-                initial = json.loads(reader.readline())
-                if not isinstance(initial, dict):
-                    return
-                system = initial.get("system")
-                if not isinstance(system, str):
-                    return
-                while line := reader.readline():
-                    request = json.loads(line)
-                    if not isinstance(request, dict):
-                        return
-                    if request.get("interrupt") is True:
-                        backend.interrupt()
-                    elif (isinstance(request.get("message"), dict) and
-                          (active is None or not active.is_alive())):
-                        active = threading.Thread(
-                            target=complete, args=(request["message"],), daemon=True)
-                        active.start()
-                    else:
-                        send({"error": "model generation already active"})
-            except (json.JSONDecodeError, UnicodeDecodeError):
+            initial = json.loads(reader.readline())
+            if not isinstance(initial, dict):
                 return
+            system = initial.get("system")
+            if not isinstance(system, str):
+                return
+            if instructions:
+                system += "\n\n" + instructions
+            while line := reader.readline():
+                request = json.loads(line)
+                if not isinstance(request, dict):
+                    return
+                if request.get("interrupt") is True:
+                    backend.interrupt()
+                elif (isinstance(request.get("message"), dict) and
+                      (active is None or not active.is_alive())):
+                    active = threading.Thread(
+                        target=complete, args=(request["message"],), daemon=True)
+                    active.start()
+                else:
+                    send({"error": "model generation already active"})
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return
     finally:
         backend.interrupt()
         if active is not None:
@@ -180,9 +186,9 @@ def model_client(connection: socket.socket, backend: providers.Model) -> None:
 
 
 class ModelServer:
-    def __init__(self, path: Path, factory: providers.Factory) -> None:
-        self.path = path
+    def __init__(self, path: Path, factory: providers.Factory, instructions: str = "") -> None:
         self.factory = factory
+        self.instructions = instructions
         self.listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.listener.bind(str(path))
         self.listener.listen()
@@ -195,13 +201,7 @@ class ModelServer:
         self.thread.start()
 
     def run(self) -> None:
-        while not self.stopping.is_set():
-            try:
-                connection, address = self.listener.accept()
-            except socket.timeout:
-                continue
-            except OSError:
-                return
+        for connection in core.accept_connections(self.listener, self.stopping):
             try:
                 backend = self.factory()
             except Exception as error:
@@ -211,7 +211,7 @@ class ModelServer:
                 continue
             thread = threading.Thread(
                 target=model_client,
-                args=(connection, backend), daemon=True)
+                args=(connection, backend, self.instructions), daemon=True)
             thread.start()
             self.clients.append(thread)
 
@@ -248,13 +248,7 @@ class WorldRelay:
         self.thread.start()
 
     def run(self) -> None:
-        while not self.stopping.is_set():
-            try:
-                downstream, address = self.listener.accept()
-            except socket.timeout:
-                continue
-            except OSError:
-                return
+        for downstream in core.accept_connections(self.listener, self.stopping):
             thread = threading.Thread(
                 target=self.bridge, args=(downstream,), daemon=True
             )
@@ -322,7 +316,7 @@ def agent_command(cwd: Path, runtime: Path, *, sandbox: bool,
                   feral: bool, name: str, context: int = 0,
                   python_timeout: float = core.PYTHON_TIMEOUT,
                   clean_workspace: bool = False,
-                  classifier: bool = False) -> list[str]:
+                  tool_env: dict[str, str] | None = None) -> list[str]:
     source = Path(core.__file__).resolve()
     arguments = ["--cwd", "/workspace" if sandbox else str(cwd),
                  "--model-socket",
@@ -344,20 +338,13 @@ def agent_command(cwd: Path, runtime: Path, *, sandbox: bool,
     environment = Path(sys.prefix).resolve()
     interpreter = Path(sys.executable).resolve()
     base = interpreter.parents[1]
-    package_paths = []
+    package_paths = ["/run/eko"]
     for name in ("purelib", "platlib"):
         path = Path(sysconfig.get_path(name)).resolve()
-        try:
-            relative = path.relative_to(environment)
-        except ValueError as error:
-            raise RuntimeError(
-                f"sandbox package directory is outside the environment: {path}"
-            ) from error
+        relative = path.relative_to(environment)
         mapped = str(Path("/opt/eko") / relative)
         if mapped not in package_paths:
             package_paths.append(mapped)
-    if classifier:
-        package_paths.append("/run/eko")
     return [
         bwrap, "--die-with-parent", "--new-session", "--as-pid-1",
         "--unshare-user", "--unshare-pid", "--unshare-ipc",
@@ -372,8 +359,6 @@ def agent_command(cwd: Path, runtime: Path, *, sandbox: bool,
         "--ro-bind", str(environment), "/opt/eko", "--dir", "/run",
         "--ro-bind", str(source), "/run/eko.py",
         "--bind", str(cwd), "/workspace", "--bind", str(runtime), "/run/eko",
-        *(["--ro-bind", str(source.parent / "toolbox"), "/run/eko/toolbox"]
-          if classifier else []),
         "--proc", "/proc", "--dev", "/dev", "--tmpfs", "/tmp",
         "--remount-ro", "/", "--setenv", "HOME", "/workspace",
         "--setenv", "TMPDIR", "/tmp", "--setenv", "LANG", "C.UTF-8",
@@ -382,10 +367,20 @@ def agent_command(cwd: Path, runtime: Path, *, sandbox: bool,
         "--setenv", "VIRTUAL_ENV", "/opt/eko",
         "--setenv", "EKO_MODEL", "/run/eko/model.sock",
         "--setenv", "EKO_WORLD", "/run/eko/world.sock",
-        *(["--setenv", "EKO_CLASSIFIER", "/run/eko/classifier.sock"] if classifier else []),
+        *[item for key, value in (tool_env or {}).items() for item in ("--setenv", key, value)],
         "--chdir", "/workspace", str(interpreter), "/run/eko.py",
         *arguments,
     ]
+
+
+def agent_environment(runtime: Path, tool_env: dict[str, str]) -> dict[str, str]:
+    environment = {key: value for key, value in os.environ.items()
+                   if not key.startswith("EKO_") and key not in (
+                       "OPENROUTER_API_KEY", "SGLANG_API_KEY", "HF_TOKEN", "GOOGLE_API_KEY",
+                       "GEMINI_API_KEY", "PYTHONPATH")}
+    environment["PYTHONPATH"] = str(runtime)
+    environment.update(tool_env)
+    return environment
 
 
 def print_event(event: core.Event) -> None:
@@ -404,64 +399,44 @@ def print_event(event: core.Event) -> None:
 
 def run(cwd: Path, prompt: str | None, *, model: str,
         feral: bool, name: str, headless: bool, sandbox: bool,
+        tools: Toolbox,
         world_socket: Path | None = None, context: int = 0,
         clean_workspace: bool = False,
         python_timeout: float = core.PYTHON_TIMEOUT,
         provider: str = "sglang", max_tokens: int = 4096,
-        sglang_url: str | None = None,
-        classifier_checkpoint: Path | None = None,
-        classifier_device: str | None = None) -> None:
+        sglang_url: str | None = None) -> None:
     cwd = cwd.expanduser().resolve()
     if not cwd.is_dir():
         raise ValueError(f"not a directory: {cwd}")
     factory = providers.factory(
         provider, model, max_tokens, sglang_url=sglang_url)
-    classifier = None
-    if classifier_checkpoint is not None:
-        from toolbox.neural_networks.classification.model import Classifier
-
-        classifier = Classifier(classifier_checkpoint, classifier_device)
     upstream_world = world_socket or os.environ.get("EKO_WORLD")
     with tempfile.TemporaryDirectory(prefix="eko-") as directory, ExitStack() as resources:
         runtime = Path(directory)
-        if classifier is not None:
-            from toolbox.neural_networks.classification.service import ClassifierServer
-
-            classifier_server = ClassifierServer(
-                runtime / "classifier.sock", classifier, cwd, sandbox=sandbox)
-            classifier_server.start()
-            resources.callback(classifier_server.close)
-        server = ModelServer(runtime / "model.sock", factory)
+        tool_env = tools.start(resources, cwd, runtime, sandbox=sandbox)
+        instructions = ("Available ECG tools. Examples use record.mat; substitute the user's ECG path.\n\n"
+                        + tools.prompt) if tools.prompt else ""
+        server = ModelServer(runtime / "model.sock", factory, instructions)
         server.start()
-        relay = (
-            WorldRelay(runtime / "world.sock", Path(upstream_world))
-            if upstream_world
-            else None
-        )
-        if relay is not None:
+        resources.callback(server.close)
+        if upstream_world:
+            relay = WorldRelay(runtime / "world.sock", Path(upstream_world))
             relay.start()
-        environment = os.environ.copy()
-        environment.pop("OPENROUTER_API_KEY", None)
-        environment.pop("SGLANG_API_KEY", None)
-        environment.pop("HF_TOKEN", None)
-        environment.pop("EKO_CLASSIFIER", None)
-        if classifier is not None:
-            environment["EKO_CLASSIFIER"] = str(runtime / "classifier.sock")
-            environment["PYTHONPATH"] = os.pathsep.join(filter(None, (
-                str(Path(__file__).resolve().parent), environment.get("PYTHONPATH"))))
+            resources.callback(relay.close)
+        environment = agent_environment(runtime, tool_env)
         environment["EKO_WORLD"] = str(runtime / "world.sock")
         agent = AgentProcess(
             agent_command(
                 cwd, runtime, sandbox=sandbox, feral=feral, name=name,
                 context=context, clean_workspace=clean_workspace,
-                python_timeout=python_timeout, classifier=classifier is not None
+                python_timeout=python_timeout, tool_env=tool_env
             ),
             # Bubblewrap's --setenv options supply the sandbox environment.
             env={} if sandbox else environment,
         )
+        resources.callback(agent.stop)
         try:
-            if not agent.ready.wait(10) or agent.proc.poll() is not None:
-                raise RuntimeError(agent.startup_error())
+            agent.wait_ready()
             if headless:
                 agent.observer = print_event
                 print(f"EKO_SESSION={runtime / 'session.sock'}", flush=True)
@@ -475,22 +450,15 @@ def run(cwd: Path, prompt: str | None, *, model: str,
             ui = UI(context=context)
             ui.header(cwd, model, name)
             ui.connect(agent)
-            ui.on_exit = lambda: (agent.stop(), ui.exit())
+            ui.on_exit = ui.exit
             ui.on_start = lambda: agent.send(prompt) if prompt else None
             if prompt:
                 ui.user(prompt)
             ui.run()
         except KeyboardInterrupt:
-            signal.signal(signal.SIGINT, signal.SIG_IGN)
+            pass
         finally:
-            try:
-                signal.signal(signal.SIGINT, signal.SIG_IGN)
-            except KeyboardInterrupt:
-                signal.signal(signal.SIGINT, signal.SIG_IGN)
-            agent.stop()
-            if relay is not None:
-                relay.close()
-            server.close()
+            signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 
 def main() -> None:
@@ -510,10 +478,7 @@ def main() -> None:
                         help="SGLang server root URL (default: SGLANG_URL or "
                              "http://127.0.0.1:30002)")
     parser.add_argument("--name", default=core.NAME)
-    parser.add_argument("--classifier-checkpoint", type=Path,
-                        help="load a trusted fine-tuned ECG classifier once at startup")
-    parser.add_argument("--classifier-device",
-                        help="classifier device (default: CUDA when available, else CPU)")
+    add_tool_arguments(parser)
     parser.add_argument("--context", type=int, default=0)
     parser.add_argument(
         "--python-timeout", type=float, default=core.PYTHON_TIMEOUT,
@@ -546,11 +511,10 @@ def main() -> None:
             clean_workspace=args.clean_workspace,
             python_timeout=args.python_timeout,
             provider=args.provider, max_tokens=args.max_tokens,
-            sglang_url=args.sglang_url,
-            classifier_checkpoint=args.classifier_checkpoint,
-            classifier_device=args.classifier_device)
+            sglang_url=args.sglang_url, tools=tools)
 
     try:
+        tools = Toolbox(args)
         if args.feral and args.cwd is None:
             with tempfile.TemporaryDirectory(prefix="eko-workspace-") as directory:
                 launch(Path(directory))

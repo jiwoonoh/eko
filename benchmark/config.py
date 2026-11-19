@@ -13,7 +13,7 @@ def parse_args(parser, section):
     parser.add_argument("--split", default="test")
     parser.add_argument("--max-samples", type=int)
     parser.add_argument("--leads", choices=LEAD_CONTEXTS,
-                        help="Dialogue lead context; tools always receive all 12 leads")
+                        help="Lead condition for the dialogue and its tools")
     probe = argparse.ArgumentParser(add_help=False)
     probe.add_argument("--config", type=Path)
     config, _ = probe.parse_known_args()

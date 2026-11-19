@@ -61,7 +61,6 @@ class NativeStream:
         self.buffer = ""
         self.pending_output: list[str] = []
         self.last_flush = time.monotonic()
-        self.code = False
         self.fence_length = 0
         self.prose = ""
         self.code_lines: list[str] = []
@@ -83,31 +82,26 @@ class NativeStream:
         while "\n" in self.buffer:
             line, self.buffer = self.buffer.split("\n", 1)
             self.line(line + "\n")
-        if final and self.buffer:
+        if not final:
+            return
+        if self.buffer:
             line, self.buffer = self.buffer, ""
             self.line(line)
-        if final:
-            if self.code:
-                self.commit_code(final=True)
-                self.close_box()
-                self.code = False
-            else:
-                self.add_prose("", final=True)
+        if self.fence_length:
+            self.close_box()
+        else:
+            self.add_prose("", final=True)
 
     def line(self, line: str) -> None:
-        if self.code:
+        if self.fence_length:
             if core.closing_fence(line, self.fence_length):
-                self.commit_code(final=True)
                 self.close_box()
-                self.code = False
-                self.fence_length = 0
             else:
                 self.code_lines.append(line.rstrip("\r\n"))
                 self.commit_code()
             return
         if length := core.opening_fence(line):
             self.add_prose("", final=True)
-            self.code = True
             self.fence_length = length
             self.open_box()
         else:
@@ -144,14 +138,15 @@ class NativeStream:
     def stable_code_lines(self) -> int:
         """Return the prefix whose Python highlighting cannot change later."""
         source = "\n".join(self.code_lines) + "\n"
-        stable = len(self.code_lines)
         try:
             list(tokenize.generate_tokens(io.StringIO(source).readline))
-        except (tokenize.TokenError, IndentationError, SyntaxError) as error:
-            location = error.args[1] if len(error.args) > 1 else None
-            if isinstance(location, tuple):
-                stable = min(stable, max(0, location[0] - 1))
-        return stable
+        except tokenize.TokenError as error:
+            line = error.args[1][0]
+        except SyntaxError as error:
+            line = error.lineno or 1
+        else:
+            return len(self.code_lines)
+        return min(len(self.code_lines), max(0, line - 1))
 
     def commit_code(self, final: bool = False) -> None:
         end = len(self.code_lines) if final else self.stable_code_lines()
@@ -176,9 +171,11 @@ class NativeStream:
         self.pending_output.append(self.ui.render(row))
 
     def close_box(self) -> None:
+        self.commit_code(final=True)
         width = self.width()
         self.pending_output.append(self.ui.render(RichText(
             "╰" + "─" * (width - 2) + "╯", style=GOLD)))
+        self.fence_length = 0
 
     def finish(self) -> None:
         self.drain(final=True)

@@ -27,6 +27,7 @@ import sys
 import threading
 import time
 import uuid
+from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
@@ -74,6 +75,18 @@ MAX_IMAGE = 5 * 1024 * 1024
 MAX_IMAGES = 20
 ACTIVE_CHILDREN: set[int] = set()
 CHILDREN_LOCK = threading.Lock()
+
+
+def accept_connections(listener: socket.socket, stopping: threading.Event) -> Iterator[socket.socket]:
+    """Accept clients from a timed listener until it stops or closes."""
+    while not stopping.is_set():
+        try:
+            connection, _ = listener.accept()
+        except TimeoutError:
+            continue
+        except OSError:
+            return
+        yield connection
 
 
 # ── Core agent ────────────────────────────────────────────────────────────────
@@ -318,9 +331,10 @@ class Eko:
         if reply.role != "assistant":
             raise ValueError("model must return an assistant message")
         response = message_text(reply)
+        segments = response_segments(response.rstrip())
         feedback = None
         try:
-            code = executable_python(response)
+            code = _executable_python(segments)
         except ValueError as error:
             code = None
             feedback = str(error)
@@ -348,8 +362,7 @@ class Eko:
             return self.opening_inputs + self.drain()
         if inputs is None:
             return None
-        if any(kind == "prose" and PROVENANCE_HEADER.search(text)
-               for kind, text, closed in response_segments(response)):
+        if any(kind == "prose" and PROVENANCE_HEADER.search(text) for kind, text, _ in segments):
             inputs += (Input(HARNESS, (Text(
                 "Warning: do not predict the contents of attributed "
                 "sections; wait for them to arrive."
@@ -376,13 +389,7 @@ class Eko:
     # External processes use the same inbox through a small JSON-lines socket.
     def listen(self) -> None:
         assert self.listener is not None
-        while not self.stopping.is_set():
-            try:
-                connection, address = self.listener.accept()
-            except socket.timeout:
-                continue
-            except OSError:
-                return
+        for connection in accept_connections(self.listener, self.stopping):
             threading.Thread(target=self.serve, args=(connection,), daemon=True).start()
 
     def serve(self, connection: socket.socket) -> None:
@@ -407,7 +414,7 @@ class Eko:
                         self.interrupt()
                     else:
                         raise ValueError("unsupported session event type")
-            except (ConnectionError, OSError):
+            except OSError:
                 return
             except Exception as error:
                 self.emit(Event("error", f"Agent input rejected: {error}"))
@@ -526,12 +533,15 @@ def response_segments(text: str) -> list[tuple[str, str, bool]]:
 
 def executable_python(text: str) -> str | None:
     """Accept one complete action ending the response; reject ambiguous drafts."""
-    segments = response_segments(text.rstrip())
-    blocks = [content for kind, content, closed in segments if kind == "python"]
-    if not blocks:
+    return _executable_python(response_segments(text.rstrip()))
+
+
+def _executable_python(segments: list[tuple[str, str, bool]]) -> str | None:
+    blocks = sum(kind == "python" for kind, _, _ in segments)
+    if blocks == 0:
         return None
     kind, code, closed = segments[-1]
-    if len(blocks) != 1 or kind != "python" or not closed:
+    if blocks != 1 or kind != "python" or not closed:
         raise ValueError("Send one complete ```python-run block and stop after it. "
                          "No Python was run.")
     return code
@@ -630,14 +640,16 @@ def run_python(code: str, cwd: Path, interrupted: threading.Event, *,
     return Result(output, proc.returncode, time.monotonic() - started)
 
 
+def _namespace_children() -> list[int] | None:
+    try:
+        return [int(pid) for pid in Path("/proc/1/task/1/children").read_text().split()]
+    except OSError:
+        return None
+
+
 def reap_children() -> None:
     """Reap orphaned background processes when Eko is namespace PID 1."""
-    children = Path("/proc/1/task/1/children")
-    while True:
-        try:
-            pids = [int(pid) for pid in children.read_text().split()]
-        except OSError:
-            return
+    while (pids := _namespace_children()) is not None:
         with CHILDREN_LOCK:
             for pid in pids:
                 if pid not in ACTIVE_CHILDREN:
@@ -650,14 +662,6 @@ def reap_children() -> None:
 
 def shutdown_children(grace: float = 1) -> None:
     """Terminate and reap every remaining child before namespace PID 1 exits."""
-    children = Path("/proc/1/task/1/children")
-
-    def pids() -> list[int]:
-        try:
-            return [int(pid) for pid in children.read_text().split()]
-        except OSError:
-            return []
-
     def reap() -> None:
         while True:
             try:
@@ -666,24 +670,16 @@ def shutdown_children(grace: float = 1) -> None:
             except ChildProcessError:
                 return
 
-    deadline = time.monotonic() + grace
-    while pids() and time.monotonic() < deadline:
-        for pid in pids():
-            try:
-                os.kill(pid, signal.SIGTERM)
-            except ProcessLookupError:
-                pass
-        reap()
-        time.sleep(.02)
-    deadline = time.monotonic() + grace
-    while pids() and time.monotonic() < deadline:
-        for pid in pids():
-            try:
-                os.kill(pid, signal.SIGKILL)
-            except ProcessLookupError:
-                pass
-        reap()
-        time.sleep(.02)
+    for sig in (signal.SIGTERM, signal.SIGKILL):
+        deadline = time.monotonic() + grace
+        while (remaining := _namespace_children()) and time.monotonic() < deadline:
+            for pid in remaining:
+                try:
+                    os.kill(pid, sig)
+                except ProcessLookupError:
+                    pass
+            reap()
+            time.sleep(.02)
     reap()
 
 

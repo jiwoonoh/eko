@@ -50,6 +50,9 @@ If you have questions, explore the sglang documentation/code or take a look at t
 ## Running Eko
 
 The default provider is `sglang`. Every provider requires `--model`.
+Measurement and classification are enabled by default. Classification requires
+`--classifier-checkpoint`; use `--tools measurement` or bare `--tools` to omit it.
+Select measurements by name for separate calls, for example `--tools heart_rate qtc_interval`.
 
 The pipeline is `host.py` (provider, sandbox) → `eko.py` (model → Python
 → result → model). `ui.py` handles the terminal. The model and its credentials
@@ -59,13 +62,15 @@ stay in the host. Background processes send text or images through `EKO_SESSION`
 Use OpenRouter with `OPENROUTER_API_KEY` set:
 
 ```bash
-OPENROUTER_API_KEY=$API_KEY uv run python host.py --provider openrouter --model nvidia/nemotron-3-ultra-550b-a55b:free
+OPENROUTER_API_KEY=$API_KEY uv run python host.py --provider openrouter \
+--model nvidia/nemotron-3-ultra-550b-a55b:free --classifier-checkpoint /path/to/checkpoint.pt
 ```
 
 Load a Hugging Face chat model by repository ID or local directory:
 
 ```bash
-uv run python host.py --provider huggingface --model Qwen/Qwen3.5-0.8B
+uv run python host.py --provider huggingface --model Qwen/Qwen3.5-0.8B \
+--classifier-checkpoint /path/to/checkpoint.pt
 ```
 
 Connect to an SGLang server you already run in a separate environment:
@@ -73,7 +78,8 @@ Connect to an SGLang server you already run in a separate environment:
 ```bash
 uv run python host.py --provider sglang \
 --model Qwen/Qwen3.8-27B \
---sglang-url http://127.0.0.1:30001
+--sglang-url http://127.0.0.1:30001 \
+--classifier-checkpoint /path/to/checkpoint.pt
 ```
 
 For Qwen3 reasoning models, launch SGLang with `--reasoning-parser qwen3` to
@@ -81,7 +87,8 @@ For Qwen3 reasoning models, launch SGLang with `--reasoning-parser qwen3` to
 
 ## ECG-Agent adaptation
 
-For all current measurements in `toolbox/measurements/`, we follow [ECG-Agent](https://github.com/gustmd0121/ECG-Agent) exactly in calculating them. We also maintain the exact tools used in ECG-Agent, and shown to the LLM.
+Eko uses ECG-Agent's NeuroKit2 measurement method and a separately trained ECG
+classifier. [ECG-Agent](https://github.com/gustmd0121/ECG-Agent)
 
 We also pretrained and finetuned w2v-cmsc, the classification tool. The checkpoints are available on [huggingface](https://huggingface.co/ELM-Research/models).
 
@@ -92,9 +99,22 @@ tool faithfulness, dialogue naturalness, and CEFR adherence. NAP and explanation
 TIoU are excluded. Each uses the original test questions, generated history, and
 the corresponding published `-gt` dataset as judge references.
 
-Run from the repository root with SGLang already running. The generation script
-contains the ECG directory and classifier checkpoint paths; edit them if needed.
-Both scripts process all three lead configurations.
+Single-lead runs zero the other 11 waveform channels before staging the ECG.
+Both tools use the named lead, and classification uses ECG-Agent's
+lead-specific diagnosis list. The 12-lead condition classifies all 12 leads and
+measures Lead II.
+
+Both scripts run the 12-lead, single-lead I, and single-lead II baselines using
+the corresponding `*-gpt.json` files in [benchmark/experiments](benchmark/experiments).
+Generation uses the grouped `measurement` tool and `classification` with the
+same checkpoint across conditions. These configs set `score.judge_model` to
+`meta/muse-ember`. Pass `--judge-model` to override the config or score without one.
+Each condition writes `responses.jsonl`, `scores.jsonl`, and their summaries under
+`benchmark-results/lead-restricted/<leads>/`.
+
+From the repository root, with SGLang serving `Qwen/Qwen3.8-27B` on port 30001,
+run the commands below. Pass `--ecg-dir` and `--classifier-checkpoint` to
+`run_sglang.sh` if your paths differ from the cluster defaults.
 
 ```bash
 uv sync
@@ -103,3 +123,5 @@ bash scripts/run_sglang.sh
 export OPENROUTER_API_KEY="your-key"
 bash scripts/eval.sh
 ```
+
+See [toolbox/README.md](toolbox/README.md) to add or ablate tools in regular and benchmark runs.

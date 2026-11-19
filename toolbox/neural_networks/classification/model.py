@@ -5,7 +5,9 @@ import torch
 import argparse
 from torch import nn
 from pathlib import Path
-from scipy.io import loadmat
+
+from ...leads import LEADS, keep_lead
+from ...record import load_record
 
 # Defaults from fairseq_signals.models.ecg_transformer and models.transformer.
 DEFAULTS = {
@@ -21,7 +23,6 @@ DEFAULTS = {
     "conv_pos": 128,
     "conv_pos_groups": 16,
 }
-LEADS = ["I", "II", "III", "aVR", "aVL", "aVF", "V1", "V2", "V3", "V4", "V5", "V6"]
 # Order from ECG-Agent/src/medrax/tools/classification.py.
 CLASS_LABELS = [
     '1AVB', '2AVB', '3AVB', 'ABQRS', 'AFIB', 'AFLT', 'ALMI', 'AMI', 'ANEUR', 'ASMI',
@@ -33,6 +34,19 @@ CLASS_LABELS = [
     'SARRH', 'SBRAD', 'SEHYP', 'SR', 'STACH', 'STD_', 'STE_', 'SVARR', 'SVTAC',
     'TAB_', 'TRIGU', 'VCLVH', 'WPW'
 ]
+# ECG-Agent's lead-specific DETECTABLE_ABNORMALITIES at commit 6eef2f9.
+SINGLE_LEAD_LABELS = {
+    "I": {
+        "SR", "PAC", "ABQRS", "1AVB", "2AVB", "3AVB", "AFIB", "AFLT", "BIGU", "CLBBB",
+        "CRBBB", "LAFB", "LPR", "PACE", "PSVT", "RVH", "SBRAD", "STACH", "SVTAC", "TRIGU",
+        "WPW", "STD_", "STE_", "PVC",
+    },
+    "II": {
+        "SR", "LAFB", "LNGQT", "1AVB", "2AVB", "3AVB", "AFIB", "AFLT", "BIGU", "CLBBB",
+        "CRBBB", "DIG", "ILBBB", "LPR", "PACE", "PRC(S)", "PSVT", "RVH", "SBRAD", "STACH",
+        "SVARR", "SVTAC", "TRIGU", "WPW", "PAC", "STD_", "STE_", "PVC",
+    },
+}
 PROBABILITY_THRESHOLD = 0.5
 
 
@@ -57,7 +71,7 @@ class ECGModel(nn.Module):
     def __init__(self, cfg: dict, num_labels: int) -> None:
         super().__init__()
         if cfg["extractor_mode"] != "default" or cfg["in_d"] != 12:
-            raise ValueError("This classifier requires the default extractor and all 12 leads")
+            raise ValueError("This classifier requires the default extractor and 12 input channels")
         layers = conv_layers(cfg["conv_feature_layers"])
         self.min_samples = 1
         for _, kernel, stride in reversed(layers):
@@ -139,7 +153,10 @@ def convert_weights(state: dict, layers: int) -> dict:
 
 
 class Classifier:
-    def __init__(self, checkpoint: Path, device: str | None = None) -> None:
+    def __init__(self, checkpoint: Path, device: str | None = None,
+                 *, single_lead: str | None = None) -> None:
+        self.single_lead = single_lead
+        self.labels = SINGLE_LEAD_LABELS[single_lead] if single_lead else set(CLASS_LABELS)
         state = torch.load(checkpoint.expanduser(), map_location="cpu", weights_only=False)
         cfg = state.get("cfg")
         model_cfg = DEFAULTS | cfg["model"]
@@ -155,20 +172,23 @@ class Classifier:
 
     @torch.inference_mode()
     def __call__(self, ecg_path: str | Path) -> dict[str, float]:
-        data = loadmat(ecg_path)
-        rate = float(torch.as_tensor(data.get("curr_sample_rate", 500)).item())
+        data, rate = load_record(ecg_path)
         if rate != 500:
             raise ValueError("ECG-Agent's classifier requires 500 Hz ECGs")
-        signal = torch.as_tensor(data["feats"].copy(), dtype=torch.float32)
-        if signal.ndim != 2 or signal.shape[0] != 12:
+        signal = data["feats"]
+        if signal.ndim != 2 or signal.shape[0] != len(LEADS):
             raise ValueError(f"Expected (12, samples) in lead order {LEADS}")
-        if signal.shape[1] < self.model.min_samples or not torch.isfinite(signal).all():
+        if self.single_lead:
+            signal = keep_lead(signal, self.single_lead)
+        source = torch.as_tensor(signal.copy(), dtype=torch.float32)
+        if source.shape[1] < self.model.min_samples or not torch.isfinite(source).all():
             raise ValueError("ECG is too short or contains nonfinite values")
-        probabilities = self.model(signal.unsqueeze(0).to(self.device)).sigmoid()[0]
+        probabilities = self.model(source.unsqueeze(0).to(self.device)).sigmoid()[0]
         if not torch.isfinite(probabilities).all():
             raise ValueError("Classifier produced nonfinite probabilities")
         return {label: round(probability, 4)
-                for label, probability in zip(CLASS_LABELS, probabilities.cpu().tolist())}
+                for label, probability in zip(CLASS_LABELS, probabilities.cpu().tolist())
+                if label in self.labels}
 
     def evaluate(self, ecg_path: str | Path) -> list[str]:
         """Match the classifier output presented to ECG-Agent's dialogue model."""
