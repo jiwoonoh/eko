@@ -4,44 +4,41 @@ import argparse
 from collections import Counter
 from contextlib import ExitStack
 import json
-import os
 from pathlib import Path
 import queue
-import shutil
 import tempfile
 import time
 
 import eko as core
 import host
 import providers
+from toolbox.registry import Toolbox, add_arguments as add_tool_arguments
 from rich.console import Console
 from rich.progress import track
 
 from .config import parse_args, save_settings
 from .data import append, lead_context, load_cases, prepare_ecg, read_rows, response_text
 
-ROOT = Path(__file__).resolve().parents[1]
 console = Console(highlight=False)
 INSTRUCTION = """You are a world-renowned cardiac electrophysiologist. Respond directly to the user's latest question. Keep the answers concise. Interpret findings when relevant.
 ECG: record.mat. Dialogue context: {leads}.
-Tools use all 12 leads; measurements use lead II. The file contains waveforms, not findings. Run the appropriate tool before making new claims about this ECG. Reuse prior tool results for follow-ups. General questions and farewells do not require tools.
+The file contains waveforms, not findings. {tool_instruction}
 
-To measure heart rate (bpm), PR interval, QRS duration, and QTc interval (ms):
-```python-run
-from toolbox.measurements.ecg_analysis import ecg_analysis
-print(ecg_analysis('record.mat'))
-```
+{tool_prompts}
 
-To identify arrhythmias, abnormalities, and other ECG findings:
-```python-run
-from toolbox.neural_networks.classification import ecg_classifier
-print(ecg_classifier('record.mat'))
-```
-
-When using tools, execute them with Python and print their results before answering.
 End each completed user answer with <done/>.
 
 User: {query}"""
+
+
+def instruction(tools, leads, query):
+    guidance = ("Run the appropriate available tool before making new claims about this ECG. "
+                "Execute tools with Python and print their results before answering. "
+                "Reuse prior tool results for follow-ups. General questions and farewells do not require tools. "
+                "If the available tools cannot answer a question, state the limitation."
+                if tools.prompt else "No ECG tools are available. State when ECG findings cannot be determined.")
+    return INSTRUCTION.format(leads=leads, query=query, tool_instruction=guidance,
+                              tool_prompts=tools.prompt)
 
 
 def answer(agent, events, prompt, timeout, max_steps):
@@ -106,7 +103,7 @@ def show_turn(case, turn):
     console.print()
 
 
-def run_case(case, ecg_dir, factory, classifier, args):
+def run_case(case, ecg_dir, factory, tools, args):
     record = {"case_id": case["case_id"], "ecg_file": case["ecg_file"],
               "status": "ok", "turns": []}
     try:
@@ -117,27 +114,15 @@ def run_case(case, ecg_dir, factory, classifier, args):
             workspace.mkdir()
             runtime.mkdir()
             prepare_ecg(ecg_dir, case["ecg_file"], workspace / "record.mat")
-            shutil.copytree(ROOT / "toolbox", workspace / "toolbox",
-                            ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
             sandbox = args.execution == "sandbox"
+            tool_env = tools.start(resources, workspace, runtime, sandbox=sandbox)
             server = host.ModelServer(runtime / "model.sock", factory)
             server.start()
             resources.callback(server.close)
-            environment = os.environ.copy()
-            for key in ("OPENROUTER_API_KEY", "SGLANG_API_KEY", "HF_TOKEN", "GOOGLE_API_KEY",
-                        "GEMINI_API_KEY", "EKO_CLASSIFIER", "EKO_WORLD"):
-                environment.pop(key, None)
-            if classifier is not None:
-                from toolbox.neural_networks.classification.service import ClassifierServer
-
-                service = ClassifierServer(runtime / "classifier.sock", classifier, workspace,
-                                           sandbox=sandbox)
-                service.start()
-                resources.callback(service.close)
-                environment["EKO_CLASSIFIER"] = str(runtime / "classifier.sock")
+            environment = host.agent_environment(runtime, tool_env)
             agent = host.AgentProcess(host.agent_command(
                 workspace, runtime, sandbox=sandbox, feral=False, name="Eko",
-                python_timeout=args.python_timeout, classifier=classifier is not None),
+                python_timeout=args.python_timeout, tool_env=tool_env),
                 env={} if sandbox else environment)
             resources.callback(agent.stop)
             events = queue.Queue()
@@ -145,7 +130,7 @@ def run_case(case, ecg_dir, factory, classifier, args):
             if not agent.ready.wait(10) or agent.proc.poll() is not None:
                 raise RuntimeError(agent.startup_error())
             for index, query in enumerate(case["user_turns"]):
-                prompt = INSTRUCTION.format(query=query, leads=case["leads"])
+                prompt = instruction(tools, case["leads"], query)
                 result = answer(agent, events, prompt, args.turn_timeout, args.max_steps)
                 turn = {"turn": index, "query": query, **result}
                 record["turns"].append(turn)
@@ -169,9 +154,7 @@ def main():
     parser.add_argument("--sglang-url")
     parser.add_argument("--max-tokens", type=int, default=4096,
                         help="Output tokens per model step (ECG-Agent default: 512)")
-    parser.add_argument("--classifier-checkpoint", type=Path, required=True,
-                        help="Fine-tuned 71-label checkpoint; both ECG tools must be available")
-    parser.add_argument("--classifier-device")
+    add_tool_arguments(parser)
     parser.add_argument("--execution", choices=("sandbox", "local"), default="sandbox")
     parser.add_argument("--turn-timeout", type=float, default=300,
                         help="Seconds per user turn, including all actions")
@@ -183,16 +166,17 @@ def main():
         parser.error("--turn-timeout, --python-timeout, and --max-steps must be positive")
     args.leads = lead_context(args.dataset, args.leads)
     args.ecg_dir = args.ecg_dir.expanduser().resolve()
+    try:
+        tools = Toolbox(args)
+    except ValueError as error:
+        parser.error(str(error))
     settings = {key: value for key, value in vars(args).items() if key not in ("config", "output")}
-    settings.update(history="generated", tool_leads="12-lead", measurement_lead="II",
-                    temperature=0.0, instruction=INSTRUCTION)
+    settings.update(history="generated", tool_leads="12-lead", temperature=0.0,
+                    instruction=instruction(tools, "{leads}", "{query}"))
     save_settings(args.output, settings)
     cases = load_cases(args.dataset, args.split, args.max_samples, args.leads)
     previous = {r["case_id"]: r for r in read_rows(args.output)} if args.output.exists() else {}
     factory = providers.factory(args.provider, args.model, args.max_tokens, sglang_url=args.sglang_url)
-    from toolbox.neural_networks.classification.model import Classifier
-
-    classifier = Classifier(args.classifier_checkpoint, args.classifier_device)
     completed = failed = skipped = 0
     turn_counts = Counter()
     unattempted = 0
@@ -205,7 +189,7 @@ def main():
                 if detailed:
                     console.print(f"ECG {key}: skipped (already complete)", markup=False)
                 continue
-            record = run_case(case, args.ecg_dir, factory, classifier, args)
+            record = run_case(case, args.ecg_dir, factory, tools, args)
             append(stream, record)
             previous[key] = record
             completed += record["status"] == "ok"
