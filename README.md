@@ -101,30 +101,13 @@ the corresponding published `-gt` dataset as judge references.
 
 Set `leads` in the experiment JSON, for example `["III", "V1"]`, or pass
 `--leads III V1` to override it. Omit the setting for all 12 leads, or pass
-`--leads all` to override a configured subset. Dataset and reference selection
-use `dataset` and `score.reference_dataset` independently. For a custom run,
-use fresh output files and pass the same lead selection to generation and scoring.
+`--leads all` to override a configured subset.
 
 Eko zeros unselected channels before staging the ECG for the agent. The
 classifier uses the selected waveforms. Measurements use Lead II when selected,
 or the first selected lead in standard ECG order. Lead I-only and Lead II-only
 classification retain ECG-Agent's diagnosis lists. Other selections use the full
 classifier label set.
-
-The standalone classifier also accepts lead selection.
-
-```bash
-uv run python -m toolbox.neural_networks.classification.model \
-  --checkpoint /path/to/checkpoint.pt /path/to/record.mat --leads III V1
-```
-
-Both scripts run the 12-lead, single-lead I, and single-lead II baselines using
-the corresponding `*-gpt.json` files in [benchmark/experiments](benchmark/experiments).
-Generation uses the grouped `measurement` tool and `classification` with the
-same checkpoint across conditions. These configs set `score.judge_model` to
-`meta/muse-ember`. Pass `--judge-model` to override the config or score without one.
-Each condition writes `responses.jsonl`, `scores.jsonl`, and their summaries under
-`benchmark-results/lead-restricted/<experiment>/`.
 
 From the repository root, with SGLang serving `Qwen/Qwen3.8-27B` on port 30001,
 run the commands below. Pass `--ecg-dir` and `--classifier-checkpoint` to
