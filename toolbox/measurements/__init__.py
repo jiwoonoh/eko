@@ -8,6 +8,6 @@ from .qtc_interval import qtc_interval
 
 
 def clear_cache() -> None:
-    from .ecg import clear_cache
+    from .preprocessing import clear_cache
 
     clear_cache()

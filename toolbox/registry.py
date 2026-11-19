@@ -4,17 +4,24 @@ from pathlib import Path
 import shutil
 
 from .leads import SINGLE_LEADS
-from .measurements.tool import TOOL as measurement
+from .measurements.tool import BENCHMARK_MEASUREMENT, measurement_tool
 from .neural_networks.classification.tool import TOOL as classification
 
-TOOLS = {"measurement": measurement, "classification": classification}
+TOOLS = {
+    "measurement": BENCHMARK_MEASUREMENT,
+    "classification": classification,
+    "heart_rate": measurement_tool("heart_rate", "heart rate (bpm)"),
+    "pr_interval": measurement_tool("pr_interval", "PR interval (ms)"),
+    "qrs_duration": measurement_tool("qrs_duration", "QRS duration (ms)"),
+    "qtc_interval": measurement_tool("qtc_interval", "QTc interval (ms)"),
+}
 DEFAULT_TOOLS = ("measurement", "classification")
 ROOT = Path(__file__).resolve().parent
 
 
 def add_arguments(parser):
     parser.add_argument("--tools", nargs="*", choices=TOOLS, default=list(DEFAULT_TOOLS),
-                        help=f"Enabled tools (default: {' '.join(DEFAULT_TOOLS)}); --tools disables all")
+                        help=f"Default: {' '.join(DEFAULT_TOOLS)}. Use --tools alone to disable all.")
     for tool in TOOLS.values():
         tool.add_arguments(parser)
 
@@ -50,15 +57,15 @@ def _stage(tools, directory):
     target = directory / "toolbox"
     target.mkdir()
     (target / "__init__.py").touch()
-    for tool in tools:
-        for name in tool.files:
-            source = (ROOT / name).resolve()
-            destination = target / source.relative_to(ROOT)
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            if source.is_dir():
-                shutil.copytree(source, destination, dirs_exist_ok=True,
-                                ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
-            else:
-                shutil.copy2(source, destination)
-            for parent in destination.relative_to(target).parents:
-                (target / parent / "__init__.py").touch()
+    files = dict.fromkeys(name for tool in tools for name in tool.files)
+    for name in files:
+        source = (ROOT / name).resolve()
+        destination = target / source.relative_to(ROOT)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        if source.is_dir():
+            shutil.copytree(source, destination, dirs_exist_ok=True,
+                            ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+        else:
+            shutil.copy2(source, destination)
+        for parent in destination.relative_to(target).parents:
+            (target / parent / "__init__.py").touch()

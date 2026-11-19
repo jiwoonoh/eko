@@ -3,6 +3,7 @@
   "split": "test",
   "leads": "single-lead-I",
   "run": {
+    "tools": ["measurement", "classification"],
     "output": "benchmark-results/lead-restricted/single-lead-I/responses.jsonl"
   },
   "score": {
@@ -10,6 +11,6 @@
     "reference_split": "test",
     "judge_model": "google/gemini-2.5-pro",
     "responses": "benchmark-results/lead-restricted/single-lead-I/responses.jsonl",
-    "output": "benchmark-results/lead-restricted/single-lead-I/scores.jsonl"
+    "output": "benchmark-results/lead-restricted/single-lead-I/scores-gemini-2.5-pro.jsonl"
   }
 }

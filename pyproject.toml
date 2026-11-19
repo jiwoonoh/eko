@@ -23,11 +23,7 @@ eko = "host:main"
 
 [tool.setuptools]
 py-modules = ["eko", "host", "ui"]
-packages = [
-    "benchmark",
-    "providers",
-    "toolbox",
-    "toolbox.measurements",
-    "toolbox.neural_networks",
-    "toolbox.neural_networks.classification",
-]
+
+[tool.setuptools.packages.find]
+include = ["benchmark", "providers", "toolbox", "toolbox.*"]
+namespaces = false

@@ -52,6 +52,7 @@ If you have questions, explore the sglang documentation/code or take a look at t
 The default provider is `sglang`. Every provider requires `--model`.
 Measurement and classification are enabled by default. Classification requires
 `--classifier-checkpoint`; use `--tools measurement` or bare `--tools` to omit it.
+Select measurements by name for separate calls, for example `--tools heart_rate qtc_interval`.
 
 The pipeline is `host.py` (provider, sandbox) → `eko.py` (model → Python
 → result → model). `ui.py` handles the terminal. The model and its credentials
@@ -101,12 +102,19 @@ the corresponding published `-gt` dataset as judge references.
 Single-lead runs zero the other 11 waveform channels before staging the ECG.
 Both tools use the named lead, and classification uses ECG-Agent's
 lead-specific diagnosis list. The 12-lead condition classifies all 12 leads and
-measures Lead II. New single-lead results go under
-`benchmark-results/lead-restricted/`.
+measures Lead II.
 
-The generation script contains the ECG directory and classifier checkpoint paths; edit them if needed.
-It uses the same classifier checkpoint for both single-lead runs. To use
-different checkpoints, run each experiment with its own `--classifier-checkpoint`.
+Both scripts run the 12-lead, single-lead I, and single-lead II baselines using
+the corresponding `*-gpt.json` files in [benchmark/experiments](benchmark/experiments).
+Generation uses the grouped `measurement` tool and `classification` with the
+same checkpoint across conditions. These configs set `score.judge_model` to
+`meta/muse-ember`. Pass `--judge-model` to override the config or score without one.
+Each condition writes `responses.jsonl`, `scores.jsonl`, and their summaries under
+`benchmark-results/lead-restricted/<leads>/`.
+
+From the repository root, with SGLang serving `Qwen/Qwen3.8-27B` on port 30001,
+run the commands below. Pass `--ecg-dir` and `--classifier-checkpoint` to
+`run_sglang.sh` if your paths differ from the cluster defaults.
 
 ```bash
 uv sync

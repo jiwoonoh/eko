@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-for leads in single-lead-I single-lead-II; do
+for leads in 12-lead single-lead-I single-lead-II; do
   uv run python -m benchmark.run \
-    --config "benchmark/experiments/${leads}.json" \
+    --config "benchmark/experiments/${leads}-gpt.json" \
     --provider sglang \
     --model Qwen/Qwen3.8-27B \
     --sglang-url http://127.0.0.1:30001 \

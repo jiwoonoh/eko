@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-uv run python -m benchmark.score \
-  --config benchmark/experiments/single-lead-II-gpt.json \
-  "$@"
+for leads in 12-lead single-lead-I single-lead-II; do
+  uv run python -m benchmark.score \
+    --config "benchmark/experiments/${leads}-gpt.json" \
+    "$@"
+done

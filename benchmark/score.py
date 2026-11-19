@@ -20,7 +20,6 @@ from .data import (append, lead_context, load_cases, load_references, read_rows,
                    reference_responses, response_text)
 from .prompts import direct_prompt, faithfulness_prompt, quality_prompt, tool_prompt
 
-JUDGE = "meta/muse-ember"
 console = Console(highlight=False)
 
 
@@ -199,7 +198,7 @@ def main():
     parser.add_argument("--reference-dataset", required=True,
                         help="Judge reference answers; independent of the inference dataset")
     parser.add_argument("--reference-split", default="test")
-    parser.add_argument("--judge-model", default=JUDGE)
+    parser.add_argument("--judge-model", required=True)
     parser.add_argument("--batch-size", type=int, default=8,
                         help="Concurrent judge requests per batch (default: 8)")
     parser.add_argument("--dry-run", action="store_true",

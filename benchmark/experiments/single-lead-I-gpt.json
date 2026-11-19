@@ -3,6 +3,7 @@
   "split": "test",
   "leads": "single-lead-I",
   "run": {
+    "tools": ["measurement", "classification"],
     "output": "benchmark-results/lead-restricted/single-lead-I/responses.jsonl"
   },
   "score": {

@@ -105,17 +105,15 @@ def prepare_ecg(ecg_dir, ecg_file, destination, *, leads="12-lead"):
     """Stage the waveform for the dialogue's lead condition."""
     leads = lead_context(DATASET, leads)
     import numpy as np
-    from scipy.io import loadmat, savemat
+    from scipy.io import savemat
+    from toolbox.record import load_record
     ecg_dir = Path(ecg_dir).resolve()
     # ECG-Agent preprocessing writes HR25.mat; the dataset names HR00025.mat.
     ecg_id = int(Path(ecg_file).stem.removeprefix("HR"))
     source = (ecg_dir / f"HR{ecg_id}.mat").resolve()
     source.relative_to(ecg_dir)
-    data = loadmat(str(source))
+    data, rate = load_record(source)
     signal = np.asarray(data["feats"])
-    rate = data.get("curr_sample_rate")
-
-    rate = float(np.asarray(500 if rate is None else rate).item())
     if rate != 500:
         raise ValueError("ECG-Agent's benchmark tools require 500 Hz ECGs")
     if signal.ndim != 2 or signal.shape[0] != len(LEADS) or not signal.shape[1]:

@@ -5,9 +5,9 @@ import torch
 import argparse
 from torch import nn
 from pathlib import Path
-from scipy.io import loadmat
 
 from ...leads import LEADS, keep_lead
+from ...record import load_record
 
 # Defaults from fairseq_signals.models.ecg_transformer and models.transformer.
 DEFAULTS = {
@@ -172,8 +172,7 @@ class Classifier:
 
     @torch.inference_mode()
     def __call__(self, ecg_path: str | Path) -> dict[str, float]:
-        data = loadmat(ecg_path)
-        rate = float(torch.as_tensor(data.get("curr_sample_rate", 500)).item())
+        data, rate = load_record(ecg_path)
         if rate != 500:
             raise ValueError("ECG-Agent's classifier requires 500 Hz ECGs")
         signal = data["feats"]
