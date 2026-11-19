@@ -113,7 +113,7 @@ def run_case(case, ecg_dir, factory, tools, args):
             workspace, runtime = directory / "workspace", directory / "runtime"
             workspace.mkdir()
             runtime.mkdir()
-            prepare_ecg(ecg_dir, case["ecg_file"], workspace / "record.mat")
+            prepare_ecg(ecg_dir, case["ecg_file"], workspace / "record.mat", leads=case["leads"])
             sandbox = args.execution == "sandbox"
             tool_env = tools.start(resources, workspace, runtime, sandbox=sandbox)
             server = host.ModelServer(runtime / "model.sock", factory)
@@ -171,7 +171,7 @@ def main():
     except ValueError as error:
         parser.error(str(error))
     settings = {key: value for key, value in vars(args).items() if key not in ("config", "output")}
-    settings.update(history="generated", tool_leads="12-lead", temperature=0.0,
+    settings.update(history="generated", tool_leads=args.leads, temperature=0.0,
                     instruction=instruction(tools, "{leads}", "{query}"))
     save_settings(args.output, settings)
     cases = load_cases(args.dataset, args.split, args.max_samples, args.leads)

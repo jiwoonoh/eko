@@ -8,6 +8,10 @@ class Tool:
     files: tuple[str, ...]
     prompt: str
 
+    def prompt_for(self, *, single_lead=None):
+        """Render usage instructions for the available waveform leads."""
+        return self.prompt
+
     def add_arguments(self, parser):
         """Register optional CLI/config settings."""
 

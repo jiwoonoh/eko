@@ -3,6 +3,7 @@
 from pathlib import Path
 import shutil
 
+from .leads import SINGLE_LEADS
 from .measurements.tool import TOOL as measurement
 from .neural_networks.classification.tool import TOOL as classification
 
@@ -28,10 +29,9 @@ class Toolbox:
             raise ValueError("--tools must not contain duplicates")
         self._tools = {name: TOOLS[name] for name in names}
         self._states = {name: tool.load(args) for name, tool in self._tools.items()}
-
-    @property
-    def prompt(self):
-        return "\n\n".join(tool.prompt for tool in self._tools.values())
+        single_lead = SINGLE_LEADS.get(getattr(args, "leads", None))
+        self.prompt = "\n\n".join(tool.prompt_for(single_lead=single_lead)
+                                  for tool in self._tools.values())
 
     def start(self, resources, workspace, runtime, *, sandbox):
         _stage(self._tools, runtime)

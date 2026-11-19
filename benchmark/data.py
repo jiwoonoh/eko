@@ -4,8 +4,10 @@ import json
 import os
 from pathlib import Path
 
+from toolbox.leads import LEADS, SINGLE_LEADS, keep_lead
+
 DATASET = "gustmd0121/12-lead-ecg-mtd-dataset"
-LEAD_CONTEXTS = ("12-lead", "single-lead-I", "single-lead-II")
+LEAD_CONTEXTS = ("12-lead", *SINGLE_LEADS)
 
 
 def lead_context(dataset, requested=None):
@@ -99,8 +101,9 @@ def load_cases(dataset=DATASET, split="test", max_samples=None, leads=None):
     return cases
 
 
-def prepare_ecg(ecg_dir, ecg_file, destination):
-    """Copy ECG-Agent's 12-lead tool inputs without training labels."""
+def prepare_ecg(ecg_dir, ecg_file, destination, *, leads="12-lead"):
+    """Stage the waveform for the dialogue's lead condition."""
+    leads = lead_context(DATASET, leads)
     import numpy as np
     from scipy.io import loadmat, savemat
     ecg_dir = Path(ecg_dir).resolve()
@@ -115,8 +118,12 @@ def prepare_ecg(ecg_dir, ecg_file, destination):
     rate = float(np.asarray(500 if rate is None else rate).item())
     if rate != 500:
         raise ValueError("ECG-Agent's benchmark tools require 500 Hz ECGs")
-    if signal.ndim != 2 or signal.shape[0] != 12 or not signal.shape[1]:
+    if signal.ndim != 2 or signal.shape[0] != len(LEADS) or not signal.shape[1]:
         raise ValueError("Expected feats with shape (12, samples) in ECG-Agent lead order")
     if not np.isfinite(signal).all():
         raise ValueError("ECG contains nonfinite values")
-    savemat(destination, {"feats": signal, "curr_sample_rate": int(rate)})
+    record = {"feats": signal, "curr_sample_rate": int(rate)}
+    if leads in SINGLE_LEADS:
+        lead = SINGLE_LEADS[leads]
+        record.update(feats=keep_lead(signal, lead), measurement_lead=lead)
+    savemat(destination, record)

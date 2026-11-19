@@ -86,7 +86,8 @@ For Qwen3 reasoning models, launch SGLang with `--reasoning-parser qwen3` to
 
 ## ECG-Agent adaptation
 
-For all current measurements in `toolbox/measurements/`, we follow [ECG-Agent](https://github.com/gustmd0121/ECG-Agent) exactly in calculating them. We also maintain the exact tools used in ECG-Agent, and shown to the LLM.
+Eko uses ECG-Agent's NeuroKit2 measurement method and a separately trained ECG
+classifier. [ECG-Agent](https://github.com/gustmd0121/ECG-Agent)
 
 We also pretrained and finetuned w2v-cmsc, the classification tool. The checkpoints are available on [huggingface](https://huggingface.co/ELM-Research/models).
 
@@ -97,7 +98,15 @@ tool faithfulness, dialogue naturalness, and CEFR adherence. NAP and explanation
 TIoU are excluded. Each uses the original test questions, generated history, and
 the corresponding published `-gt` dataset as judge references.
 
+Single-lead runs zero the other 11 waveform channels before staging the ECG.
+Both tools use the named lead, and classification uses ECG-Agent's
+lead-specific diagnosis list. The 12-lead condition classifies all 12 leads and
+measures Lead II. New single-lead results go under
+`benchmark-results/lead-restricted/`.
+
 The generation script contains the ECG directory and classifier checkpoint paths; edit them if needed.
+It uses the same classifier checkpoint for both single-lead runs. To use
+different checkpoints, run each experiment with its own `--classifier-checkpoint`.
 
 ```bash
 uv sync

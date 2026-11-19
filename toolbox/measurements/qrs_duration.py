@@ -1,5 +1,5 @@
 def qrs_duration(ecg_path: str) -> float | None:
-    """Return median lead II Q-to-S peak span (ms), keeping 80-240, or None."""
+    """Return median Q-to-S peak span (ms), keeping 80-240, or None."""
     from .ecg import get_ecg, intervals, median
 
     ecg = get_ecg(ecg_path)

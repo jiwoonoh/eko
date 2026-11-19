@@ -32,7 +32,9 @@ Edit `benchmark/prompts.py` manually when needed.
    Keep its `__init__.py` lightweight.
    Install dependencies in Eko's environment. Add new packages to `pyproject.toml`
    if distributing them. The benchmark input is `record.mat`: `feats` has shape
-   `(12, samples)` in ECG-Agent lead order; `curr_sample_rate` is 500 Hz.
+   `(12, samples)` in ECG-Agent lead order and `curr_sample_rate` is 500 Hz.
+   Single-lead records keep only the named waveform channel and include
+   `measurement_lead` for the measurement tool. Standard records default to Lead II.
 2. Create `toolbox/rhythm/tool.py`:
 
 ````python

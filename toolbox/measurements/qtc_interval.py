@@ -1,7 +1,7 @@
 import math
 
 def qtc_interval(ecg_path: str) -> float | None:
-    """Return median lead II Bazett QTc (ms), keeping 300-600, or None."""
+    """Return median Bazett QTc (ms), keeping 300-600, or None."""
     import numpy as np
     from .ecg import get_ecg, intervals, median
 

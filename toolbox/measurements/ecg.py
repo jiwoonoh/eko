@@ -4,6 +4,8 @@ from joblib import Memory
 import neurokit2 as nk
 import numpy as np
 
+from ..leads import LEADS
+
 cache_dir = Path.cwd() / ".eko-cache"
 cache_dir.mkdir(mode=0o700, exist_ok=True)
 cache = Memory(cache_dir / "measurements", verbose=0)
@@ -30,8 +32,8 @@ def median(values: np.ndarray, minimum: float, maximum: float) -> float | None:
     valid = values[np.isfinite(values) & (values >= minimum) & (values <= maximum)]
     return float(np.median(valid)) if valid.size else None
 
-def load_ecg(ecg_path: Path) -> tuple[np.ndarray, int]:
-    """Load ECG-Agent's 500 Hz waveform."""
+def load_measurement_lead(ecg_path: Path) -> tuple[np.ndarray, int, str]:
+    """Load the measurement waveform, defaulting to lead II for standard MAT files."""
     from scipy.io import loadmat
 
     data = loadmat(ecg_path)
@@ -39,16 +41,16 @@ def load_ecg(ecg_path: Path) -> tuple[np.ndarray, int]:
     rate = float(np.asarray(data.get("curr_sample_rate", 500)).item())
     if rate != 500:
         raise ValueError("ECG-Agent's measurement tool requires 500 Hz ECGs")
-    return signal, 500
+    lead = np.asarray(data.get("measurement_lead", "II")).item()
+    return signal[LEADS.index(lead)], 500, lead
 
 @cache.cache
 def prepare(ecg_path: str, file_version: tuple, neurokit_version: str) -> ECG:
-    signal, sampling_rate = load_ecg(Path(ecg_path))
-    lead = signal[1]  # ECG-Agent always measures lead II.
-    if np.all(lead == 0) or np.all(np.isnan(lead)):
-        raise ValueError("Lead II contains only zeros or NaNs")
+    signal, sampling_rate, lead = load_measurement_lead(Path(ecg_path))
+    if np.all(signal == 0) or np.all(np.isnan(signal)):
+        raise ValueError(f"Lead {lead} contains only zeros or NaNs")
 
-    cleaned = nk.ecg_clean(lead, sampling_rate=sampling_rate, method="neurokit")
+    cleaned = nk.ecg_clean(signal, sampling_rate=sampling_rate, method="neurokit")
     info = nk.ecg_peaks(cleaned, sampling_rate=sampling_rate)[1]
     r_peaks = np.asarray(info["ECG_R_Peaks"], dtype=float)
     if r_peaks.size < MIN_PEAKS:

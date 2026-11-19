@@ -1,5 +1,5 @@
 def heart_rate(ecg_path: str) -> float | None:
-    """Return lead II heart rate (bpm) from median RR, or None."""
+    """Return heart rate (bpm) from median RR, or None."""
     from .ecg import get_ecg
 
     rr_ms = get_ecg(ecg_path).median_rr_ms
