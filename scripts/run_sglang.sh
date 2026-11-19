@@ -1,11 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-<<<<<<< HEAD
-for leads in single-lead-II; do
-=======
 for leads in 12-lead single-lead-I single-lead-II; do
->>>>>>> d34ec970563feb47007c7c1d6723d9c5e815c111
   uv run python -m benchmark.run \
     --config "benchmark/experiments/${leads}-gpt.json" \
     --provider sglang \
