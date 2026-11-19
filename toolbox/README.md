@@ -1,5 +1,7 @@
 # Add an ECG tool
 
+NOTE: Probably your agent can just add the tool for you, but here is a step by step of whats actually needed.
+
 Eko and the benchmark read the same `TOOLS` registry. For a Python tool, write
 the function, register it once, then select it in each run. The example below
 adds `recording_duration`, which returns the length of an ECG in seconds.

@@ -66,7 +66,7 @@ def conv_layers(expression: str) -> list[tuple[int, int, int]]:
 
 
 class ECGModel(nn.Module):
-    """Training architecture expressed with standard PyTorch inference layers."""
+    """Classification model from ECG-Agent (w2v)."""
 
     def __init__(self, cfg: dict, num_labels: int) -> None:
         super().__init__()
