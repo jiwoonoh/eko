@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-for experiment in 12-lead single-lead-I single-lead-II; do
+for experiment in single-lead-II; do
   uv run python -m benchmark.run \
     --config "benchmark/experiments/${experiment}-gpt.json" \
     --provider sglang \

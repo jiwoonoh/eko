@@ -4,13 +4,13 @@
   "leads": ["I"],
   "run": {
     "tools": ["measurement", "classification"],
-    "output": "benchmark-results/lead-restricted/single-lead-I/responses.jsonl"
+    "output": "benchmark-results/single-lead-I/responses.jsonl"
   },
   "score": {
     "reference_dataset": "gustmd0121/single-lead-I-ecg-mtd-dataset-gt",
     "reference_split": "test",
     "judge_model": "meta/muse-ember",
-    "responses": "benchmark-results/lead-restricted/single-lead-I/responses.jsonl",
-    "output": "benchmark-results/lead-restricted/single-lead-I/scores.jsonl"
+    "responses": "benchmark-results/single-lead-I/responses.jsonl",
+    "output": "benchmark-results/single-lead-I/scores.jsonl"
   }
 }
