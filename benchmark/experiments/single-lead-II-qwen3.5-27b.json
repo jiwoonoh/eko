@@ -1,0 +1,19 @@
+{
+  "dataset": "gustmd0121/single-lead-II-ecg-mtd-dataset",
+  "split": "test",
+  "leads": ["II"],
+  "run": {
+    "provider": "sglang",
+    "model": "Qwen/Qwen3.5-27B",
+    "sglang_url": "http://127.0.0.1:30005",
+    "tools": ["measurement", "classification"],
+    "output": "benchmark-results/single-lead-II/qwen3.5-27b/responses.jsonl"
+  },
+  "score": {
+    "reference_dataset": "gustmd0121/single-lead-II-ecg-mtd-dataset-gt",
+    "reference_split": "test",
+    "judge_model": "meta/muse-ember",
+    "responses": "benchmark-results/single-lead-II/qwen3.5-27b/responses.jsonl",
+    "output": "benchmark-results/single-lead-II/qwen3.5-27b/scores.jsonl"
+  }
+}
