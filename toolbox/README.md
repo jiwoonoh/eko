@@ -61,6 +61,6 @@ This adds the tool to the baseline.
 
 ## When the tool needs a host service
 
-The classifier is the only tool that uses a host service. It loads the model
-once per run and serves predictions to the sandbox. If your tool also needs to
+The classifier and delineator use host services. Each loads its model once per
+run and serves predictions to the sandbox. If your tool also needs to
 run outside the sandbox, follow the [classifier example](neural_networks/classification/tool.py).

@@ -6,10 +6,12 @@ import shutil
 from .leads import select_leads
 from .measurements.tool import BENCHMARK_MEASUREMENT, measurement_tool
 from .neural_networks.classification.tool import TOOL as classification
+from .neural_networks.delineation.tool import TOOL as delineation
 
 TOOLS = {
     "measurement": BENCHMARK_MEASUREMENT,
     "classification": classification,
+    "delineation": delineation,
     "heart_rate": measurement_tool("heart_rate", "heart rate (bpm)"),
     "pr_interval": measurement_tool("pr_interval", "PR interval (ms)"),
     "qrs_duration": measurement_tool("qrs_duration", "QRS duration (ms)"),

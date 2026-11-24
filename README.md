@@ -53,6 +53,8 @@ The default provider is `sglang`. Every provider requires `--model`.
 Measurement and classification are enabled by default. Classification requires
 `--classifier-checkpoint`; use `--tools measurement` or bare `--tools` to omit it.
 Select measurements by name for separate calls, for example `--tools heart_rate qtc_interval`.
+Add `delineation` with `--delineator-checkpoint` for R-U-Net P/QRS/T onsets and offsets
+([ECG-Delineation](https://github.com/ELM-Research/ECG-Delineation)).
 
 The pipeline is `host.py` (provider, sandbox) → `eko.py` (model → Python
 → result → model). `ui.py` handles the terminal. The model and its credentials
